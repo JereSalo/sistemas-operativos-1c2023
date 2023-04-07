@@ -3,5 +3,11 @@
 
 
 #include "shared_utils.h"
+#include "sockets.h"
+#include <commons/log.h>
+
+
+
+t_log* logger;
 
 #endif

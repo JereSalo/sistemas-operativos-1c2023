@@ -1,4 +1,4 @@
-#include "../include/sockets.h"
+#include "sockets.h"
 
 
 /* ----------------------------------- SERVIDOR ----------------------------------- */

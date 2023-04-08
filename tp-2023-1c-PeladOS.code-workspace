@@ -6,8 +6,9 @@
 	],
 	"settings": {
 		"files.associations": {
-			"shared_utils.h": "c",
-			"stdbool.h": "c"
+			"stdbool.h": "c",
+			"sockets.h": "c",
+			"init.h": "c"
 		}
 	}
 }

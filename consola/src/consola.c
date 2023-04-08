@@ -1,4 +1,4 @@
-#include "../include/consola.h"
+#include "consola.h"
 
 int main(int argc, char** argv){
 

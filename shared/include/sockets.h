@@ -1,6 +1,8 @@
 #ifndef SOCKETS_H_
 #define SOCKETS_H_
+#define _GNU_SOURCE
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>

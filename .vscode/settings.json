@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "init.h": "c"
+        "init.h": "c",
+        "memoria.h": "c",
+        "sockets.h": "c",
+        "config.h": "c",
+        "unistd.h": "c",
+        "shared.h": "c"
     }
 }

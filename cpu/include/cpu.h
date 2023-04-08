@@ -2,7 +2,6 @@
 #define CPU_H
 
 
-#include "shared_utils.h"
-#include "hola.h"
+#include "shared.h"
 
 #endif

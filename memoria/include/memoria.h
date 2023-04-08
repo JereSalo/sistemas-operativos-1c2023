@@ -1,7 +1,6 @@
 #ifndef MEMORIA_H
 #define MEMORIA_H
 
-
-#include "shared_utils.h"
+#include "shared.h"
 
 #endif

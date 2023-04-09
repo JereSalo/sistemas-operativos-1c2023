@@ -25,21 +25,14 @@ int main(int argc, char** argv){
     Luego de haberlo enviado la consola quedará a la espera de un mensaje del Kernel que indique que finalizó el proceso.
     */
 
+
     t_log *logger = log_create("consola.log", "CONSOLA", true, LOG_LEVEL_INFO);
-    t_config *config = config_create("consola.config"); // Tiene IP y Puerto. En realidad cuando se mande por parámetro del main la ruta va a ser diferente, por ahora es así.
-    int conexion; // Guarda la conexión con el servidor.
+    t_config *config = config_create("consola.config"); 
+    // Config Tiene IP y Puerto. En realidad cuando se mande por parámetro del main la ruta va a ser diferente, por ahora es así.
 
-    char* ipKernel = config_get_string_value(config, "IP_KERNEL");
-    char* puertoKernel = config_get_string_value(config, "PUERTO_KERNEL");
-    
-    log_info(logger, "El cliente se conectara a %s:%s", ipKernel, puertoKernel);
-    
-    if ((conexion = crear_conexion(logger, "Kernel", ipKernel, puertoKernel)) == 0){ // Si conexion = 0 significa que hubo error. Por eso detenemos la ejecución.
-        // log_error(logger, "No se pudo establecer la conexión con el kernel."); // Medio al pepe este log porque ya crear_conexion tiene los log_error
-        exit(2);
-    }
-    log_info(logger, "Conexión exitosa con el kernel: %d", conexion); // No tengo idea para qué querría mostrar conexion pero bueno.
+    int conexion = conectar_con(KERNEL, config, logger);
 
-
-    //SI ESTA TODO BIEN PODEMOS MANDAR MENSAJES
+    // SI ESTA TODO BIEN PODEMOS MANDAR MENSAJES
 }
+
+

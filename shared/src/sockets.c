@@ -62,6 +62,44 @@ int recibir_operacion(int socket_cliente)
 }
 
 
+// Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
+int iniciar_servidor_y_esperar_cliente(int modulo, t_config *config, t_log *logger){ 
+    char* nombre_modulo;
+    char* ip;
+    char* puerto;
+
+    switch (modulo)
+    {
+    case KERNEL:
+        ip = config_get_string_value(config, "IP_KERNEL");
+        puerto = config_get_string_value(config, "PUERTO_KERNEL");
+        nombre_modulo = strdup("Kernel");
+        break;
+    case CPU:
+        ip = config_get_string_value(config, "IP_CPU");
+        puerto = config_get_string_value(config, "PUERTO_CPU");
+        nombre_modulo = strdup("CPU");
+        break;
+    case MEMORIA:
+        ip = config_get_string_value(config, "IP_MEMORIA");
+        puerto = config_get_string_value(config, "PUERTO_MEMORIA");
+        nombre_modulo = strdup("Memoria");
+        break;
+    case FILESYSTEM:
+        ip = config_get_string_value(config, "IP_FILESYSTEM");
+        puerto = config_get_string_value(config, "PUERTO_FILESYSTEM");
+        nombre_modulo = strdup("FileSystem");
+        break;
+    }
+
+    int server_fd = iniciar_servidor(ip, puerto, logger, nombre_modulo);
+
+    log_info(logger, "Servidor listo para recibir al cliente");
+
+    int cliente_fd = esperar_cliente(server_fd, logger, nombre_modulo);
+
+    return cliente_fd;
+}
 
 
 /* ----------------------------------- CLIENTE ----------------------------------- */
@@ -108,5 +146,44 @@ void liberar_conexion(int socket_cliente) {
 }
 
 
+// conectarCon es para cuando sos un cliente y queres conectarte con el servidor.
+int conectar_con(int modulo, t_config *config, t_log *logger){
+    char* nombre_modulo;
+    char* ip;
+    char* puerto;
+    int conexion;
 
+    switch (modulo)
+    {
+    case KERNEL:
+        ip = config_get_string_value(config, "IP_KERNEL");
+        puerto = config_get_string_value(config, "PUERTO_KERNEL");
+        nombre_modulo = strdup("Kernel");
+        break;
+    case CPU:
+        ip = config_get_string_value(config, "IP_CPU");
+        puerto = config_get_string_value(config, "PUERTO_CPU");
+        nombre_modulo = strdup("CPU");
+        break;
+    case MEMORIA:
+        ip = config_get_string_value(config, "IP_MEMORIA");
+        puerto = config_get_string_value(config, "PUERTO_MEMORIA");
+        nombre_modulo = strdup("Memoria");
+        break;
+    case FILESYSTEM:
+        ip = config_get_string_value(config, "IP_FILESYSTEM");
+        puerto = config_get_string_value(config, "PUERTO_FILESYSTEM");
+        nombre_modulo = strdup("FileSystem");
+        break;
+    }
+    
+    log_info(logger, "El cliente se conectara a %s:%s", ip, puerto);
+    
+    if ((conexion = crear_conexion(logger, nombre_modulo, ip, puerto)) == 0){ // Si conexion = 0 significa que hubo error. Por eso detenemos la ejecución.
+        // log_error(logger, "No se pudo establecer la conexión con el kernel."); // Medio al pepe este log porque ya crear_conexion tiene los log_error
+        exit(2);
+    }
+    log_info(logger, "Conexión exitosa con el modulo %s", nombre_modulo); // No tengo idea para qué querría mostrar conexion pero bueno.
 
+    return conexion;
+}

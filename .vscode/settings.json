@@ -5,6 +5,12 @@
         "sockets.h": "c",
         "config.h": "c",
         "unistd.h": "c",
-        "shared.h": "c"
+        "shared.h": "c",
+        "log.h": "c",
+        "list.h": "c",
+        "types.h": "c",
+        "consola.h": "c",
+        "kernel.h": "c",
+        "cpu.h": "c"
     }
 }

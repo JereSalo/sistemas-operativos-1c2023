@@ -7,11 +7,11 @@ int main(int argc, char** argv){
     t_log *logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config"); // Aca meti la IP y el Puerto del kernel, que se repite ya en consola, no es buena práctica pero es sencillo.
 
-    char* ipKernel = config_get_string_value(config, "IP_KERNEL");
-    char* puertoKernel = config_get_string_value(config, "PUERTO_KERNEL");
+    char* ip_kernel = config_get_string_value(config, "IP_KERNEL");
+    char* puerto_kernel = config_get_string_value(config, "PUERTO_KERNEL");
 
 
-	int server_fd = iniciar_servidor(ipKernel, puertoKernel, logger, "Kernel");
+	int server_fd = iniciar_servidor(ip_kernel, puerto_kernel, logger, "Kernel");
 
 	log_info(logger, "Servidor listo para recibir al cliente");
 

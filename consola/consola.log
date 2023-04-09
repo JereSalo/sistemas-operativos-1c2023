@@ -14,3 +14,47 @@
 
 [ERROR] 21:53:39:528 CONSOLA/(7359:7359): Error al conectar (a KERNEL)
 
+[ERROR] 00:55:01:861 CONSOLA/(9633:9633): Error al conectar (a Kernel)
+
+[ERROR] 00:55:15:095 CONSOLA/(9678:9678): Error al conectar (a Kernel)
+
+[ERROR] 00:55:29:416 CONSOLA/(9723:9723): Error al conectar (a Kernel)
+
+[ERROR] 00:58:44:520 CONSOLA/(9829:9829): Error al conectar (a Kernel)
+
+[ERROR] 00:59:33:356 CONSOLA/(9932:9932): Error al conectar (a Kernel)
+
+[ERROR] 00:59:38:546 CONSOLA/(9954:9954): Error al conectar (a Kernel)
+
+[ERROR] 00:59:48:567 CONSOLA/(10010:10010): Error al conectar (a Kernel)
+
+[ERROR] 00:59:58:212 CONSOLA/(10073:10073): Error al conectar (a Kernel)
+
+[ERROR] 01:02:41:627 CONSOLA/(10164:10164): Error al conectar (a Kernel)
+
+[ERROR] 01:02:41:628 CONSOLA/(10164:10164): No se pudo establecer la conexión con el kernel.
+[ERROR] 01:03:34:967 CONSOLA/(10228:10228): Error al conectar (a Kernel)
+
+[ERROR] 01:03:34:968 CONSOLA/(10228:10228): No se pudo establecer la conexión con el kernel.
+[ERROR] 01:03:52:131 CONSOLA/(10273:10273): Error al conectar (a Kernel)
+
+[INFO] 01:03:52:131 CONSOLA/(10273:10273): Conexión exitosa con el servidor: 0
+[INFO] 01:05:34:328 CONSOLA/(10346:10346): El cliente se conectara a 127.0.0.1:8000
+[ERROR] 01:05:34:328 CONSOLA/(10346:10346): Error al conectar (a Kernel)
+
+[ERROR] 01:05:34:328 CONSOLA/(10346:10346): No se pudo establecer la conexión con el kernel.
+[INFO] 01:07:34:437 CONSOLA/(10406:10406): El cliente se conectara a 127.0.0.1:8000
+[ERROR] 01:07:34:438 CONSOLA/(10406:10406): Error al conectar (a Kernel)
+
+[ERROR] 01:07:34:439 CONSOLA/(10406:10406): No se pudo establecer la conexión con el kernel.
+[INFO] 01:08:28:453 CONSOLA/(10481:10481): El cliente se conectara a 127.0.0.1:8000
+[ERROR] 01:08:28:453 CONSOLA/(10481:10481): Error al conectar (a Kernel)
+
+[INFO] 01:23:59:398 CONSOLA/(11197:11197): El cliente se conectara a 127.0.0.1:8000
+[INFO] 01:23:59:398 CONSOLA/(11197:11197): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 01:23:59:398 CONSOLA/(11197:11197): Conexión exitosa con el kernel: 4
+[INFO] 01:27:04:413 CONSOLA/(11390:11390): El cliente se conectara a 127.0.0.1:8000
+[INFO] 01:27:04:413 CONSOLA/(11390:11390): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 01:27:04:413 CONSOLA/(11390:11390): Conexión exitosa con el kernel: 4

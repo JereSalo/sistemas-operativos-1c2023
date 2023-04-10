@@ -47,7 +47,7 @@ bool send_numero(int fd, int numero) {
 bool recv_numero(int fd, int* numero) {
     
     //calculamos el tamanio de SOLO el payload
-    size_t size = sizeof(numero);
+    size_t size = sizeof(int);
 
     //creamos un stream intermedio para guardar el mensaje que vamos a recibir
     void* stream = malloc(size);
@@ -88,7 +88,7 @@ void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
         
         // Recibís el código de operación
         if(recv(cliente_socket, &codigo, sizeof(op_code), 0) != sizeof(op_code)) {
-            log_error(logger, "ERROR FATAL");
+            log_info(logger, "CLIENTE DESCONECTADO");
             return;
         }
 
@@ -106,6 +106,7 @@ void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
 
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
             }
+           
         }
     }
 }

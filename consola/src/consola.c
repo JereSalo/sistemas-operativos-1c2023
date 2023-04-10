@@ -33,6 +33,8 @@ int main(int argc, char** argv){
     int conexion = conectar_con(KERNEL, config, logger);
 
     // SI ESTA TODO BIEN PODEMOS MANDAR MENSAJES
+
+    send_numero(conexion, 5);
 }
 
 

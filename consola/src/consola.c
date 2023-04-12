@@ -30,10 +30,15 @@ int main(int argc, char** argv){
     t_config *config = config_create("consola.config"); 
     // Config Tiene IP y Puerto. En realidad cuando se mande por parámetro del main la ruta va a ser diferente, por ahora es así.
 
+    
+    // CLIENTE -> Kernel
+
+    // Conexion con Kernel
     int conexion = conectar_con(KERNEL, config, logger);
 
-    // SI ESTA TODO BIEN PODEMOS MANDAR MENSAJES
 
+    
+    // ENVIO DE MENSAJES
     send_numero(conexion, 5);
 }
 

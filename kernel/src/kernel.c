@@ -14,7 +14,7 @@ int main(int argc, char** argv){
     //int conexion_cpu = conectar_con(CPU, config, logger);
 
     // Conexión con FileSystem
-    int conexion_fs = conectar_con(FILESYSTEM, config, logger);
+    //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
 
     // Conexión con Memoria
     //int conexion_mem = conectar_con(MEMORIA, config, logger);
@@ -28,7 +28,7 @@ int main(int argc, char** argv){
     //int cliente_fd = iniciar_servidor_y_esperar_cliente(modulo, config, logger);
 
     //PROCESAR CONEXION -> RECIBIR MENSAJES -> HAY QUE HACER LOS SEND DEL LADO DEL CLIENTE ANTES
-    procesar_conexion(logger, cliente_fd, "Kernel");
+    //procesar_conexion(logger, cliente_fd, "Kernel");
 
 
 }

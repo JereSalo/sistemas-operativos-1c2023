@@ -6,6 +6,8 @@ int main(int argc, char** argv){
     t_log *logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config");
 
+
+
     // CLIENTES -> CPU, Memoria y File System
     
     // Conexión con la CPU

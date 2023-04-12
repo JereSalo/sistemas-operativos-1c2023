@@ -64,36 +64,30 @@ int recibir_operacion(int socket_cliente)
 
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
 int iniciar_servidor_y_esperar_cliente(int modulo, t_config *config, t_log *logger){ 
-    
     char* nombre_modulo;
     char* ip;
     char* puerto;
 
-
-    
-    // levantamos el archivo de configuracion de ips para sacar la IP propia del servidor (cada server debe conocer su propia IP)
-    // esto lo hicimos para evitar poner las IPs propias de los modulos en cada config
-    t_config* config_ips = config_create("../../ips.config");
-    
-    puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
-
-
     switch (modulo)
     {
     case KERNEL:
-        ip = config_get_string_value(config_ips, "IP_KERNEL");
+        ip = config_get_string_value(config, "IP_KERNEL");
+        puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
         nombre_modulo = strdup("Kernel");
         break;
     case CPU:
-        ip = config_get_string_value(config_ips, "IP_CPU");
+        ip = config_get_string_value(config, "IP_CPU");
+        puerto = config_get_string_value(config, "PUERTO_CPU");
         nombre_modulo = strdup("CPU");
         break;
     case MEMORIA:
-        ip = config_get_string_value(config_ips, "IP_MEMORIA");
+        ip = config_get_string_value(config, "IP_MEMORIA");
+        puerto = config_get_string_value(config, "PUERTO_MEMORIA");
         nombre_modulo = strdup("Memoria");
         break;
     case FILESYSTEM:
-        ip = config_get_string_value(config_ips, "IP_FILESYSTEM");
+        ip = config_get_string_value(config, "IP_FILESYSTEM");
+        puerto = config_get_string_value(config, "PUERTO_FILESYSTEM");
         nombre_modulo = strdup("FileSystem");
         break;
     }

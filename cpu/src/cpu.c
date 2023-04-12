@@ -1,6 +1,7 @@
 #include "cpu.h"
 
 int main(int argc, char** argv){
+    
     int modulo = CPU;
     t_log *logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_INFO);
     t_config *config = config_create("cpu.config");

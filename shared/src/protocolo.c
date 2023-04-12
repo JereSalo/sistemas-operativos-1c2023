@@ -75,14 +75,7 @@ void deserializar_numero(void* stream, int* numero) {
 // ------------------------------ PROCESAR ------------------------------ //
 
 void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
-    /*
-    t_procesar_conexion_args* args = (t_procesar_conexion_args*) void_args;
-    t_log* logger = args->log;
-    int cliente_socket = args->fd;
-    char* server_name = args->server_name;
-    free(args);
-    */
-
+   
     op_code codigo;
     while(cliente_socket != -1) {
         

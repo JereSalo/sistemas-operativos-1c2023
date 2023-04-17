@@ -11,5 +11,12 @@ int main(int argc, char** argv){
     int conexion = conectar_con(MEMORIA, config, logger);
 
     // SERVER -> Kernel
-    int cliente_fd = iniciar_servidor_y_esperar_cliente(modulo, config, logger);
+    int server_fd = preparar_servidor(modulo, config, logger);
+
+    while(server_escuchar(server_fd, logger, modulo));
+
+    liberar_conexion(&server_fd);
+    cerrar_programa(logger);
+
+    return 0;
 }

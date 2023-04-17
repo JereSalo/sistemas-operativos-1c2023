@@ -11,6 +11,7 @@
         "types.h": "c",
         "consola.h": "c",
         "kernel.h": "c",
-        "cpu.h": "c"
+        "cpu.h": "c",
+        "protocolo.h": "c"
     }
 }

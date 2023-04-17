@@ -8,5 +8,12 @@ int main(int argc, char** argv){
 
     
     // SERVER -> CPU, Kernel, FileSystem
-    int cliente_fd = iniciar_servidor_y_esperar_cliente(modulo, config, logger);
+    int server_fd = preparar_servidor(modulo, config, logger);
+
+    while(server_escuchar(server_fd, logger, modulo));
+
+    liberar_conexion(&server_fd);
+    cerrar_programa(logger);
+
+    return 0;
 }

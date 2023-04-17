@@ -39,7 +39,11 @@ int main(int argc, char** argv){
 
     
     // ENVIO DE MENSAJES
-    send_numero(conexion, 5);
+
+    int numero;
+    printf("Ingrese un numero: ");
+    scanf("%d", &numero);
+    send_numero(conexion, numero);
 }
 
 

@@ -14,15 +14,17 @@
 #include <signal.h>
 #include <commons/collections/list.h>
 #include <commons/config.h>
+#include <pthread.h>
+#include "protocolo.h"
 
 
 int iniciar_servidor(char*, char*, t_log*, const char*);
 int esperar_cliente(int, t_log*, const char*);
 int crear_conexion(t_log* , const char* , char* , char*);
 int recibir_operacion(int);
-void liberar_conexion(int);
+void liberar_conexion(int* socket_cliente);
 int conectar_con(int, t_config *, t_log*);
-int iniciar_servidor_y_esperar_cliente(int, t_config *, t_log *);
+int preparar_servidor(int modulo, t_config *config, t_log *logger);
 
 typedef enum { // Los estados que puede tener un PCB
     KERNEL,

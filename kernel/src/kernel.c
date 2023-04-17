@@ -25,12 +25,18 @@ int main(int argc, char** argv){
     
     
     // SERVER -> conexión con la consola
-    //int cliente_fd = iniciar_servidor_y_esperar_cliente(modulo, config, logger);
 
-    //PROCESAR CONEXION -> RECIBIR MENSAJES -> HAY QUE HACER LOS SEND DEL LADO DEL CLIENTE ANTES
-    //procesar_conexion(logger, cliente_fd, "Kernel");
+    int server_fd = preparar_servidor(modulo, config, logger);
 
 
+    // se queda escuchando -> mientras tenga clientes va a retornar 1
+
+    while(server_escuchar(server_fd, logger, modulo));
+
+    liberar_conexion(&server_fd);
+    cerrar_programa(logger);
+
+    return 0;
 }
 
 

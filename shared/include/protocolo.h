@@ -17,7 +17,8 @@ bool send_numero(int fd, int numero);
 bool recv_numero(int fd, int* numero);
 void* serializar_numero(int numero);
 void deserializar_numero(void* stream, int* numero);
-void procesar_conexion(t_log*, int, char*);
+//void procesar_conexion(t_log*, int, char*);
+void procesar_conexion(void* void_args);
 
 
 typedef enum {

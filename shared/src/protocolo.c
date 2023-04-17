@@ -74,6 +74,46 @@ void deserializar_numero(void* stream, int* numero) {
 
 // ------------------------------ PROCESAR ------------------------------ //
 
+
+void procesar_conexion(void* void_args) {
+    
+    t_procesar_conexion_args* args = (t_procesar_conexion_args*) void_args;
+    t_log* logger = args->log;      
+    int cliente_socket = args->fd;    
+    char* server_name = args->server_name;
+
+    free(args);
+    
+    op_code codigo;
+    while(cliente_socket != -1) {
+        
+        // Recibís el código de operación
+        if(recv(cliente_socket, &codigo, sizeof(op_code), 0) != sizeof(op_code)) {
+            log_info(logger, "CLIENTE DESCONECTADO");
+            return;
+        }
+
+        // Depende el codigo de operacion vamos a hacer una cosa u otra.
+        // Aca el código de operación ya lo recibiste, entonces lo único que queda por recibir es el payload (o sea, el mensaje :D)
+        switch(codigo) {
+            case NUMERO:
+            {
+                int numero_recibido;
+
+                if(!recv_numero(cliente_socket, &numero_recibido)) {
+                    log_error(logger, "Fallo recibiendo NUMERO");
+                    break;
+                }
+
+                log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+            }
+           
+        }
+    }
+}
+
+
+/*
 void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
    
     op_code codigo;
@@ -103,5 +143,6 @@ void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
         }
     }
 }
+*/
 
 

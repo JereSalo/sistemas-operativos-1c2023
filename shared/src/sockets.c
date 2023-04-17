@@ -63,7 +63,7 @@ int recibir_operacion(int socket_cliente)
 
 
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
-int iniciar_servidor_y_esperar_cliente(int modulo, t_config *config, t_log *logger){ 
+int preparar_servidor(int modulo, t_config *config, t_log *logger){ 
     char* nombre_modulo;
     char* ip;
     char* puerto;
@@ -94,10 +94,41 @@ int iniciar_servidor_y_esperar_cliente(int modulo, t_config *config, t_log *logg
 
     log_info(logger, "Servidor listo para recibir al cliente");
 
-    int cliente_fd = esperar_cliente(server_fd, logger, nombre_modulo);
+    
+    return server_fd;
+    
+    
+    // escuchar para crear hilos 
+    
+    //int cliente_fd = esperar_cliente(server_fd, logger, nombre_modulo);
+    
+    
+    //int cliente_fd;
+    
+    //while(cliente_fd = server_escuchar(server_fd, logger, nombre_modulo));
 
-    return cliente_fd;
 }
+
+
+int server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
+    int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
+
+    if(cliente_fd != -1) {
+        //HILOS
+        pthread_t hilo;
+        t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+        
+        args->log = logger;
+        args->fd = cliente_fd;
+        args->server_name = nombre_server;
+        
+        pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+        pthread_detach(hilo);
+        return 1;
+    }
+    return 0;
+}
+
 
 
 /* ----------------------------------- CLIENTE ----------------------------------- */
@@ -139,8 +170,13 @@ int crear_conexion(t_log* logger, const char* server_name, char* ip, char* puert
 }
 
 // CERRAR CONEXION
-void liberar_conexion(int socket_cliente) {
-    close(socket_cliente);
+void liberar_conexion(int* socket_cliente) {
+    close(*socket_cliente);
+    *socket_cliente = -1;
+}
+
+void cerrar_programa(t_log* logger) {
+    log_destroy(logger);
 }
 
 

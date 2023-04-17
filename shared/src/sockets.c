@@ -61,7 +61,6 @@ int recibir_operacion(int socket_cliente)
 	}
 }
 
-
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
 int preparar_servidor(int modulo, t_config *config, t_log *logger){ 
     char* nombre_modulo;
@@ -111,8 +110,6 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger){
 
 
 int server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
-    printf("%s",nombre_server);
-
     int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
 
     if(cliente_fd != -1) {

@@ -31,7 +31,7 @@ int main(int argc, char** argv){
 
     // se queda escuchando -> mientras tenga clientes va a retornar 1
 
-    while(server_escuchar(server_fd, logger, modulo));
+    while(server_escuchar(server_fd, logger, "Kernel"));
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger);

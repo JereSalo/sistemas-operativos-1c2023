@@ -111,6 +111,8 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger){
 
 
 int server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
+    printf("%s",nombre_server);
+
     int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
 
     if(cliente_fd != -1) {

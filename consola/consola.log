@@ -171,3 +171,11 @@
 [INFO] 19:02:14:783 CONSOLA/(6485:6485): Cliente conectado en 127.0.0.1:8000 (a Kernel)
 
 [INFO] 19:02:14:783 CONSOLA/(6485:6485): Conexión exitosa con el modulo Kernel
+[INFO] 20:32:52:410 CONSOLA/(3089:3089): El cliente se conectara a 127.0.0.1:8000
+[INFO] 20:32:52:410 CONSOLA/(3089:3089): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 20:32:52:410 CONSOLA/(3089:3089): Conexión exitosa con el modulo Kernel
+[INFO] 20:33:44:419 CONSOLA/(3193:3193): El cliente se conectara a 127.0.0.1:8000
+[INFO] 20:33:44:419 CONSOLA/(3193:3193): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 20:33:44:420 CONSOLA/(3193:3193): Conexión exitosa con el modulo Kernel

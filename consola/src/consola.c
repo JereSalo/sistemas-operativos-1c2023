@@ -44,6 +44,9 @@ int main(int argc, char** argv){
     printf("Ingrese un numero: ");
     scanf("%d", &numero);
     send_numero(conexion, numero);
+
+    config_destroy(config);
+    log_destroy(logger);
 }
 
 

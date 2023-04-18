@@ -11,17 +11,14 @@ int main(int argc, char** argv){
     // CLIENTES -> CPU, Memoria y File System
     
     // Conexión con la CPU
-    //int conexion_cpu = conectar_con(CPU, config, logger);
+    // int conexion_cpu = conectar_con(CPU, config, logger);
 
     // Conexión con FileSystem
-    //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
+    // int conexion_fs = conectar_con(FILESYSTEM, config, logger);
 
     // Conexión con Memoria
-    //int conexion_mem = conectar_con(MEMORIA, config, logger);
+    // int conexion_mem = conectar_con(MEMORIA, config, logger);
    
-    
-    
-    
     
     
     // SERVER -> conexión con la consola
@@ -31,10 +28,13 @@ int main(int argc, char** argv){
 
     // se queda escuchando -> mientras tenga clientes va a retornar 1
 
-    while(server_escuchar(server_fd, logger, "Kernel"));
+    server_escuchar(server_fd, logger, "Kernel");
+
+    // Guarda con lo que ponemos después de esto, el escuchar va después de haber realizado las conexiones, porque el server se queda escuchando infinitamente (hasta que algo falle).
+    // Por esa razón escuchamos al final de todo.
 
     liberar_conexion(&server_fd);
-    cerrar_programa(logger);
+    cerrar_programa(logger,config);
 
     return 0;
 }

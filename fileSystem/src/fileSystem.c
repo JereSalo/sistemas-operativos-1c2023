@@ -7,16 +7,16 @@ int main(int argc, char** argv){
     t_config *config = config_create("filesystem.config");
     
     // CLIENTE -> Memoria
-    //int conexion = conectar_con(MEMORIA, config, logger);
+    // int conexion = conectar_con(MEMORIA, config, logger);
 
 
     // SERVER
     int server_fd = preparar_servidor(modulo, config, logger);
 
-    while(server_escuchar(server_fd, logger, "fileSystem"));
+    server_escuchar(server_fd, logger, "fileSystem");
 
     liberar_conexion(&server_fd);
-    cerrar_programa(logger);
+    cerrar_programa(logger,config);
 
     return 0;
 }

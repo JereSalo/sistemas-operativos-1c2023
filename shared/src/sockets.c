@@ -78,19 +78,19 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger){
     {
     case KERNEL:
         ip = config_get_string_value(config, "IP_KERNEL");
-        nombre_modulo = strdup("Kernel");
+        nombre_modulo = "Kernel";
         break;
     case CPU:
         ip = config_get_string_value(config, "IP_CPU");
-        nombre_modulo = strdup("CPU");
+        nombre_modulo = "CPU";
         break;
     case MEMORIA:
         ip = config_get_string_value(config, "IP_MEMORIA");
-        nombre_modulo = strdup("Memoria");
+        nombre_modulo = "Memoria";
         break;
     case FILESYSTEM:
         ip = config_get_string_value(config, "IP_FILESYSTEM");
-        nombre_modulo = strdup("FileSystem");
+        nombre_modulo = "FileSystem";
         break;
     }
 
@@ -113,25 +113,29 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger){
 
 }
 
-// while(server_escuchar(server_fd, logger, "Kernel"));
-int server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
-    int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
+void server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
+    bool puedeCrearHilo = true;
+    // Esto va a ser false solo si hubo un error al aceptar la conexión de un cliente, sino puede crear todos los hilos que quiera para todas las conexiones que quiera.
 
-    if(cliente_fd != -1) {
+    while(puedeCrearHilo){
+        int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
+        if (cliente_fd == -1){
+            puedeCrearHilo = false;
+            // Porque hubo un error, no hago log_error porque del lado de esperar_cliente ya está puesto el error.
+        }
+
         //HILOS
         pthread_t hilo;
         t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
-        
+            
         args->log = logger;
         args->fd = cliente_fd;
         args->server_name = nombre_server;
-        
+            
         pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
         pthread_detach(hilo);
-        return 1;
     }
-    return 0;
-}
+}    
 
 
 
@@ -180,8 +184,9 @@ void liberar_conexion(int* socket_cliente) {
     *socket_cliente = -1;
 }
 
-void cerrar_programa(t_log* logger) {
+void cerrar_programa(t_log* logger, t_config* config) {
     log_destroy(logger);
+    config_destroy(config);
 }
 
 
@@ -197,22 +202,22 @@ int conectar_con(int modulo, t_config *config, t_log *logger){
     case KERNEL:
         ip = config_get_string_value(config, "IP_KERNEL");
         puerto = config_get_string_value(config, "PUERTO_KERNEL");
-        nombre_modulo = strdup("Kernel");
+        nombre_modulo = "Kernel";
         break;
     case CPU:
         ip = config_get_string_value(config, "IP_CPU");
         puerto = config_get_string_value(config, "PUERTO_CPU");
-        nombre_modulo = strdup("CPU");
+        nombre_modulo = "CPU";
         break;
     case MEMORIA:
         ip = config_get_string_value(config, "IP_MEMORIA");
         puerto = config_get_string_value(config, "PUERTO_MEMORIA");
-        nombre_modulo = strdup("Memoria");
+        nombre_modulo = "Memoria";
         break;
     case FILESYSTEM:
         ip = config_get_string_value(config, "IP_FILESYSTEM");
         puerto = config_get_string_value(config, "PUERTO_FILESYSTEM");
-        nombre_modulo = strdup("FileSystem");
+        nombre_modulo = "FileSystem";
         break;
     }
     

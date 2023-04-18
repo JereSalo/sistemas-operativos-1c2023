@@ -117,23 +117,24 @@ void server_escuchar(int server_socket, t_log* logger, char* nombre_server) {
     bool puedeCrearHilo = true;
     // Esto va a ser false solo si hubo un error al aceptar la conexión de un cliente, sino puede crear todos los hilos que quiera para todas las conexiones que quiera.
 
-    while(puedeCrearHilo){
+    while(puedeCrearHilo) {
         int cliente_fd = esperar_cliente(server_socket, logger, nombre_server);
         if (cliente_fd == -1){
             puedeCrearHilo = false;
             // Porque hubo un error, no hago log_error porque del lado de esperar_cliente ya está puesto el error.
         }
-
-        //HILOS
-        pthread_t hilo;
-        t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
-            
-        args->log = logger;
-        args->fd = cliente_fd;
-        args->server_name = nombre_server;
-            
-        pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
-        pthread_detach(hilo);
+        else {
+            //HILOS
+            pthread_t hilo;
+            t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+                
+            args->log = logger;
+            args->fd = cliente_fd;
+            args->server_name = nombre_server;
+                
+            pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+            pthread_detach(hilo);
+        }
     }
 }    
 

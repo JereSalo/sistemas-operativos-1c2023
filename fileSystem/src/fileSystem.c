@@ -6,14 +6,22 @@ int main(int argc, char** argv){
     t_log *logger = log_create("filesystem.log", "FILESYSTEM", true, LOG_LEVEL_INFO);
     t_config *config = config_create("filesystem.config");
     
-    // CLIENTE -> Memoria
-    // int conexion = conectar_con(MEMORIA, config, logger);
-
-
+    
     // SERVER
     int server_fd = preparar_servidor(modulo, config, logger);
 
     server_escuchar(server_fd, logger, "fileSystem");
+
+
+    // CLIENTE -> Memoria
+    int conexion = conectar_con(MEMORIA, config, logger);
+
+    // ENVIO DE MENSAJES
+
+    int numero;
+    printf("Ingrese un numero: ");
+    scanf("%d", &numero);
+    send_numero(conexion, numero);
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);

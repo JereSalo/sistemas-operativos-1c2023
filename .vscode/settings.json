@@ -12,6 +12,7 @@
         "consola.h": "c",
         "kernel.h": "c",
         "cpu.h": "c",
-        "protocolo.h": "c"
+        "protocolo.h": "c",
+        "consola_utils.h": "c"
     }
 }

@@ -3,6 +3,7 @@
 
 #include "sockets.h"
 #include "protocolo.h"
+#include <commons/string.h>
 
 
 

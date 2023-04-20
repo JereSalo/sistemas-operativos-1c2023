@@ -25,7 +25,7 @@ int recibir_operacion(int);
 void liberar_conexion(int* socket_cliente);
 int conectar_con(int, t_config *, t_log*);
 int preparar_servidor(int modulo, t_config *config, t_log *logger);
-void server_escuchar(int server_socket, t_log* logger, char* nombre_server);
+void esperar_clientes(int server_socket, t_log* logger, char* nombre_server);
 void cerrar_programa(t_log* logger, t_config* config);
 
 

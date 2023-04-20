@@ -10,7 +10,7 @@ int main(int argc, char** argv){
     // SERVER
     int server_fd = preparar_servidor(modulo, config, logger);
 
-    server_escuchar(server_fd, logger, "fileSystem");
+    esperar_clientes(server_fd, logger, "fileSystem");
 
 
     // CLIENTE -> Memoria

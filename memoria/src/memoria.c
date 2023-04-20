@@ -10,7 +10,7 @@ int main(int argc, char** argv){
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor(modulo, config, logger);
 
-    server_escuchar(server_fd, logger, "Memoria");
+    esperar_clientes(server_fd, logger, "Memoria");
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);

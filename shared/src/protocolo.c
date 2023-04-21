@@ -43,11 +43,34 @@ bool send_numero(int fd, int numero) {
 
 
 void* serializar_instrucciones(size_t* size, char** instrucciones) {
+    size_t size_instrucciones = string_array_size(instrucciones);          // A CHEQUEAR
+    *size = sizeof(op_code) 
+            + sizeof(size_t) // size total
+            + sizeof(size_t) // size instrucciones
+            + size_instrucciones;
+    
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
 
+    void* stream = malloc(*size);
+
+    op_code cop = INSTRUCCIONES;
+    memcpy(stream, &cop, sizeof(op_code));
+    memcpy(stream + sizeof(op_code), &size_payload, sizeof(size_t));
+    memcpy(stream + sizeof(op_code) + sizeof(size_t), &size_instrucciones, sizeof(size_t));
+    memcpy(stream + sizeof(op_code) + sizeof(size_t)*2 , instrucciones, size_instrucciones);
+      
+    return stream;        
 }
 
 bool send_instrucciones(int fd, char** instrucciones) {
-
+    size_t size;
+    void* stream = serializar_instrucciones(&size, instrucciones);
+    if(send(fd, stream, size, 0) != size) {
+        free(stream);
+        return false;
+    }
+    free(stream);
+    return true;
 }
 
 

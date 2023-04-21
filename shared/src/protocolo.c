@@ -41,6 +41,17 @@ bool send_numero(int fd, int numero) {
     return true;
 }
 
+
+void* serializar_instrucciones(size_t* size, char** instrucciones) {
+
+}
+
+bool send_instrucciones(int fd, char** instrucciones) {
+
+}
+
+
+
 // ------------------------------ RECIBIR ------------------------------ //
 
 
@@ -65,10 +76,20 @@ bool recv_numero(int fd, int* numero) {
 
 }
 
+bool recv_instrucciones(int fd, char** instrucciones) {
+    
+}
+
+// ------------------------------ DESERIALIZAR ------------------------------ //
+
 void deserializar_numero(void* stream, int* numero) {
     
     //aca estamos copiando el stream en la variable numero -> se recibe el mensaje
     memcpy(numero, stream, sizeof(int));                
+}
+
+void deserializar_instrucciones(void* stream, char*** instrucciones) {
+
 }
 
 
@@ -106,6 +127,10 @@ void procesar_conexion(void* void_args) {
                 }
 
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+            }
+            case INSTRUCCIONES:
+            {
+
             }
            
         }

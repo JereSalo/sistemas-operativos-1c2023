@@ -18,7 +18,7 @@ int main(int argc, char** argv){
     // CLIENTE -> Kernel
 
     // Conexion con Kernel
-    //int conexion = conectar_con(KERNEL, config, logger);
+    int conexion = conectar_con(KERNEL, config, logger);
 
 
     /*
@@ -45,7 +45,7 @@ int main(int argc, char** argv){
     // Spliteamos cada linea del string para obtener "INSTRUCCION PARAM ... ..."
     char** instrucciones = string_split(archivo_string, "\n");
 
-    printf("%s", instrucciones[0]);
+    //printf("%s", instrucciones[0]);
 
     // Ahora estamos en condiciones de serializar y mandar esto a Kernel
     // Despues Kernel se lo manda a CPU y que CPU se encargue de hacer el nuevo split y que el separe los parametros
@@ -59,17 +59,8 @@ int main(int argc, char** argv){
 
     free(path_instrucciones);
 
-     
-    // ENVIO DE MENSAJES
 
-    /*
-    int numero;
-    printf("Ingrese un numero: ");
-    scanf("%d", &numero);
-    send_numero(conexion, numero);
+    //send_instrucciones(conexion, instrucciones);
 
-    config_destroy(config);
-    log_destroy(logger);
-    */
 }
 

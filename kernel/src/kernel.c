@@ -11,7 +11,7 @@ int main(int argc, char** argv){
     int server_fd = preparar_servidor(modulo, config, logger);
 
     // Conexión con la CPU
-    int conexion_cpu = conectar_con(CPU, config, logger);
+    //int conexion_cpu = conectar_con(CPU, config, logger);
 
 
     esperar_clientes(server_fd, logger, "Kernel");
@@ -32,13 +32,7 @@ int main(int argc, char** argv){
     // ENVIO DE MENSAJES
 
     
-    int numero;
-    printf("Ingrese un numero: ");
-    scanf("%d", &numero);
-    send_numero(conexion_cpu, numero);
 
-    liberar_conexion(&server_fd);
-    cerrar_programa(logger, config);
     
 
     return 0;

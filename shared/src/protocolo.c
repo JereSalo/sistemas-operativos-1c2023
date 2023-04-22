@@ -43,7 +43,11 @@ bool send_numero(int fd, int numero) {
 
 
 void* serializar_instrucciones(size_t* size, char** instrucciones) {
+    
     size_t size_instrucciones = string_array_size(instrucciones);          // A CHEQUEAR
+
+    //printf("%d", size_instrucciones);
+
     *size = sizeof(op_code) 
             + sizeof(size_t) // size total
             + sizeof(size_t) // size instrucciones
@@ -99,8 +103,21 @@ bool recv_numero(int fd, int* numero) {
 
 }
 
-bool recv_instrucciones(int fd, char** instrucciones) {
+bool recv_instrucciones(int fd, char*** instrucciones) {
+    size_t size_payload;
+    if(recv(fd, &size_payload, sizeof(size_t), 0) != sizeof(size_t)) 
+        return false;
     
+    void* stream = malloc(size_payload);
+    if(recv(fd, stream, size_payload, 0) != size_payload) {
+        free(stream);
+        return false;
+    }
+
+    deserializar_instrucciones(stream, instrucciones);
+
+    free(stream);
+    return true;
 }
 
 // ------------------------------ DESERIALIZAR ------------------------------ //
@@ -113,6 +130,25 @@ void deserializar_numero(void* stream, int* numero) {
 
 void deserializar_instrucciones(void* stream, char*** instrucciones) {
 
+    size_t size_instrucciones;
+    memcpy(&size_instrucciones, stream, sizeof(size_t));
+
+    /*char** arr = malloc((size_instrucciones + 1) * sizeof(char*));
+
+    for(int i = 0; i < size_instrucciones; i++)
+    {
+        arr[i] = read_string(buffer, desp);
+    }
+    arr[size_instrucciones] = NULL;*/
+    
+    // ESTAMOS PASANDO MAL EL ARRAY DE STRINGS ???????
+    
+    //char** instrucciones_r = malloc(size_instrucciones);
+
+
+    memcpy(instrucciones_r, stream+sizeof(size_t), size_instrucciones);
+    
+    *instrucciones = instrucciones_r;
 }
 
 
@@ -153,6 +189,21 @@ void procesar_conexion(void* void_args) {
             }
             case INSTRUCCIONES:
             {
+                char** instrucciones_recibidas;
+
+                if(!recv_instrucciones(cliente_socket, &instrucciones_recibidas)) {
+                    log_error(logger, "Fallo recibiendo INSTRUCCIONES");
+                    break;
+
+                }
+                
+                log_info(logger, "RECIBI LAS INSTRUCCIONES CORRECTAMENTE");
+                
+                //printf("%s", instrucciones_recibidas[0]);
+                
+                
+                
+                //log_info(logger, "La primera instruccion es %s", instrucciones_recibidas);
 
             }
            

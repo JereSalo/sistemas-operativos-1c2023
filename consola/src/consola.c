@@ -60,7 +60,7 @@ int main(int argc, char** argv){
     free(path_instrucciones);
 
 
-    //send_instrucciones(conexion, instrucciones);
+    send_instrucciones(conexion, instrucciones);
 
 }
 

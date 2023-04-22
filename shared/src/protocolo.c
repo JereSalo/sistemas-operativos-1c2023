@@ -42,12 +42,64 @@ bool send_numero(int fd, int numero) {
 }
 
 
-void* serializar_instrucciones(size_t* size, char** instrucciones) {
-    
-    size_t size_instrucciones = string_array_size(instrucciones);          // A CHEQUEAR
+
+void* serializar_array_strings() {
+
+    char** arr = malloc((lenght + 1) * sizeof(char*));
+
+    //Primero tenemos que leer el tamaño del string
 
     //printf("%d", size_instrucciones);
 
+    for(int i = 0; i < size_instrucciones; i++) {
+
+        arr[i] = serializar_string()
+    }
+    
+}
+
+
+//serializa un solo string -> lo vamos a usar dentro de un ciclo for para serializar un solo string de un array de strings
+
+void* serializar_string(size_t* size, char* str, int desp) {
+	size_t size_str = strlen(str) + 1;
+	*size = sizeof(size_t) 		//tamanio total
+		+ sizeof(size_t)	//tamanio del char*
+		+ size_str;		//string que llego
+	size_t	size_payload = *size - sizeof(size_t);
+	
+	void* stream = malloc(*size);	
+
+	memcpy(stream, &size_payload, sizeof(size_t));
+	memcpy(stream+sizeof(size_t), str, size_str);
+	return stream;
+}
+
+
+
+
+//esta funcion tambien la vamos a usar dentro de un ciclo for para deserializar cada string del array por separado
+
+void deserializar_string(void* stream, char** str) {
+
+	size_t size_str;
+	memcpy(&size_str, stream, sizeof(size_t));
+
+	char* r_str = malloc(size_str);
+	memcpy(r_str, stream+sizeof(size_t), size_str);
+	*str = r_str;
+}
+
+
+
+
+
+
+void* serializar_instrucciones(size_t* size, char** instrucciones) {
+    
+    size_t size_instrucciones = string_array_size(instrucciones);          // A CHEQUEAR
+    
+    
     *size = sizeof(op_code) 
             + sizeof(size_t) // size total
             + sizeof(size_t) // size instrucciones

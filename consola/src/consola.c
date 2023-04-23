@@ -36,11 +36,10 @@ int main(int argc, char** argv){
     
     
     char* path_instrucciones = strdup("ejemplo.txt");
-                                        
+
     // Leemos el archivo y devolvemos un string con el contenido del archivo para trabajarlo mas comodamente
     char* archivo_string = leer_archivo(path_instrucciones, logger);
 
-    //printf("%s", archivo_string);
 
     // Spliteamos cada linea del string para obtener "INSTRUCCION PARAM ... ..."
     char** instrucciones = string_split(archivo_string, "\n");
@@ -59,7 +58,6 @@ int main(int argc, char** argv){
     
 
     free(path_instrucciones);
-
 
     //send_instrucciones(conexion, instrucciones);
 

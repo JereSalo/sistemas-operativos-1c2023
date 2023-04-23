@@ -1,27 +1,10 @@
 #include "protocolo.h"
 
 // ACA VAMOS A DEFNIR LAS FUNCIONES PARA ENVIAR Y RECIBIR MENSAJES ENTRE MODULOS
-
-
 // Por cada mensaje tenemos un send, recv, serializar y deserializar
 
 
-// ------------------------------ ENVIAR ------------------------------ //
-
-void* serializar_numero(int numero) {
-    
-    //creamos un stream intermedio que guarde el codigo de operacion y el mensaje
-    void* stream = malloc(sizeof(op_code) + sizeof(int));
-    
-    op_code codigo = NUMERO;
-
-    //copiamos el codigo de operacion en el stream y despues nos corremos y copiamos el mensaje (payload)
-    memcpy(stream, &codigo, sizeof(op_code));
-    memcpy(stream+sizeof(op_code), &numero, sizeof(numero));
-    
-    // Aca retorna un stream con el codigo de operación al principio y concatendo a esto está nuestro dato (un int en este caso).
-    return stream;
-}
+// ------------------------------ ENVIO Y RECEPCION DE NUMERO ------------------------------ //
 
 
 bool send_numero(int fd, int numero) {
@@ -41,99 +24,6 @@ bool send_numero(int fd, int numero) {
     return true;
 }
 
-
-
-void* serializar_array_strings() {
-
-    char** arr = malloc((lenght + 1) * sizeof(char*));
-
-    //Primero tenemos que leer el tamaño del string
-
-    //printf("%d", size_instrucciones);
-
-    for(int i = 0; i < size_instrucciones; i++) {
-
-        arr[i] = serializar_string()
-    }
-    
-}
-
-
-//serializa un solo string -> lo vamos a usar dentro de un ciclo for para serializar un solo string de un array de strings
-
-void* serializar_string(size_t* size, char* str, int desp) {
-	size_t size_str = strlen(str) + 1;
-	*size = sizeof(size_t) 		//tamanio total
-		+ sizeof(size_t)	//tamanio del char*
-		+ size_str;		//string que llego
-	size_t	size_payload = *size - sizeof(size_t);
-	
-	void* stream = malloc(*size);	
-
-	memcpy(stream, &size_payload, sizeof(size_t));
-	memcpy(stream+sizeof(size_t), str, size_str);
-	return stream;
-}
-
-
-
-
-//esta funcion tambien la vamos a usar dentro de un ciclo for para deserializar cada string del array por separado
-
-void deserializar_string(void* stream, char** str) {
-
-	size_t size_str;
-	memcpy(&size_str, stream, sizeof(size_t));
-
-	char* r_str = malloc(size_str);
-	memcpy(r_str, stream+sizeof(size_t), size_str);
-	*str = r_str;
-}
-
-
-
-
-
-
-void* serializar_instrucciones(size_t* size, char** instrucciones) {
-    
-    size_t size_instrucciones = string_array_size(instrucciones);          // A CHEQUEAR
-    
-    
-    *size = sizeof(op_code) 
-            + sizeof(size_t) // size total
-            + sizeof(size_t) // size instrucciones
-            + size_instrucciones;
-    
-    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
-
-    void* stream = malloc(*size);
-
-    op_code cop = INSTRUCCIONES;
-    memcpy(stream, &cop, sizeof(op_code));
-    memcpy(stream + sizeof(op_code), &size_payload, sizeof(size_t));
-    memcpy(stream + sizeof(op_code) + sizeof(size_t), &size_instrucciones, sizeof(size_t));
-    memcpy(stream + sizeof(op_code) + sizeof(size_t)*2 , instrucciones, size_instrucciones);
-      
-    return stream;        
-}
-
-bool send_instrucciones(int fd, char** instrucciones) {
-    size_t size;
-    void* stream = serializar_instrucciones(&size, instrucciones);
-    if(send(fd, stream, size, 0) != size) {
-        free(stream);
-        return false;
-    }
-    free(stream);
-    return true;
-}
-
-
-
-// ------------------------------ RECIBIR ------------------------------ //
-
-
 bool recv_numero(int fd, int* numero) {
     
     //calculamos el tamanio de SOLO el payload
@@ -152,7 +42,20 @@ bool recv_numero(int fd, int* numero) {
     deserializar_numero(stream, numero);
     free(stream);
     return true;
+}
 
+
+// ------------------------------ ENVIO Y RECEPCION DE INSTRUCCIONES ------------------------------ //
+
+bool send_instrucciones(int fd, char** instrucciones) {
+    size_t size = 0;
+    void* stream = serializar_instrucciones(&size, instrucciones);
+    if(send(fd, stream, size, 0) != size) {
+        free(stream);
+        return false;
+    }
+    free(stream);
+    return true;
 }
 
 bool recv_instrucciones(int fd, char*** instrucciones) {
@@ -172,40 +75,12 @@ bool recv_instrucciones(int fd, char*** instrucciones) {
     return true;
 }
 
-// ------------------------------ DESERIALIZAR ------------------------------ //
-
-void deserializar_numero(void* stream, int* numero) {
-    
-    //aca estamos copiando el stream en la variable numero -> se recibe el mensaje
-    memcpy(numero, stream, sizeof(int));                
-}
-
-void deserializar_instrucciones(void* stream, char*** instrucciones) {
-
-    size_t size_instrucciones;
-    memcpy(&size_instrucciones, stream, sizeof(size_t));
-
-    /*char** arr = malloc((size_instrucciones + 1) * sizeof(char*));
-
-    for(int i = 0; i < size_instrucciones; i++)
-    {
-        arr[i] = read_string(buffer, desp);
-    }
-    arr[size_instrucciones] = NULL;*/
-    
-    // ESTAMOS PASANDO MAL EL ARRAY DE STRINGS ???????
-    
-    //char** instrucciones_r = malloc(size_instrucciones);
 
 
-    memcpy(instrucciones_r, stream+sizeof(size_t), size_instrucciones);
-    
-    *instrucciones = instrucciones_r;
-}
-
+// Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
+// Asi nos evitamos que el switch quede muy grande, ya que no todos los servers van a entender los mismos mensajes
 
 // ------------------------------ PROCESAR ------------------------------ //
-
 
 void procesar_conexion(void* void_args) {
     
@@ -262,38 +137,3 @@ void procesar_conexion(void* void_args) {
         }
     }
 }
-
-
-/*
-void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
-   
-    op_code codigo;
-    while(cliente_socket != -1) {
-        
-        // Recibís el código de operación
-        if(recv(cliente_socket, &codigo, sizeof(op_code), 0) != sizeof(op_code)) {
-            log_info(logger, "CLIENTE DESCONECTADO");
-            return;
-        }
-
-        // Depende el codigo de operacion vamos a hacer una cosa u otra.
-        // Aca el código de operación ya lo recibiste, entonces lo único que queda por recibir es el payload (o sea, el mensaje :D)
-        switch(codigo) {
-            case NUMERO:
-            {
-                int numero_recibido;
-
-                if(!recv_numero(cliente_socket, &numero_recibido)) {
-                    log_error(logger, "Fallo recibiendo NUMERO");
-                    break;
-                }
-
-                log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
-            }
-           
-        }
-    }
-}
-*/
-
-

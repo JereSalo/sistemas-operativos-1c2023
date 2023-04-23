@@ -34,6 +34,3 @@ long int calcular_tamanio_archivo(FILE * archivo){
 	fseek(archivo, 0, SEEK_SET);
 	return tamanio_archivo;
 }
-
-
-

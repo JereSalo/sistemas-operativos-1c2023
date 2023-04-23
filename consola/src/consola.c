@@ -18,7 +18,7 @@ int main(int argc, char** argv){
     // CLIENTE -> Kernel
 
     // Conexion con Kernel
-    int conexion = conectar_con(KERNEL, config, logger);
+    //int conexion = conectar_con(KERNEL, config, logger);
 
 
     /*
@@ -44,6 +44,7 @@ int main(int argc, char** argv){
 
     // Spliteamos cada linea del string para obtener "INSTRUCCION PARAM ... ..."
     char** instrucciones = string_split(archivo_string, "\n");
+    free(archivo_string);
 
     //printf("%s", instrucciones[0]);
 
@@ -60,7 +61,10 @@ int main(int argc, char** argv){
     free(path_instrucciones);
 
 
-    send_instrucciones(conexion, instrucciones);
+    //send_instrucciones(conexion, instrucciones);
 
+    string_array_destroy(instrucciones);
+
+    cerrar_programa(logger,config);
 }
 

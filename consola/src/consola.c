@@ -35,15 +35,19 @@ int main(int argc, char** argv){
     //VAMOS A HACERLA CORTA
     
     
-    char* path_instrucciones = strdup("ejemplo.txt");
+    char* path_instrucciones = "ejemplo.txt";
 
     // Leemos el archivo y devolvemos un string con el contenido del archivo para trabajarlo mas comodamente
     char* archivo_string = leer_archivo(path_instrucciones, logger);
 
 
     // Spliteamos cada linea del string para obtener "INSTRUCCION PARAM ... ..."
-    char** instrucciones = string_split(archivo_string, "\n");
+    // char** instrucciones = string_split(archivo_string, "\n");
+
+    t_list* instrucciones = generarListaInstrucciones(archivo_string);
+
     free(archivo_string);
+    list_destroy(instrucciones);
 
     //printf("%s", instrucciones[0]);
 
@@ -55,13 +59,10 @@ int main(int argc, char** argv){
         segun el CASE, recibiremos los parametros que sean necesarios.
     */
 
-    
-
-    free(path_instrucciones);
 
     //send_instrucciones(conexion, instrucciones);
 
-    string_array_destroy(instrucciones);
+    // string_array_destroy(instrucciones);
 
     cerrar_programa(logger,config);
 }

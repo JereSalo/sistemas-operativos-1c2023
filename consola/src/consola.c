@@ -29,15 +29,15 @@ int main(int argc, char** argv){
 
     size_t size_generico;
     
-    tamanio_lista(&size_generico, instrucciones);
+    //tamanio_lista(&size_generico, instrucciones);
 
-    printf("%ld", size_generico);
+    //printf("%ld", size_generico);
     
     //printf("%s", instrucciones[0]);
 
     
 
-    //serializar_lista_instrucciones(&size_generico, instrucciones);
+    serializar_lista_instrucciones(&size_generico, instrucciones);
 
 
 

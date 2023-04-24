@@ -18,5 +18,6 @@
 
 void tamanio_lista(size_t* size, t_list* lista);
 void mostrar_lista(t_list* lista);
+void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones);
 
 #endif

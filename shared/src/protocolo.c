@@ -47,33 +47,8 @@ bool recv_numero(int fd, int* numero) {
 
 // ------------------------------ ENVIO Y RECEPCION DE INSTRUCCIONES ------------------------------ //
 
-bool send_instrucciones(int fd, char** instrucciones) {
-    size_t size = 0;
-    void* stream = serializar_instrucciones(&size, instrucciones);
-    if(send(fd, stream, size, 0) != size) {
-        free(stream);
-        return false;
-    }
-    free(stream);
-    return true;
-}
 
-bool recv_instrucciones(int fd, char*** instrucciones) {
-    size_t size_payload;
-    if(recv(fd, &size_payload, sizeof(size_t), 0) != sizeof(size_t)) 
-        return false;
-    
-    void* stream = malloc(size_payload);
-    if(recv(fd, stream, size_payload, 0) != size_payload) {
-        free(stream);
-        return false;
-    }
 
-    deserializar_instrucciones(stream, instrucciones);
-
-    free(stream);
-    return true;
-}
 
 
 
@@ -116,24 +91,10 @@ void procesar_conexion(void* void_args) {
             }
             case INSTRUCCIONES:
             {
-                char** instrucciones_recibidas;
 
-                if(!recv_instrucciones(cliente_socket, &instrucciones_recibidas)) {
-                    log_error(logger, "Fallo recibiendo INSTRUCCIONES");
-                    break;
-
-                }
                 
-                log_info(logger, "RECIBI LAS INSTRUCCIONES CORRECTAMENTE");
-                
-                //printf("%s", instrucciones_recibidas[0]);
-                
-                
-                
-                //log_info(logger, "La primera instruccion es %s", instrucciones_recibidas);
-
             }
-           
+            
         }
     }
 }

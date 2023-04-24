@@ -6,7 +6,7 @@
 
 // ------------------------------ ENVIO Y RECEPCION DE NUMERO ------------------------------ //
 
-/*
+
 bool send_numero(int fd, int numero) {
     
     //calculamos el tamanio del mensaje incluyendo el codigo de operacion 
@@ -44,11 +44,9 @@ bool recv_numero(int fd, int* numero) {
     return true;
 }
 
-*/
-
 
 // ------------------------------ ENVIO Y RECEPCION DE INSTRUCCIONES ------------------------------ //
-/*
+
 bool send_instrucciones(int fd, char** instrucciones) {
     size_t size = 0;
     void* stream = serializar_instrucciones(&size, instrucciones);
@@ -76,8 +74,6 @@ bool recv_instrucciones(int fd, char*** instrucciones) {
     free(stream);
     return true;
 }
-
-*/
 
 
 
@@ -107,7 +103,6 @@ void procesar_conexion(void* void_args) {
         // Depende el codigo de operacion vamos a hacer una cosa u otra.
         // Aca el código de operación ya lo recibiste, entonces lo único que queda por recibir es el payload (o sea, el mensaje :D)
         switch(codigo) {
-            /*
             case NUMERO:
             {
                 int numero_recibido;
@@ -119,7 +114,6 @@ void procesar_conexion(void* void_args) {
 
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
             }
-            */
             case INSTRUCCIONES:
             {
                 char** instrucciones_recibidas;

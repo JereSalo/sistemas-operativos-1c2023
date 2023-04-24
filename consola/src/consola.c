@@ -13,13 +13,17 @@ int main(int argc, char** argv){
 
     // Conexion con Kernel
     //int conexion = conectar_con(KERNEL, config, logger);
-  
+
+
     
-    char* path_instrucciones = "ejemplo.txt";
+    
+    char* path_instrucciones = strdup("ejemplo.txt");
 
     // Leemos el archivo y devolvemos un string con el contenido del archivo para trabajarlo mas comodamente
     char* archivo_string = leer_archivo(path_instrucciones, logger);
-    
+
+
+
     //t_list* instrucciones = generar_lista_instrucciones(archivo_string);
 
 
@@ -32,5 +36,6 @@ int main(int argc, char** argv){
     free(archivo_string);
     //list_destroy(instrucciones);
     cerrar_programa(logger,config);
+
 }
 

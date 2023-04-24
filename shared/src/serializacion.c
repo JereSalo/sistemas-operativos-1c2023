@@ -1,10 +1,43 @@
 #include "serializacion.h"
 
 
+// ------------------------------ SERIALIZACION ARRAY STRINGS ------------------------------ //
+
+void* serializar_array_strings(size_t* size, char** array_strings) {
+    
+    int cant_elementos_array = string_array_size(array_strings); 
+   
+    // ESTO ES EL STREAM QUE DEVUELVE ESTA FUNCIÓN
+    // size_array + size_string1 + string1 + size_string2 + string2...
+    //              --------------------------------------------------
+    //                   de esto se encarga serializar_string    
+
+    
+    size_t size_array = 0;
+    
+    
+    char** arr = malloc((cant_elementos_array + 1) * sizeof(char*));
+
+    //Primero tenemos que leer el tamaño del string
+
+    //printf("%d", size_instrucciones);
+
+    for(int i = 0; i < cant_elementos_array; i++) {
+        // Sumar a size_array el size de cada string serializado
+        arr[i] = serializar_string();
+    }
+
+    return arr;
+
+    // 
+    
+}
+
+// serializar string, deberia dar sizeString + string. Capaz podemos tener una lista de esa estructura.
+
+
 
 // ------------------------------ SERIALIZACION STRINGS ------------------------------ //
-
-/*
 
 //serializa un solo string -> lo vamos a usar dentro de un ciclo for para serializar un solo string de un array de strings
 
@@ -35,57 +68,41 @@ void deserializar_string(void* stream, char** str) {
 	*str = r_str;
 }
 
-*/
-
 
 // ------------------------------ SERIALIZACION INSTRUCCIONES ------------------------------ //
 
-void tamanio_lista(size_t* size, t_list* lista) {
-
-    t_list_iterator* lista_it = list_iterator_create(lista);
-    for(int i = 0; list_iterator_has_next(lista_it); i++) {
-        *size += strlen(list_iterator_next(lista_it) + 1);
-    }
-    list_iterator_destroy(lista);
-}
-
-
-
-
-void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones) {
-
-    size_t tamanio_l;
-
-    tamanio_lista(&tamanio_l, lista_instrucciones);
-
-    printf("%d", tamanio_l);
-
-}
-
-
-void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
-       
-    // stream lista de instrucciones
-
-    size_t size_instrucciones;
+void* serializar_instrucciones(size_t* size, char** instrucciones) {
     
-    void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, instrucciones);
+    *size = sizeof(op_code);
+
+    /*
+    Objetivo: Devolver Paquete = Codigo de Operacion + Payload (streamArray)
+    Pero no solo debemos devolver eso, sino que debemos modificar la variable size tal que contenga el size del paquete.
 
     
-    // stream completo
 
-    //size_t size_total =  sizeof(op_code) 
-     //                   + sizeof(size_t) // size total del stream
-     //                   + sizeof(size_t) // size instrucciones
-     //                   + size_instrucciones;   //instrucciones
     
-   
-   //void* stream = malloc(size_total);
+    */
 
-    //op_code cop = INSTRUCCIONES;
+    
+    serializar_array_strings(size, instrucciones); // Obtenemos size total en "size".
 
-   
-   /* size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
+    
+    // antes de guardar las cosas en el stream tenemos que saber el tamaño de todo
+
+
+
+
+    /*
+    
+    
+    *size = sizeof(op_code) 
+            + sizeof(size_t) // size total
+            
+            + sizeof(size_t) // size instrucciones
+            + size_instrucciones;
+    
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
 
     void* stream = malloc(*size);
 
@@ -96,18 +113,14 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
     memcpy(stream + sizeof(op_code) + sizeof(size_t)*2 , instrucciones, size_instrucciones);
       
       */
-    //return stream; 
-
-    //free(stream_instrucciones);
-    //*size = size_total;
-    //return stream;       
+    return stream;        
 }
 
 
 void deserializar_instrucciones(void* stream, char*** instrucciones) {
 
-    //size_t size_instrucciones;
-    //memcpy(&size_instrucciones, stream, sizeof(size_t));
+    size_t size_instrucciones;
+    memcpy(&size_instrucciones, stream, sizeof(size_t));
 
     /*char** arr = malloc((size_instrucciones + 1) * sizeof(char*));
 
@@ -122,16 +135,14 @@ void deserializar_instrucciones(void* stream, char*** instrucciones) {
     //char** instrucciones_r = malloc(size_instrucciones);
 
 
-   // memcpy(instrucciones_r, stream+sizeof(size_t), size_instrucciones);
+    memcpy(instrucciones_r, stream+sizeof(size_t), size_instrucciones);
     
-    //*instrucciones = instrucciones_r;
+    *instrucciones = instrucciones_r;
 }
 
 
 
 // ------------------------------ SERIALIZACION NUMERO ------------------------------ //
-
-/*
 
 void* serializar_numero(int numero) {
     
@@ -155,7 +166,6 @@ void deserializar_numero(void* stream, int* numero) {
     memcpy(numero, stream, sizeof(int));                
 }
 
-*/
 
 
 

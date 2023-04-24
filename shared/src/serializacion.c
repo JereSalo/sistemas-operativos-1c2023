@@ -76,7 +76,7 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
     return paquete;
 }
 
-void deserializar_instrucciones(void* stream, size_t stream_size , t_list** instrucciones_recibidas){
+void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instrucciones_recibidas){
     // Tenemos todo el stream con los elementos y sus tamaños.
     size_t desplazamiento = 0;
 
@@ -91,7 +91,7 @@ void deserializar_instrucciones(void* stream, size_t stream_size , t_list** inst
         memcpy((void*)string,stream + desplazamiento,tamanio_string);
         desplazamiento += tamanio_string;
 
-        list_add(*instrucciones_recibidas, string);
+        list_add(instrucciones_recibidas, string);
     }        
 }
 

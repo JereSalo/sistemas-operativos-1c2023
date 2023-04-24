@@ -62,7 +62,7 @@ bool send_instrucciones(int fd, t_list* lista_instrucciones) {
 }
 
 
-bool recv_instrucciones(int fd, t_list** instrucciones_recibidas){
+bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
     // Recibimos el size del payload
     size_t size_instrucciones;
     printf("Intento recibir size del payload\n");
@@ -134,7 +134,7 @@ void procesar_conexion(void* void_args) {
                 printf("El cop que me llegó es Instrucciones\n");
                 t_list* instrucciones_recibidas = list_create();
 
-                if(!recv_instrucciones(cliente_socket,&instrucciones_recibidas)){
+                if(!recv_instrucciones(cliente_socket,instrucciones_recibidas)){
                     log_error(logger, "Fallo recibiendo INSTRUCCIONES");
                     break;
                 }

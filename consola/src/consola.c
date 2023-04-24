@@ -25,18 +25,10 @@ int main(int argc, char** argv){
     t_list* instrucciones = generar_lista_instrucciones(archivo_string);
 
     
-    //mostrar_lista(instrucciones);
-
+    
+    
     size_t size_generico; // Este size es de prueba para testear serializar, en realidad está en el send.
     
-    //tamanio_lista(&size_generico, instrucciones);
-
-    //printf("%ld", size_generico);
-    
-    //printf("%s", instrucciones[0]);
-
-    
-
     serializar_lista_instrucciones(&size_generico, instrucciones);
 
     // send_instrucciones(conexion, instrucciones);

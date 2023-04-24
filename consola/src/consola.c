@@ -22,12 +22,20 @@ int main(int argc, char** argv){
     // Leemos el archivo y devolvemos un string con el contenido del archivo para trabajarlo mas comodamente
     char* archivo_string = leer_archivo(path_instrucciones, logger);
 
+    t_list* instrucciones = generar_lista_instrucciones(archivo_string);
 
+    
+    //mostrar_lista(instrucciones);
 
-    //t_list* instrucciones = generar_lista_instrucciones(archivo_string);
+    size_t size_generico;
+    
+    tamanio_lista(&size_generico, instrucciones);
 
+    printf("%ld", size_generico);
+    
+    //printf("%s", instrucciones[0]);
 
-    //size_t size_generico;
+    
 
     //serializar_lista_instrucciones(&size_generico, instrucciones);
 

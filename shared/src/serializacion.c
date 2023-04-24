@@ -7,6 +7,23 @@ void* serializar_instrucciones(size_t* size, char** instrucciones) {
             
 }
 
+void tamanio_lista(size_t* size, t_list* lista) {
+
+    t_list_iterator* lista_it = list_iterator_create(lista);
+    for(int i = 0; list_iterator_has_next(lista_it); i++) {
+        *size += (strlen(list_iterator_next(lista_it)))+1;
+    }
+    list_iterator_destroy(lista_it);
+}
+
+void mostrar_lista(t_list* lista) {
+
+    t_list_iterator* lista_it = list_iterator_create(lista);
+    for(int i = 0; list_iterator_has_next(lista_it); i++) {
+        printf("%s \n", list_iterator_next(lista_it));
+    }
+    list_iterator_destroy(lista_it);
+}
 
 
 // ------------------------------ SERIALIZACION NUMERO ------------------------------ //

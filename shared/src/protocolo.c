@@ -61,6 +61,29 @@ bool send_instrucciones(int fd, t_list* lista_instrucciones) {
 }
 
 
+bool recv_instrucciones(int fd,t_list* instrucciones_recibidas){
+    // Recibimos el size del payload
+    size_t size_instrucciones;
+    if (recv(fd,&size_instrucciones, sizeof(size_t), 0) != sizeof(size_t)){
+        return false;
+    }
+
+    // Hacemos malloc para poder guardar todo el payload
+    void* stream = malloc(size_instrucciones);
+
+    // Recibimos todo el payload
+    if (recv(fd, stream, sizeof(size_t), 0) != sizeof(size_t)){
+        free(stream);
+        return false;
+    }
+
+    deserializar_instrucciones(stream, instrucciones_recibidas);
+
+    free(stream);
+    return true;
+}
+
+
 // bool recv_instrucciones(int fd, int* numero) {
     
 //     //calculamos el tamanio de SOLO el payload
@@ -120,10 +143,21 @@ void procesar_conexion(void* void_args) {
                 }
 
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+
+                // ACA VIENE TODO EL COMPORTAMIENTO DE LO QUE QUIERO HACER CON LO RECIBIDO
             }
             case INSTRUCCIONES:
             {
+                t_list* instrucciones_recibidas = list_create();
 
+                if(!recv_instrucciones(cliente_socket,instrucciones_recibidas)){
+                    log_error(logger, "Fallo recibiendo INSTRUCCIONES");
+                    break;
+                }
+
+                log_info(logger, "RECIBI LAS INSTRUCCIONES\n");
+
+                // ACA VIENE TODO EL COMPORTAMIENTO DE LA INSTRUCCION
                 
             }
             

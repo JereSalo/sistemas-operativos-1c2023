@@ -33,7 +33,7 @@ void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones) 
     // Hay 3 pasos. Calcular size total, hacer malloc, hacer memcpy de los datos a un stream y devolverlo.
 
     // Paso 1: Calcular size de la lista
-    *size = tamanio_lista_2(lista_instrucciones) + sizeof(size_t) * list_size(lista_instrucciones);
+    *size = tamanio_lista_2(lista_instrucciones) + sizeof(size_t) * lista_instrucciones->elements_count;
     
 
     // Paso 2: Hacer malloc
@@ -60,7 +60,7 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
 
     
      // stream completo
-     *size =    sizeof(op_code) 
+     *size =    sizeof(op_code) // SE PODRIA AGREGAR CANTIDAD DE ELEMENTOS DE LA LISTA PARA ENVIAR
                 + sizeof(size_t)        // size instrucciones
                 + size_instrucciones;   //instrucciones
     
@@ -80,23 +80,21 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
     return paquete;
 }
 
+// deserealizar_instrucciones(stream, instrucciones_recibidas);
 
-void deserializar_instrucciones(void* stream, int* numero){
+// Objetivo: Rearmar la lista.
+void deserializar_instrucciones(void* stream, t_list* instrucciones_recibidas){
+    // Tenemos todo el stream con los elementos y sus tamaños.
     
+    
+
                 
 }
 
 
+
+
 //ESTAS DOS NO VAN EN ESTE .H
-
-void tamanio_lista(size_t* size, t_list* lista) {
-
-    t_list_iterator* lista_it = list_iterator_create(lista);
-    for(int i = 0; list_iterator_has_next(lista_it); i++) {
-        *size += (strlen(list_iterator_next(lista_it)));    //puede ser que tengamos que hacer +1 para el barra 0 ?
-    }
-    list_iterator_destroy(lista_it);
-}
 
 void* sumarSizeConLongitudString(void* a, void* b){
     size_t y = strlen((char*)b) + 1;

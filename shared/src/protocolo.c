@@ -49,10 +49,11 @@ bool recv_numero(int fd, int* numero) {
 
 bool send_instrucciones(int fd, t_list* lista_instrucciones) {
     size_t size = 0;
-    void* paquete = serializar_lista_instrucciones(&size, lista_instrucciones);
+    void* paquete = serializar_instrucciones(&size, lista_instrucciones);
     
     //mandamos los datos copiados en ese stream al destinatario
     if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send\n");
         free(paquete);
         return false;
     }
@@ -61,10 +62,12 @@ bool send_instrucciones(int fd, t_list* lista_instrucciones) {
 }
 
 
-bool recv_instrucciones(int fd,t_list* instrucciones_recibidas){
+bool recv_instrucciones(int fd, t_list** instrucciones_recibidas){
     // Recibimos el size del payload
     size_t size_instrucciones;
+    printf("Intento recibir size del payload\n");
     if (recv(fd,&size_instrucciones, sizeof(size_t), 0) != sizeof(size_t)){
+        printf("Fallo recibiendo size del payload\n");
         return false;
     }
 
@@ -72,39 +75,18 @@ bool recv_instrucciones(int fd,t_list* instrucciones_recibidas){
     void* stream = malloc(size_instrucciones);
 
     // Recibimos todo el payload
-    if (recv(fd, stream, sizeof(size_t), 0) != sizeof(size_t)){
+    printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_instrucciones, 0) != size_instrucciones){
+        printf("Fallo al recibir todo el payload\n");
         free(stream);
         return false;
     }
 
-    deserializar_instrucciones(stream, instrucciones_recibidas);
+    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas);
 
     free(stream);
     return true;
 }
-
-
-// bool recv_instrucciones(int fd, int* numero) {
-    
-//     //calculamos el tamanio de SOLO el payload
-//     size_t size = sizeof(int);
-
-//     //creamos un stream intermedio para guardar el mensaje que vamos a recibir
-//     void* stream = malloc(size);
-
-//     // en recv se modifica la variable stream, guardando ahi lo recibido.
-//     if(recv(fd, stream, size, 0) != size) { 
-//         free(stream);
-//         return false;
-//     }
-
-//     // deserializamos para guardar en la variable número el stream que recibimos.
-//     deserializar_numero(stream, numero);
-//     free(stream);
-//     return true;
-// }
-
-
 
 
 // Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
@@ -135,6 +117,7 @@ void procesar_conexion(void* void_args) {
         switch(codigo) {
             case NUMERO:
             {
+                printf("El cop que me llegó es Número\n");
                 int numero_recibido;
 
                 if(!recv_numero(cliente_socket, &numero_recibido)) {
@@ -148,17 +131,21 @@ void procesar_conexion(void* void_args) {
             }
             case INSTRUCCIONES:
             {
+                printf("El cop que me llegó es Instrucciones\n");
                 t_list* instrucciones_recibidas = list_create();
 
-                if(!recv_instrucciones(cliente_socket,instrucciones_recibidas)){
+                if(!recv_instrucciones(cliente_socket,&instrucciones_recibidas)){
                     log_error(logger, "Fallo recibiendo INSTRUCCIONES");
                     break;
                 }
 
                 log_info(logger, "RECIBI LAS INSTRUCCIONES\n");
 
+                mostrar_lista(instrucciones_recibidas);
+
                 // ACA VIENE TODO EL COMPORTAMIENTO DE LA INSTRUCCION
-                
+
+                list_destroy(instrucciones_recibidas);
             }
             
         }

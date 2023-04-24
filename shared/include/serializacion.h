@@ -19,12 +19,18 @@ typedef enum {
     INSTRUCCIONES
 } op_code;
 
-void tamanio_lista(size_t* size, t_list* lista);
 void mostrar_lista(t_list* lista);
-void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones);
 void* sumarSizeConLongitudString(void* a, void* b);
-size_t tamanio_lista_2(t_list* lista);
-void deserializar_instrucciones(void* stream, t_list* instrucciones_recibidas);
+size_t tamanio_lista(t_list* lista);
+
+void* serializar_instrucciones(size_t* size, t_list* instrucciones);
+void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones);
+void deserializar_instrucciones(void* stream, size_t stream_size, t_list** instrucciones_recibidas);
+
+
+void* serializar_numero(int numero);
+void deserializar_numero(void* stream, int* numero);
+
 
 
 #endif

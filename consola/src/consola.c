@@ -12,7 +12,7 @@ int main(int argc, char** argv){
     // CLIENTE -> Kernel
 
     // Conexion con Kernel
-    // int conexion = conectar_con(KERNEL, config, logger);
+    int conexion = conectar_con(KERNEL, config, logger);
 
 
     
@@ -24,14 +24,14 @@ int main(int argc, char** argv){
 
     t_list* instrucciones = generar_lista_instrucciones(archivo_string);
 
+                
     
     
+    // size_t size_generico; // Este size es de prueba para testear serializar, en realidad está en el send.
     
-    size_t size_generico; // Este size es de prueba para testear serializar, en realidad está en el send.
     
-    serializar_lista_instrucciones(&size_generico, instrucciones);
 
-    // send_instrucciones(conexion, instrucciones);
+    send_instrucciones(conexion, instrucciones);
    
 
 

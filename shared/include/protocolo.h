@@ -16,23 +16,14 @@
 
 #include "serializacion.h"
 
-bool send_numero(int fd, int numero);
-bool recv_numero(int fd, int* numero);
-
-void* serializar_numero(int numero);
-void deserializar_numero(void* stream, int* numero);
-// void deserializar_instrucciones(void* stream, char*** instrucciones);
-
-bool send_instrucciones(int fd, t_list* instrucciones);
-// bool recv_instrucciones(int fd, char*** instrucciones);
-
-
-
-//void procesar_conexion(t_log*, int, char*);
 void procesar_conexion(void* void_args);
 
 
+bool send_numero(int fd, int numero);
+bool recv_numero(int fd, int* numero);
 
+bool send_instrucciones(int fd, t_list* instrucciones);
+bool recv_instrucciones(int fd, t_list** instrucciones_recibidas);
 
 
 // PUEDE SER QUE ESTO LO PONGAMOS EN OTRO .h (CAPAZ EN EL DE SOCKETS)

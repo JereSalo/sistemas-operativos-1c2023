@@ -36,12 +36,14 @@ long int calcular_tamanio_archivo(FILE * archivo){
 }
 
 
-t_list* generarListaInstrucciones(archivo_string){
+t_list* generar_lista_instrucciones(char* archivo_string) {
     char** instrucciones = string_split(archivo_string, "\n");
-    t_list* listaInstrucciones = list_create();
+    t_list* lista_instrucciones = list_create();
     int i = 0;
     while(instrucciones[i] != NULL){
-        list_add(listaInstrucciones,instrucciones[i]);
+        list_add(lista_instrucciones,instrucciones[i]);
         i++;
     }
+
+    return lista_instrucciones;
 }

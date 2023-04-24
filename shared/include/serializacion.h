@@ -13,5 +13,12 @@
 #include <commons/collections/list.h>
 #include <commons/config.h>
 #include <commons/string.h>
+#include "protocolo.h"
+
+void tamanio_lista(size_t* size, t_list* lista);
+void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones);
+//void* serializar_instrucciones(size_t* size, t_list* instrucciones);
+//void deserializar_instrucciones(void* stream, char*** instrucciones);
+
 
 #endif

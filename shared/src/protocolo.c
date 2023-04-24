@@ -47,7 +47,39 @@ bool recv_numero(int fd, int* numero) {
 
 // ------------------------------ ENVIO Y RECEPCION DE INSTRUCCIONES ------------------------------ //
 
+bool send_instrucciones(int fd, t_list* lista_instrucciones) {
+    size_t size = 0;
+    void* paquete = serializar_lista_instrucciones(&size, lista_instrucciones);
+    
+    //mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        free(paquete);
+        return false;
+    }
+    free(paquete);
+    return true;
+}
 
+
+// bool recv_instrucciones(int fd, int* numero) {
+    
+//     //calculamos el tamanio de SOLO el payload
+//     size_t size = sizeof(int);
+
+//     //creamos un stream intermedio para guardar el mensaje que vamos a recibir
+//     void* stream = malloc(size);
+
+//     // en recv se modifica la variable stream, guardando ahi lo recibido.
+//     if(recv(fd, stream, size, 0) != size) { 
+//         free(stream);
+//         return false;
+//     }
+
+//     // deserializamos para guardar en la variable número el stream que recibimos.
+//     deserializar_numero(stream, numero);
+//     free(stream);
+//     return true;
+// }
 
 
 

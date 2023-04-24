@@ -14,10 +14,16 @@
 #include <commons/config.h>
 #include <commons/string.h>
 
-#include "protocolo.h"
+typedef enum {
+    NUMERO,
+    INSTRUCCIONES
+} op_code;
 
 void tamanio_lista(size_t* size, t_list* lista);
 void mostrar_lista(t_list* lista);
 void* serializar_lista_instrucciones(size_t* size, t_list* lista_instrucciones);
+void* sumarSizeConLongitudString(void* a, void* b);
+size_t tamanio_lista_2(t_list* lista);
+
 
 #endif

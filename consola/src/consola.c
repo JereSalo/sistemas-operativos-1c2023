@@ -12,7 +12,7 @@ int main(int argc, char** argv){
     // CLIENTE -> Kernel
 
     // Conexion con Kernel
-    //int conexion = conectar_con(KERNEL, config, logger);
+    // int conexion = conectar_con(KERNEL, config, logger);
 
 
     
@@ -27,7 +27,7 @@ int main(int argc, char** argv){
     
     //mostrar_lista(instrucciones);
 
-    size_t size_generico;
+    size_t size_generico; // Este size es de prueba para testear serializar, en realidad está en el send.
     
     //tamanio_lista(&size_generico, instrucciones);
 
@@ -39,10 +39,13 @@ int main(int argc, char** argv){
 
     serializar_lista_instrucciones(&size_generico, instrucciones);
 
+    // send_instrucciones(conexion, instrucciones);
+   
 
 
+    free(path_instrucciones);
     free(archivo_string);
-    //list_destroy(instrucciones);
+    list_destroy(instrucciones);
     cerrar_programa(logger,config);
 
 }

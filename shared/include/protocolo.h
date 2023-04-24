@@ -14,15 +14,17 @@
 #include <commons/config.h>
 #include <commons/string.h>
 
+#include "serializacion.h"
+
 bool send_numero(int fd, int numero);
 bool recv_numero(int fd, int* numero);
 
 void* serializar_numero(int numero);
 void deserializar_numero(void* stream, int* numero);
-void deserializar_instrucciones(void* stream, char*** instrucciones);
+// void deserializar_instrucciones(void* stream, char*** instrucciones);
 
-bool send_instrucciones(int fd, char** instrucciones);
-bool recv_instrucciones(int fd, char*** instrucciones);
+bool send_instrucciones(int fd, t_list* instrucciones);
+// bool recv_instrucciones(int fd, char*** instrucciones);
 
 
 
@@ -30,10 +32,7 @@ bool recv_instrucciones(int fd, char*** instrucciones);
 void procesar_conexion(void* void_args);
 
 
-typedef enum {
-    NUMERO,
-    INSTRUCCIONES
-} op_code;
+
 
 
 // PUEDE SER QUE ESTO LO PONGAMOS EN OTRO .h (CAPAZ EN EL DE SOCKETS)

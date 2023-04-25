@@ -16,6 +16,7 @@
 #include <commons/config.h>
 #include <pthread.h>
 #include "protocolo.h"
+#include "sharedUtils.h"
 
 
 int iniciar_servidor(char*, char*, t_log*, const char*);

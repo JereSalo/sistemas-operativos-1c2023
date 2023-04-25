@@ -14,6 +14,7 @@
 #include <commons/config.h>
 #include <commons/string.h>
 
+#include "sharedUtils.h"
 #include "serializacion.h"
 
 void procesar_conexion(void* void_args);

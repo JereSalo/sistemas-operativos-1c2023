@@ -4,6 +4,7 @@
 #include "sockets.h"
 #include "protocolo.h"
 #include "serializacion.h"
+#include "sharedUtils.h"
 #include <commons/string.h>
 
 

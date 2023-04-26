@@ -31,7 +31,7 @@ int main(int argc, char** argv){
     
     
 
-    send_instrucciones(conexion, instrucciones);
+    //send_instrucciones(conexion, instrucciones);
    
 
 

@@ -44,5 +44,11 @@ t_list* generar_lista_instrucciones(char* archivo_string) {
         i++;
     }
 
+    //liberamos el char**
+
+   string_array_destroy(instrucciones);
+
+
+
     return lista_instrucciones;
 }

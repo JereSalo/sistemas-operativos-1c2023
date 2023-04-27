@@ -20,12 +20,13 @@ int main(int argc, char** argv){
     char* path_instrucciones = strdup("ejemplo.txt");
 
     // Leemos el archivo y devolvemos un string con el contenido del archivo para trabajarlo mas comodamente
-    char* archivo_string = leer_archivo(path_instrucciones, logger);
+    // char* archivo_string = leer_archivo(path_instrucciones, logger);
 
-    t_list* instrucciones = generar_lista_instrucciones(archivo_string);
+    // t_list* instrucciones = generar_lista_instrucciones(archivo_string);
+
+    t_list* instrucciones = generar_lista_instrucciones_2(path_instrucciones);
 
                 
-    
     
     // size_t size_generico; // Este size es de prueba para testear serializar, en realidad está en el send.
     
@@ -36,7 +37,7 @@ int main(int argc, char** argv){
 
 
     free(path_instrucciones);
-    free(archivo_string);
+//    free(archivo_string);
     list_destroy(instrucciones);
     cerrar_programa(logger,config);
 

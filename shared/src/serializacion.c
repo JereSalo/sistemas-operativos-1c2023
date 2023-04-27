@@ -59,10 +59,7 @@ void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instr
         copiar_stream_en_variable_y_desplazar(string, stream, tamanio_string, &desplazamiento);
 
         list_add(instrucciones_recibidas, string);
-        
-        free(string);
     }
-
 }
 
 

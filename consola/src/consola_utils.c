@@ -13,16 +13,16 @@ t_list* generar_lista_instrucciones(char* path_instrucciones){
     t_list* instrucciones = list_create();
 
     char linea[50];
+    char* token;
 
     while(fgets(linea,sizeof linea,archivo_instrucciones)!= NULL){
-        // En esta altura linea (a menos que sea la última) sería la instrucción mas el enter del final, quiero sacar el enter.
-        if(linea[strlen(linea)-1] == '\n'){linea[strlen(linea)-1] = '\0';} // Este if es nefasto pero bueno anda bien :)
-        list_add(instrucciones, strdup(linea)); // El strdup en sí leakea memoria, no es casi nada de memoria, no es importante pero bueno.
+        token = strtok(linea, "\n"); // Para sacar el \n de la linea
+        list_add(instrucciones, strdup(token)); // El strdup en sí leakea memoria, no es casi nada de memoria, no es importante pero bueno.
     }
 
 
-    mostrar_lista(instrucciones);
-    //printf("%d",instrucciones->elements_count);
+    mostrar_lista(instrucciones); // Esto es para ver si ta todo bien :)
+
     fclose(archivo_instrucciones);
 
     return instrucciones;

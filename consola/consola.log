@@ -973,3 +973,11 @@ WAIT DISCO
 [INFO] 21:05:58:321 CONSOLA/(4477:4477): Cliente conectado en 127.0.0.1:8000 (a Kernel)
 
 [INFO] 21:05:58:323 CONSOLA/(4477:4477): Conexión exitosa con el modulo Kernel
+[INFO] 16:16:42:429 CONSOLA/(2758:2758): El cliente se conectara a 127.0.0.1:8000
+[INFO] 16:16:42:465 CONSOLA/(2758:2758): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 16:16:42:467 CONSOLA/(2758:2758): Conexión exitosa con el modulo Kernel
+[INFO] 16:18:35:498 CONSOLA/(2841:2841): El cliente se conectara a 127.0.0.1:8000
+[INFO] 16:18:35:537 CONSOLA/(2841:2841): Cliente conectado en 127.0.0.1:8000 (a Kernel)
+
+[INFO] 16:18:35:539 CONSOLA/(2841:2841): Conexión exitosa con el modulo Kernel

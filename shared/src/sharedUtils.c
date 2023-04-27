@@ -52,3 +52,9 @@ void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_li
 
     list_iterate(lista_instrucciones, copiar_y_desplazar_string_con_tamanio);
 }
+
+// void(*element_destroyer)(void*)
+
+void stringDestroyer(void* string){
+    free((char*)string);
+}

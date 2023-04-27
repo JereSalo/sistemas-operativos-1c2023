@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
     //FIJARSE DE CERRAR EL PROGRAMA CUANDO HACEMOS CONTROL + C -> memory leaks en esperar cliente
 
-    //esperar_clientes(server_fd, logger, "Kernel");
+    esperar_clientes(server_fd, logger, "Kernel");
 
     /*void sighandler(int s) {
         exit(0);

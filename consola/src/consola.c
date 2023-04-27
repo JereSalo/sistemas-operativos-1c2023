@@ -13,14 +13,13 @@ int main(int argc, char** argv){
 
     // Conexion con Kernel
     int conexion = conectar_con(KERNEL, config, logger);
-
-
     
     
     char* path_instrucciones = strdup("ejemplo.txt");
 
     t_list* instrucciones = generar_lista_instrucciones(path_instrucciones);    
 
+    
     send_instrucciones(conexion, instrucciones);
 
     

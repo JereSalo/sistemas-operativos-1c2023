@@ -12,29 +12,10 @@ int main(int argc, char** argv){
     // Conexión con la CPU
     //int conexion_cpu = conectar_con(CPU, config, logger);
 
-
-
-    //FIJARSE DE CERRAR EL PROGRAMA CUANDO HACEMOS CONTROL + C -> memory leaks en esperar cliente
-
     esperar_clientes(server_fd, logger, "Kernel");
-
-    /*void sighandler(int s) {
-        exit(0);
-    }
-
-    signal(SIGINT, sighandler);*/
-    
-    
-    cerrar_programa(logger, config);
-    // Guarda con lo que ponemos después de esto, el escuchar va después de haber realizado las conexiones, porque el server se queda escuchando infinitamente (hasta que algo falle).
 
     // CLIENTES -> CPU, Memoria y File System
 
-
-
-
-    
-    
 
     // Conexión con FileSystem
     //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
@@ -47,7 +28,7 @@ int main(int argc, char** argv){
 
     
 
-    
+    cerrar_programa(logger, config);
 
     return 0;
 }

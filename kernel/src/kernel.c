@@ -1,5 +1,4 @@
 #include "../include/kernel.h"
-#include "pthread.h"
 
 int main(int argc, char** argv){
     int modulo = KERNEL;

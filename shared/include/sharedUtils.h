@@ -13,6 +13,8 @@
 #include <commons/collections/list.h>
 #include <commons/config.h>
 #include <commons/string.h>
+#include <pthread.h>
+
 
 void mostrar_lista(t_list* lista);
 void* sumarSizeConLongitudString(void* a, void* b);

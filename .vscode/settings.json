@@ -12,6 +12,11 @@
         "consola.h": "c",
         "kernel.h": "c",
         "cpu.h": "c",
-        "protocolo.h": "c"
+        "protocolo.h": "c",
+        "consola_utils.h": "c",
+        "sharedutils.h": "c",
+        "pthread.h": "c",
+        "planificador.h": "c",
+        "string.h": "c"
     }
 }

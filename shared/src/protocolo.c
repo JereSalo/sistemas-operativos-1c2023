@@ -1,27 +1,10 @@
 #include "protocolo.h"
 
 // ACA VAMOS A DEFNIR LAS FUNCIONES PARA ENVIAR Y RECIBIR MENSAJES ENTRE MODULOS
-
-
 // Por cada mensaje tenemos un send, recv, serializar y deserializar
 
 
-// ------------------------------ ENVIAR ------------------------------ //
-
-void* serializar_numero(int numero) {
-    
-    //creamos un stream intermedio que guarde el codigo de operacion y el mensaje
-    void* stream = malloc(sizeof(op_code) + sizeof(int));
-    
-    op_code codigo = NUMERO;
-
-    //copiamos el codigo de operacion en el stream y despues nos corremos y copiamos el mensaje (payload)
-    memcpy(stream, &codigo, sizeof(op_code));
-    memcpy(stream+sizeof(op_code), &numero, sizeof(numero));
-    
-    // Aca retorna un stream con el codigo de operación al principio y concatendo a esto está nuestro dato (un int en este caso).
-    return stream;
-}
+// ------------------------------ ENVIO Y RECEPCION DE NUMERO ------------------------------ //
 
 
 bool send_numero(int fd, int numero) {
@@ -41,9 +24,6 @@ bool send_numero(int fd, int numero) {
     return true;
 }
 
-// ------------------------------ RECIBIR ------------------------------ //
-
-
 bool recv_numero(int fd, int* numero) {
     
     //calculamos el tamanio de SOLO el payload
@@ -62,18 +42,57 @@ bool recv_numero(int fd, int* numero) {
     deserializar_numero(stream, numero);
     free(stream);
     return true;
-
 }
 
-void deserializar_numero(void* stream, int* numero) {
+
+// ------------------------------ ENVIO Y RECEPCION DE INSTRUCCIONES ------------------------------ //
+
+bool send_instrucciones(int fd, t_list* lista_instrucciones) {
+    size_t size = 0;
+    void* paquete = serializar_instrucciones(&size, lista_instrucciones);
     
-    //aca estamos copiando el stream en la variable numero -> se recibe el mensaje
-    memcpy(numero, stream, sizeof(int));                
+    //mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send\n");
+        free(paquete);
+        return false;
+    }
+    free(paquete);
+    return true;
 }
 
+
+bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
+    // Recibimos el size del payload
+    size_t size_instrucciones;
+    printf("Intento recibir size del payload\n");
+    if (recv(fd,&size_instrucciones, sizeof(size_t), 0) != sizeof(size_t)){
+        printf("Fallo recibiendo size del payload\n");
+        return false;
+    }
+
+    // Hacemos malloc para poder guardar todo el payload
+    void* stream = malloc(size_instrucciones);
+
+    // Recibimos todo el payload
+    printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_instrucciones, 0) != size_instrucciones){
+        printf("Fallo al recibir todo el payload\n");
+        free(stream);
+        return false;
+    }
+
+    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas);
+
+    free(stream);
+    return true;
+}
+
+
+// Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
+// Asi nos evitamos que el switch quede muy grande, ya que no todos los servers van a entender los mismos mensajes
 
 // ------------------------------ PROCESAR ------------------------------ //
-
 
 void procesar_conexion(void* void_args) {
     
@@ -98,6 +117,7 @@ void procesar_conexion(void* void_args) {
         switch(codigo) {
             case NUMERO:
             {
+                printf("El cop que me llegó es Número\n");
                 int numero_recibido;
 
                 if(!recv_numero(cliente_socket, &numero_recibido)) {
@@ -106,43 +126,28 @@ void procesar_conexion(void* void_args) {
                 }
 
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+
+                // ACA VIENE TODO EL COMPORTAMIENTO DE LO QUE QUIERO HACER CON LO RECIBIDO
             }
-           
-        }
-    }
-}
-
-
-/*
-void procesar_conexion(t_log* logger, int cliente_socket, char* server_name) {
-   
-    op_code codigo;
-    while(cliente_socket != -1) {
-        
-        // Recibís el código de operación
-        if(recv(cliente_socket, &codigo, sizeof(op_code), 0) != sizeof(op_code)) {
-            log_info(logger, "CLIENTE DESCONECTADO");
-            return;
-        }
-
-        // Depende el codigo de operacion vamos a hacer una cosa u otra.
-        // Aca el código de operación ya lo recibiste, entonces lo único que queda por recibir es el payload (o sea, el mensaje :D)
-        switch(codigo) {
-            case NUMERO:
+            case INSTRUCCIONES:
             {
-                int numero_recibido;
+                printf("El cop que me llegó es Instrucciones\n");
+                t_list* instrucciones_recibidas = list_create();
 
-                if(!recv_numero(cliente_socket, &numero_recibido)) {
-                    log_error(logger, "Fallo recibiendo NUMERO");
+                if(!recv_instrucciones(cliente_socket,instrucciones_recibidas)){
+                    log_error(logger, "Fallo recibiendo INSTRUCCIONES");
                     break;
                 }
 
-                log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+                log_info(logger, "RECIBI LAS INSTRUCCIONES\n");
+
+                mostrar_lista(instrucciones_recibidas);
+
+                // ACA VIENE TODO EL COMPORTAMIENTO DE LA INSTRUCCION
+
+                list_destroy_and_destroy_elements(instrucciones_recibidas,free);
             }
-           
+            
         }
     }
 }
-*/
-
-

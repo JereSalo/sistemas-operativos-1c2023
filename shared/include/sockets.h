@@ -2,20 +2,8 @@
 #define SOCKETS_H_
 #define _GNU_SOURCE
 
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <commons/log.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <commons/collections/list.h>
-#include <commons/config.h>
-#include <pthread.h>
 #include "protocolo.h"
+#include "sharedUtils.h"
 
 
 int iniciar_servidor(char*, char*, t_log*, const char*);

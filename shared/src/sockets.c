@@ -61,6 +61,8 @@ int esperar_cliente(int socket_servidor, t_log *logger, const char *name)
 int recibir_operacion(int socket_cliente)
 {
     int cod_op;
+    // Lo clave de esto es que recv es bloqueante, si no hay nada para recibir entonces se queda clavado.
+    // Si el cliente muere entonces retorna -1 (error) y así después en el else cierro la conexión.
     if (recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) > 0)
         return cod_op;
     else
@@ -106,24 +108,6 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger)
     return server_fd;
 }
 
-// Es basicamente lo mismo que esperar_cliente solo que es para muchos clientes, porque usamos hilos.
-void esperar_clientes(int server_socket, t_log *logger, char *nombre_server)
-{
-    int cliente_fd;
-    while ((cliente_fd = esperar_cliente(server_socket, logger, nombre_server)) != -1)
-    {
-        // HILOS
-        pthread_t hilo;
-        t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
-
-        args->log = logger;
-        args->fd = cliente_fd;
-        args->server_name = nombre_server;
-
-        pthread_create(&hilo, NULL, (void *)procesar_conexion, (void *)args);
-        pthread_detach(hilo);
-    }
-}
 
 /* ----------------------------------- CLIENTE ----------------------------------- */
 

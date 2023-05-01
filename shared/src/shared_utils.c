@@ -1,4 +1,4 @@
-#include "sharedUtils.h"
+#include "shared_utils.h"
 
 // Este archivo está compuesto por funciones auxiliares, para que no ocupen espacio en otros archivos más específicos.
 

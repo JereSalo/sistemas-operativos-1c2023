@@ -2,6 +2,7 @@
 #define KERNEL_H
 
 #include "shared.h"
+#include "kernel_utils.h"
 
 
 

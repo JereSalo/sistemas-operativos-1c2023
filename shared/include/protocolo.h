@@ -3,7 +3,7 @@
 
 
 
-#include "sharedUtils.h"
+#include "shared_utils.h"
 #include "serializacion.h"
 
 void procesar_conexion(void* void_args);
@@ -20,7 +20,6 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas);
 typedef struct{
     t_log* log;
     int fd;
-    char* server_name;
 } t_procesar_conexion_args;
 
 #endif

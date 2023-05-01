@@ -3,7 +3,7 @@
 #define _GNU_SOURCE
 
 #include "protocolo.h"
-#include "sharedUtils.h"
+#include "shared_utils.h"
 
 
 int iniciar_servidor(char*, char*, t_log*, const char*);

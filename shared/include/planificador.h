@@ -2,8 +2,7 @@
 #define PLANIFICADOR_H_
 
 
-
-#include "sharedUtils.h"
+#include "shared_utils.h"
 #include "serializacion.h"
 
 

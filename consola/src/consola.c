@@ -19,10 +19,9 @@ int main(int argc, char** argv){
 
     t_list* instrucciones = generar_lista_instrucciones(path_instrucciones);    
 
-    
     send_instrucciones(conexion, instrucciones);
 
-    
+        
     free(path_instrucciones);
     list_destroy_and_destroy_elements(instrucciones,free);
     cerrar_programa(logger,config);

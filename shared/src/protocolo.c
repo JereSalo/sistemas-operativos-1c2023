@@ -57,6 +57,7 @@ bool send_instrucciones(int fd, t_list* lista_instrucciones) {
         free(paquete);
         return false;
     }
+    // Aca semaforo para decirle al kernel que ya puede recibir las instrucciones?
     free(paquete);
     return true;
 }
@@ -94,12 +95,13 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
 
 // ------------------------------ PROCESAR ------------------------------ //
 
+
+// ESTO VUELA, es un procesar conexion por cada módulo.
 void procesar_conexion(void* void_args) {
     
     t_procesar_conexion_args* args = (t_procesar_conexion_args*) void_args;
     t_log* logger = args->log;      
-    int cliente_socket = args->fd;    
-    char* server_name = args->server_name;
+    int cliente_socket = args->fd;
 
     free(args);
     

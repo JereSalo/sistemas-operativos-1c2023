@@ -2,7 +2,7 @@
 #define SERIALIZACION_H_
 
 
-#include "sharedUtils.h"
+#include "shared_utils.h"
 
 typedef enum {
     NUMERO,

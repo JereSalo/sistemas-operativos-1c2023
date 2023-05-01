@@ -17,6 +17,7 @@
         "sharedutils.h": "c",
         "pthread.h": "c",
         "planificador.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "procesar_kernel.h": "c"
     }
 }

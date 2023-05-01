@@ -1,4 +1,4 @@
-#include "../include/fileSystem.h"
+#include "../include/file_system.h"
 
 int main(int argc, char** argv){
     int modulo = FILESYSTEM;
@@ -6,22 +6,16 @@ int main(int argc, char** argv){
     t_log *logger = log_create("filesystem.log", "FILESYSTEM", true, LOG_LEVEL_INFO);
     t_config *config = config_create("filesystem.config");
     
-    
-    // SERVER
-    int server_fd = preparar_servidor(modulo, config, logger);
-
-    esperar_clientes(server_fd, logger, "fileSystem");
-
-
     // CLIENTE -> Memoria
     int conexion = conectar_con(MEMORIA, config, logger);
 
-    // ENVIO DE MENSAJES
+    // SERVER
+    int server_fd = preparar_servidor(modulo, config, logger);
 
-    int numero;
-    printf("Ingrese un numero: ");
-    scanf("%d", &numero);
-    send_numero(conexion, numero);
+    // Aca ya no mas esperar_clientes, esperamos individualmente.
+    esperar_clientes(server_fd, logger, "fileSystem");
+
+
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);

@@ -1,8 +1,8 @@
-#include "../include/kernel.h"
+#include "kernel.h"
 
 int main(int argc, char** argv){
     int modulo = KERNEL;
-    t_log *logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
+    logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config");
 
 
@@ -21,7 +21,15 @@ int main(int argc, char** argv){
     // Conexión con Memoria
     //int conexion_mem = conectar_con(MEMORIA, config, logger);
 
-    esperar_clientes_kernel(server_fd, logger);   
+    
+    // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo
+    while (1)
+    {
+        int consola_fd = esperar_cliente(server_fd, logger, "Kernel");
+        pthread_t hilo;
+        pthread_create(&hilo, NULL, (void *)procesar_conexion_kernel, (void *) (intptr_t) consola_fd);
+        pthread_detach(hilo);
+    }
 
     cerrar_programa(logger, config);
 

@@ -1,15 +1,12 @@
-#ifndef PROCESAR_KERNEL_H
-#define PROCESAR_KERNEL_H
+#ifndef KERNEL_UTILS_H
+#define KERNEL_UTILS_H
 
 #include "shared.h"
 
-void esperar_clientes_kernel(int server_socket, t_log *logger);
-void procesar_conexion_kernel(void* void_args);
+extern t_log* logger;
 
-typedef struct{
-    t_log* log;
-    int fd;
-} t_procesar_conexion_kernel_args;
+void esperar_clientes_kernel(int server_socket);
+void procesar_conexion_kernel(void* cliente_socket);
 
 
 #endif

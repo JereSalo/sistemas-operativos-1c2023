@@ -3,5 +3,6 @@
 
 
 #include "shared.h"
+#include "cpu_utils.h"
 
 #endif

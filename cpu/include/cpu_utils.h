@@ -3,4 +3,6 @@
 
 #include "shared.h"
 
+t_log* logger;
+
 #endif

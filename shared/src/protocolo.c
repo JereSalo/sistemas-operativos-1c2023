@@ -128,6 +128,7 @@ void procesar_conexion(void* void_args) {
                 log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
 
                 // ACA VIENE TODO EL COMPORTAMIENTO DE LO QUE QUIERO HACER CON LO RECIBIDO
+                break;
             }
             case INSTRUCCIONES:
             {
@@ -146,6 +147,7 @@ void procesar_conexion(void* void_args) {
                 // ACA VIENE TODO EL COMPORTAMIENTO DE LA INSTRUCCION
 
                 list_destroy_and_destroy_elements(instrucciones_recibidas,free);
+                break;
             }
             
         }

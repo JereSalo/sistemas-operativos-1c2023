@@ -14,7 +14,6 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <pthread.h>
-#include <commons/collections/queue.h>
 
 
 void mostrar_lista(t_list* lista);

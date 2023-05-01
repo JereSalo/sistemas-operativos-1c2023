@@ -39,7 +39,7 @@ typedef struct {
 	pcb_estado estado;
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
     double estimacion_prox_rafaga;  // Para HRRN
-    double tiempo_llegada_ready;    // Para HRRN ---- gettimeofday
+    double tiempo_llegada_ready;    // Para HRRN
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
 } t_pcb;
 

@@ -1,10 +1,9 @@
 #include "kernel_utils.h"
 
 t_log* logger;
+int pid_counter = 1;
 
 t_pcb* inicializar_pcb(int cliente_socket) {
-
-    int pid_counter = 1;
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
 

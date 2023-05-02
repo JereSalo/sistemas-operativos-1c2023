@@ -4,6 +4,7 @@
 #include "shared.h"
 
 extern t_log* logger;
+extern int pid_counter;
 
 void esperar_clientes_kernel(int server_socket);
 void procesar_conexion_kernel(void* cliente_socket);

@@ -1,6 +1,30 @@
 #include "kernel_utils.h"
 
+
 t_log* logger;
+/*
+t_queue* procesos_en_new;
+t_list* procesos_en_ready;
+
+
+void inicializar_semaforos(t_config *config) {
+    // pthread_mutex_init(pthread_mutex_t *, const pthread_mutexattr_t *);
+    // pthread_mutex_init(mutex_new, const pthread_mutexattr_t *);
+
+    
+
+    sem_init(&cant_procesos_new, 0, 0);
+    
+    uint grado_de_multiprogramacion = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+    sem_init(&maximo_grado_de_multiprogramacion, 0, grado_de_multiprogramacion);
+}
+
+void inicializar_colas() {
+    procesos_en_new = queue_create();
+    procesos_en_ready = list_create();
+}
+*/
+
 
 t_pcb* inicializar_pcb(int cliente_socket) {
 
@@ -14,12 +38,8 @@ t_pcb* inicializar_pcb(int cliente_socket) {
 
     // Creamos el PCB
 
-    // semaforo wait
-
     t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas);
     pid_counter++;
-
-    // semaforo post
    
     //list_destroy_and_destroy_elements(instrucciones_recibidas,free);           ESTO LO VAMOS A HACER EN OTRO LADO
 
@@ -32,7 +52,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 
     pcb->pid = pid;
     pcb->instrucciones = lista_instrucciones;
-    pcb->estado = NEW;
+    //pcb->estado = NEW;
     //pcb->registros_cpu;                       TODO: ver como inicializar los registros
     pcb->tabla_segmentos = list_create();       //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
     pcb->estimacion_prox_rafaga = 0;            //TODO: llega de kernel.config la estimacion inicial
@@ -70,8 +90,20 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
                 printf("El cop que me llegó es Instrucciones\n");
 
                 pcb = inicializar_pcb(cliente_socket);
+                
+                // wait(mutex cola de new)
+                
+                //LO TENEMOS QUE MANDAR A LA COLA DE NEW
 
-                mostrar_lista(pcb->instrucciones);
+                // una vez que lo agregamos a new, hacemos un signal al semaforo cant_procesos_new;
+
+                // post(mutex cola de new)
+                
+                // queue_push(t_queue *, void * elemento);
+
+
+
+                //mostrar_lista(pcb->instrucciones);
 
                 break;
             }

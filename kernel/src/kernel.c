@@ -21,7 +21,14 @@ int main(int argc, char** argv){
     // Conexión con Memoria
     //int conexion_mem = conectar_con(MEMORIA, config, logger);
 
-    
+    // inicializar semaforos y colas
+
+    //inicializar_semaforos(config);
+    //inicializar_colas();
+
+
+
+
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo
     while (1)
     {

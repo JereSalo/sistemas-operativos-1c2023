@@ -36,10 +36,10 @@ typedef struct {
 	//int cliente_socket;
     t_registros_cpu registros_cpu;
     t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
-	pcb_estado estado;
+	// pcb_estado estado; ??
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
-    double estimacion_prox_rafaga;  // Para HRRN
-    double tiempo_llegada_ready;    // Para HRRN
+    double estimacion_prox_rafaga;      // Para HRRN
+    double tiempo_llegada_ready;        // Para HRRN
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
 } t_pcb;
 

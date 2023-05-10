@@ -11,8 +11,7 @@ pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;
 sem_t maximo_grado_de_multiprogramacion;
 sem_t cant_procesos_new;
-
-
+sem_t cant_procesos_ready;
 
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
@@ -33,24 +32,28 @@ void planificador_largo_plazo() {
     //pregunta el grado de multiprogramacion y si hay procesos en new -> con semaforos
     
     sem_wait(&cant_procesos_new);
-    sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
+    //sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
 
     //si esta todo ok hago un pop de la cola de new
-   
+    
     pthread_mutex_lock(&mutex_new);
     proceso = queue_pop(procesos_en_new);
     pthread_mutex_unlock(&mutex_new);
 
-
-    printf("Saque un proceso de la cola de new, con ID %d", proceso->pid);
     
+    printf("Saque un proceso de la cola de new, con ID %d", proceso->pid); // usar loggers en vez de printf
+
     
     //despues hago un list add a ready
 
-    //sem_wait(&mutex_ready);
-    //list_add(procesos_en_ready, proceso);
-    //sem_post(&mutex_ready);
+    pthread_mutex_lock(&mutex_ready);
+    list_add(procesos_en_ready, proceso);
+    pthread_mutex_unlock(&mutex_ready);
 
+    printf("AGREGAMOS UN PROCESO A READY"); // usar logger
+    
+    // hacemos un signal de un semaforo de cant_procesos_en_ready (para el planificador de corto plazo)
+    sem_post(&cant_procesos_ready);
 
 }
 

@@ -24,13 +24,13 @@ int main(int argc, char** argv){
 
     // inicializar semaforos y colas
 
-    //inicializar_semaforos(config);
+    inicializar_semaforos(config);
     inicializar_colas();
 
     
-    //pthread_t hilo_planificador_largo;
-	//pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, NULL);
-	//pthread_detach(hilo_planificador_largo);
+    pthread_t hilo_planificador_largo;
+	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, NULL);
+	pthread_detach(hilo_planificador_largo);
    
 
 

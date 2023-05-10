@@ -16,6 +16,7 @@ extern pthread_mutex_t mutex_new;
 extern pthread_mutex_t mutex_ready;
 extern sem_t maximo_grado_de_multiprogramacion;
 extern sem_t cant_procesos_new;
+extern sem_t cant_procesos_ready;
 
 
 void inicializar_colas();

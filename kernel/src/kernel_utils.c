@@ -1,16 +1,12 @@
 #include "kernel_utils.h"
 
-
 t_log* logger;
-/*
-t_queue* procesos_en_new;
-t_list* procesos_en_ready;
-
+int pid_counter = 1;
 
 void inicializar_semaforos(t_config *config) {
-    // pthread_mutex_init(pthread_mutex_t *, const pthread_mutexattr_t *);
-    // pthread_mutex_init(mutex_new, const pthread_mutexattr_t *);
-
+    
+    pthread_mutex_init(&mutex_new, NULL);
+    pthread_mutex_init(&mutex_ready, NULL);
     
 
     sem_init(&cant_procesos_new, 0, 0);
@@ -23,9 +19,6 @@ void inicializar_colas() {
     procesos_en_new = queue_create();
     procesos_en_ready = list_create();
 }
-*/
-
-int pid_counter = 1;
 
 t_pcb* inicializar_pcb(int cliente_socket) {
     // Recibimos las instrucciones
@@ -90,20 +83,21 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
 
                 pcb = inicializar_pcb(cliente_socket);
                 
-                // wait(mutex cola de new)
+                //mostrar_lista(pcb->instrucciones);
                 
                 //LO TENEMOS QUE MANDAR A LA COLA DE NEW
 
                 // una vez que lo agregamos a new, hacemos un signal al semaforo cant_procesos_new;
 
-                // post(mutex cola de new)
+                pthread_mutex_lock(&mutex_new);
+                queue_push(procesos_en_new, pcb);
+                pthread_mutex_unlock(&mutex_new);
+
+
+                log_info(logger, "Agregue un proceso a la cola de NEW");
+
+                sem_post(&cant_procesos_new);   
                 
-                // queue_push(t_queue *, void * elemento);
-
-
-
-                //mostrar_lista(pcb->instrucciones);
-
                 break;
             }
             case -1:

@@ -5,6 +5,7 @@
 #include "shared_utils.h"
 #include "serializacion.h"
 
+void planificador_largo_plazo();
 
 typedef struct{
     uint8_t registros_cpu_8[4];     // AX, BX, CX, DX

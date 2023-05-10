@@ -1,5 +1,6 @@
 #include "kernel.h"
 
+
 int main(int argc, char** argv){
     int modulo = KERNEL;
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
@@ -24,9 +25,13 @@ int main(int argc, char** argv){
     // inicializar semaforos y colas
 
     //inicializar_semaforos(config);
-    //inicializar_colas();
+    inicializar_colas();
 
-
+    
+    //pthread_t hilo_planificador_largo;
+	//pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, NULL);
+	//pthread_detach(hilo_planificador_largo);
+   
 
 
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo

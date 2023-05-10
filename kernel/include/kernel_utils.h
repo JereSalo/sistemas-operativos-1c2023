@@ -7,17 +7,19 @@ extern t_log* logger;
 extern int pid_counter;
 
 // Estados de procesos
-//extern t_queue* procesos_en_new;
-//extern t_list* procesos_en_ready;
+extern t_queue* procesos_en_new;
+extern t_list* procesos_en_ready;
+
 
 // Semáforos
-/* pthread_mutex_t mutex_new;
-pthread_mutex_t mutex_ready;
-sem_t maximo_grado_de_multiprogramacion;
-sem_t cant_procesos_new; */
+extern pthread_mutex_t mutex_new;
+extern pthread_mutex_t mutex_ready;
+extern sem_t maximo_grado_de_multiprogramacion;
+extern sem_t cant_procesos_new;
 
-/* void inicializar_semaforos(t_config* config);
-void inicializar_colas(); */
+
+void inicializar_colas();
+void inicializar_semaforos(t_config *config);
 
 void esperar_clientes_kernel(int server_socket);
 void procesar_conexion_kernel(void* cliente_socket);

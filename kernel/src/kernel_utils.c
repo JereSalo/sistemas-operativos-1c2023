@@ -3,7 +3,7 @@
 t_log* logger;
 int pid_counter = 1;
 
-void inicializar_semaforos(t_config *config) {
+void inicializar_semaforos(grado_de_multiprogramacion) {
     
     pthread_mutex_init(&mutex_new, NULL);
     pthread_mutex_init(&mutex_ready, NULL);
@@ -12,7 +12,7 @@ void inicializar_semaforos(t_config *config) {
     sem_init(&cant_procesos_ready, 0, 0);
 
     //uint grado_de_multiprogramacion = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
-    //sem_init(&maximo_grado_de_multiprogramacion, 0, grado_de_multiprogramacion);
+    sem_init(&maximo_grado_de_multiprogramacion, 0, grado_de_multiprogramacion);
 }
 
 void inicializar_colas() {

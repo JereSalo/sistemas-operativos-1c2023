@@ -20,7 +20,7 @@ extern sem_t cant_procesos_ready;
 
 
 void inicializar_colas();
-void inicializar_semaforos(t_config *config);
+void inicializar_semaforos(int);
 
 void esperar_clientes_kernel(int server_socket);
 void procesar_conexion_kernel(void* cliente_socket);

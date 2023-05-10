@@ -24,7 +24,7 @@ void planificador_largo_plazo() {
     //pregunta el grado de multiprogramacion y si hay procesos en new -> con semaforos
     
     sem_wait(&cant_procesos_new);
-    //sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
+    sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
 
     //si esta todo ok hago un pop de la cola de new
     

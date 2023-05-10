@@ -1,11 +1,13 @@
 #include "kernel.h"
 
+uint grado_de_multiprogramacion;
 
 int main(int argc, char** argv){
     int modulo = KERNEL;
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config");
 
+    grado_de_multiprogramacion = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
 
     // Kernel es server del módulo Consola.
     int server_fd = preparar_servidor(modulo, config, logger);
@@ -24,7 +26,7 @@ int main(int argc, char** argv){
 
 
     // inicializar semaforos y colas
-    inicializar_semaforos(config);
+    inicializar_semaforos(grado_de_multiprogramacion);
     inicializar_colas();
 
     // Creamos el hilo donde se ejecuta el planificador de largo plazo

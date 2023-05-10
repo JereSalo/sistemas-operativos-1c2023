@@ -7,11 +7,11 @@ t_list* procesos_en_ready;
 
 
 // Semaforos
-pthread_mutex_t mutex_new;
-pthread_mutex_t mutex_ready;
-sem_t maximo_grado_de_multiprogramacion;
-sem_t cant_procesos_new;
-sem_t cant_procesos_ready;
+pthread_mutex_t mutex_new;                  // mutex de la cola de new
+pthread_mutex_t mutex_ready;                // mutex de la lista de ready
+sem_t maximo_grado_de_multiprogramacion;    // contador del max grado de multiprogramacion (que no este llena)
+sem_t cant_procesos_new;                    // contador de la cola de new (para chequear que no este vacia)
+sem_t cant_procesos_ready;                  // contador de la cola de ready (para chequear que no este vacia)
 
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
@@ -19,15 +19,7 @@ sem_t cant_procesos_ready;
 // Pasaje de NEW -> READY
 void planificador_largo_plazo() {
 
-    //semaforos que necesitamos:
-        // mutex de la cola de new
-        // mutex de la lista de ready
-        // contador del max grado de multiprogramacion (que no este llena)
-        // contador de la cola de new (para chequear que no este vacia)
-    
-    
     t_pcb* proceso;
-
 
     //pregunta el grado de multiprogramacion y si hay procesos en new -> con semaforos
     

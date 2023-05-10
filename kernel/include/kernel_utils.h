@@ -4,6 +4,7 @@
 #include "shared.h"
 
 extern t_log* logger;
+extern int pid_counter;
 
 // Estados de procesos
 //extern t_queue* procesos_en_new;

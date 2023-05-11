@@ -2,7 +2,7 @@
 #include "kernel.h"
 
 
-// Colas de los estados de los procesos
+// Colas de los estados de los procesos aaa
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
 

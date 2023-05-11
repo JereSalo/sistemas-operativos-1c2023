@@ -22,6 +22,7 @@
         "cpu_utils.h": "c",
         "kernel_utils.h": "c",
         "queue.h": "c",
-        "shared_utils.h": "c"
+        "shared_utils.h": "c",
+        "socket.h": "c"
     }
 }

@@ -18,7 +18,7 @@ t_list* generar_lista_instrucciones(char* path_instrucciones) {
 
     while(fgets(linea,sizeof linea,archivo_instrucciones)!= NULL){
         token = strtok(linea, "\n"); // Para sacar el \n de la linea
-        list_add(instrucciones, strdup(token)); // El strdup en sí leakea memoria, no es casi nada de memoria, no es importante pero bueno.
+        list_add(instrucciones, strdup(token));
     }
 
 

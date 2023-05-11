@@ -1,5 +1,4 @@
 #include "planificador.h"
-#include "kernel.h"
 
 // Colas de los estados de los procesos
 t_queue* procesos_en_new;

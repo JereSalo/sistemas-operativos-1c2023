@@ -6,9 +6,7 @@
 #include "serializacion.h"
 #include "shared_utils.h"
 #include "planificador.h"
-#include "commons/collections/queue.h"
-#include <pthread.h>
-#include <semaphore.h>
+
 
 
 #endif

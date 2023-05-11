@@ -17,20 +17,17 @@ sem_t cant_procesos_ready;
 
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
-
 // Pasaje de NEW -> READY
 void planificador_largo_plazo(void* logger_parametro) {
     
     t_log* logger = (t_log*) logger_parametro;
 
-    while(1) {
-        
+    while(1) {      
         t_pcb* proceso;
 
         // Preguntamos si hay procesos en NEW y por el maximo grado de multiprogramacion
         sem_wait(&cant_procesos_new);
         sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
-
 
         // Si esta todo OK obtenemos el proximo proceso a ser mandado a READY
         pthread_mutex_lock(&mutex_new);
@@ -41,16 +38,13 @@ void planificador_largo_plazo(void* logger_parametro) {
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
         pthread_mutex_unlock(&mutex_ready);
-
-        //NO FUNCA -> HAY UN PROBLEMA CON EL LOGGER                
+              
         log_info(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY", proceso->pid); //log obligatorio
-        //printf("PID: %d - Estado anterior: NEW - Estado actual: READY", proceso->pid);
         
         // Avisamos que agregamos un nuevo proceso a de READY
         sem_post(&cant_procesos_ready);
     }
 }
-
 
 // ------------------------------ PLANIFICADOR DE CORTITO PLAZO ------------------------------ //
 /*
@@ -83,7 +77,6 @@ void planificador_corto_plazo(){
 
         cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
         
-    }
-    
+    }  
 }
 */

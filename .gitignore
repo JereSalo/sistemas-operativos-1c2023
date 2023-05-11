@@ -52,7 +52,6 @@ dkms.conf
 
 # Algunos extra
 *.log
-*.o
 
 /consola/consola
 /kernel/kernel

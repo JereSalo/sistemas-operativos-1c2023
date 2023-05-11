@@ -1,0 +1,6 @@
+# Ignorar todo
+*
+# Menos este archivo :)
+!.gitignore
+
+# Esta carpeta tiene los .o, cuando corrés el programa tiene que existir la carpeta pero no nos interesa que se suban los .o al repo. Y git no trackea carpetas vacías !

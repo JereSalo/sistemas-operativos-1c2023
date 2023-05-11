@@ -53,3 +53,9 @@ dkms.conf
 # Algunos extra
 *.log
 *.o
+
+/consola/consola
+/kernel/kernel
+/cpu/cpu
+/fileSystem/fileSystem
+/memoria/memoria

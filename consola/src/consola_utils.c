@@ -3,7 +3,8 @@
 /* ---------------------------------- PARSER ---------------------------------- */
 
 
-t_list* generar_lista_instrucciones(char* path_instrucciones){
+t_list* generar_lista_instrucciones(char* path_instrucciones) {
+    
     FILE* archivo_instrucciones = fopen(path_instrucciones, "r");
     
     if(archivo_instrucciones == NULL) {
@@ -21,7 +22,7 @@ t_list* generar_lista_instrucciones(char* path_instrucciones){
     }
 
 
-    mostrar_lista(instrucciones); // Esto es para ver si ta todo bien :)
+    //mostrar_lista(instrucciones); // Esto es para ver si ta todo bien :)
 
     fclose(archivo_instrucciones);
 

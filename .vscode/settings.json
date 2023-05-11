@@ -21,6 +21,7 @@
         "procesar_kernel.h": "c",
         "cpu_utils.h": "c",
         "kernel_utils.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "shared_utils.h": "c"
     }
 }

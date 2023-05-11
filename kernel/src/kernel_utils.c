@@ -1,18 +1,52 @@
 #include "kernel_utils.h"
 
 t_log* logger;
+t_kernel_config* config_kernel;
 int pid_counter = 1;
 
-void inicializar_semaforos(grado_de_multiprogramacion) {
+
+void cargar_config_kernel(t_config* config) {
+    
+    config_kernel = malloc(sizeof(t_kernel_config));
+
+    config_kernel->IP_MEMORIA = config_get_string_value(config, "IP_MEMORIA");
+    config_kernel->PUERTO_MEMORIA = config_get_int_value(config, "PUERTO_MEMORIA");
+
+    config_kernel->IP_FILESYSTEM = config_get_string_value(config, "IP_FILESYSTEM");
+    config_kernel->PUERTO_FILESYSTEM = config_get_int_value(config, "PUERTO_FILESYSTEM");
+
+    config_kernel->IP_CPU = config_get_string_value(config, "IP_CPU");
+    config_kernel->PUERTO_CPU = config_get_int_value(config, "PUERTO_CPU");
+
+    config_kernel->PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
+
+    config_kernel->ALGORITMO_PLANIFICACION = config_get_string_value(config, "IP_ALGORITMO_PLANIFICACION");
+    
+    
+    config_kernel->ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
+
+    config_kernel->HRRN_ALFA = config_get_int_value(config, "HRRN_ALFA");
+
+    config_kernel->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
+
+    //FALTAN LAS DOS LISTAS
+
+
+    log_info(logger, "Config cargada en config_kernel");
+
+    
+}
+
+
+
+void inicializar_semaforos() {
     
     pthread_mutex_init(&mutex_new, NULL);
     pthread_mutex_init(&mutex_ready, NULL);
     
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
-
-    //uint grado_de_multiprogramacion = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
-    sem_init(&maximo_grado_de_multiprogramacion, 0, grado_de_multiprogramacion);
+    sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel->GRADO_MAX_MULTIPROGRAMACION);
 }
 
 void inicializar_colas() {
@@ -21,6 +55,7 @@ void inicializar_colas() {
 }
 
 t_pcb* inicializar_pcb(int cliente_socket) {
+    
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
 
@@ -29,12 +64,9 @@ t_pcb* inicializar_pcb(int cliente_socket) {
     }
 
     // Creamos el PCB
-
     t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas);
     pid_counter++;
    
-    //list_destroy_and_destroy_elements(instrucciones_recibidas,free);           ESTO LO VAMOS A HACER EN OTRO LADO
-
     return pcb;
 }
 
@@ -44,58 +76,40 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 
     pcb->pid = pid;
     pcb->instrucciones = lista_instrucciones;
-    //pcb->estado = NEW;
-    //pcb->registros_cpu;                       TODO: ver como inicializar los registros
+    //pcb->registros_cpu;                       //TODO: ver como inicializar los registros
     pcb->tabla_segmentos = list_create();       //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
-    pcb->estimacion_prox_rafaga = 0;            //TODO: llega de kernel.config la estimacion inicial
+    pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;
     pcb->tabla_archivos_abiertos = list_create();
-
 
     return pcb;
 }
 
 void procesar_conexion_kernel(void* void_cliente_socket) {
+    
     int cliente_socket = (intptr_t) void_cliente_socket;
     while(1) {
-        // Aca pensaba que había que usar semáforos pero no, el recv se encarga de recibir solo cuando el otro hace un send, sino se queda clavado.
         op_code cod_op = recibir_operacion(cliente_socket);
         t_pcb* pcb;
 
         switch((int)cod_op) {
-            case NUMERO: // Este está de prueba todavía
-            {
-                printf("El cop que me llegó es Número\n");
-                int numero_recibido;
-
-                if(!recv_numero(cliente_socket, &numero_recibido)) {
-                    log_error(logger, "Fallo recibiendo NUMERO");
-                    break;
-                }
-
-                log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
-
-                break;
-            }
             case INSTRUCCIONES:
             {
-                printf("El cop que me llegó es Instrucciones\n");
+                log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES");
 
+                // Inicializamos el PCB de un proceso (esto implica crearlo)
                 pcb = inicializar_pcb(cliente_socket);
                 
-                //mostrar_lista(pcb->instrucciones);
+                //mostrar_lista(pcb->instrucciones); //chequeo para ver si se cargaron bien las instrucciones
                 
-                //LO TENEMOS QUE MANDAR A LA COLA DE NEW
-
-                // una vez que lo agregamos a new, hacemos un signal al semaforo cant_procesos_new;
-
+                // Agregamos el proceso creado a NEW
                 pthread_mutex_lock(&mutex_new);
                 queue_push(procesos_en_new, pcb);
                 pthread_mutex_unlock(&mutex_new);
 
+                log_info(logger, "Se crea el proceso %d en NEW", pcb->pid); //log obligatorio
 
-                log_info(logger, "Agregue un proceso a la cola de NEW");
-
+                // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
                 
                 break;

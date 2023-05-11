@@ -66,7 +66,7 @@ bool send_instrucciones(int fd, t_list* lista_instrucciones) {
 bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
     // Recibimos el size del payload
     size_t size_instrucciones;
-    printf("Intento recibir size del payload\n");
+    //printf("Intento recibir size del payload\n");
     if (recv(fd,&size_instrucciones, sizeof(size_t), 0) != sizeof(size_t)){
         printf("Fallo recibiendo size del payload\n");
         return false;
@@ -76,7 +76,7 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
     void* stream = malloc(size_instrucciones);
 
     // Recibimos todo el payload
-    printf("Intento recibir todo el payload\n");
+    //printf("Intento recibir todo el payload\n");
     if (recv(fd, stream, size_instrucciones, 0) != size_instrucciones){
         printf("Fallo al recibir todo el payload\n");
         free(stream);

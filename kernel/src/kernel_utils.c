@@ -37,12 +37,10 @@ void cargar_config_kernel(t_config* config) {
     
 }
 
-
-
 void inicializar_semaforos() {
-    
     pthread_mutex_init(&mutex_new, NULL);
     pthread_mutex_init(&mutex_ready, NULL);
+    pthread_mutex_init(&mutex_running, NULL);
     
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
@@ -84,6 +82,17 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 
     return pcb;
 }
+
+void cargar_contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_de_ejecucion){
+    contexto_de_ejecucion->pid = proceso->pid;
+    contexto_de_ejecucion->pc = proceso->pc;
+
+    for(int i=0; i<5; i++){
+        contexto_de_ejecucion->registros_cpu.registros_cpu_8[i] = proceso->registros_cpu.registros_cpu_8[i];
+    }
+    
+}
+
 
 void procesar_conexion_kernel(void* void_cliente_socket) {
     

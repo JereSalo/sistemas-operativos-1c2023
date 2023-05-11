@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 
     
     pthread_t hilo_planificador_largo;
-	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, NULL);
+	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, (void*) logger);
 	pthread_detach(hilo_planificador_largo);
    
 

@@ -1,11 +1,10 @@
 #ifndef PLANIFICADOR_H_
 #define PLANIFICADOR_H_
 
-
 #include "shared_utils.h"
 #include "serializacion.h"
 
-void planificador_largo_plazo();
+void planificador_largo_plazo(void*);
 
 typedef struct{
     uint8_t registros_cpu_8[4];     // AX, BX, CX, DX
@@ -43,5 +42,12 @@ typedef struct {
     double tiempo_llegada_ready;        // Para HRRN
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
 } t_pcb;
+
+typedef struct {
+    int pid;  
+    int pc; 
+    t_registros_cpu registros_cpu;
+    t_list* instrucciones; 
+} t_contexto_ejecucion;
 
 #endif

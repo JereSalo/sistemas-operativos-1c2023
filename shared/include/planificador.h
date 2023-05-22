@@ -1,10 +1,8 @@
 #ifndef PLANIFICADOR_H_
 #define PLANIFICADOR_H_
 
-#include "shared_utils.h"
-#include "serializacion.h"
+#include "shared.h"
 
-void planificador_largo_plazo(void*);
 
 typedef struct{
     uint8_t registros_cpu_8[4];     // AX, BX, CX, DX
@@ -28,7 +26,6 @@ typedef struct {
 } t_segmento;
 
 
-
 typedef struct {
     int pid;                            // process id: identificador del proceso.
     //int size;
@@ -50,4 +47,12 @@ typedef struct {
     t_list* instrucciones; 
 } t_contexto_ejecucion;
 
+
+void planificador_largo_plazo(void*);
+//void planificador_corto_plazo(void*, int);
+void planificador_corto_plazo(int);
+void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
+
+
 #endif
+

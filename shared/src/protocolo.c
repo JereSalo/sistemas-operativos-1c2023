@@ -83,7 +83,58 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
         return false;
     }
 
-    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas);
+    // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
+    size_t desplazamiento = 0;
+
+    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas, desplazamiento);
+
+    free(stream);
+    return true;
+}
+
+// ------------------------------ ENVIO Y RECEPCION DE CONTEXTO DE EJECUCION ------------------------------ //
+
+bool send_contexto(int fd, t_contexto_ejecucion* contexto) {
+    
+    size_t size = 0;
+    void* paquete = serializar_contexto(&size, contexto);
+    
+    //mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send\n");
+        free(paquete);
+        return false;
+    }
+    
+    free(paquete);
+    return true;
+}
+
+
+bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
+    // Recibimos el size del payload
+    size_t size_contexto;
+    //printf("Intento recibir size del payload\n");
+    if (recv(fd, &size_contexto, sizeof(size_t), 0) != sizeof(size_t)){
+        printf("Fallo recibiendo size del payload\n");
+        return false;
+    }
+
+    // Hacemos malloc para poder guardar todo el payload
+    void* stream = malloc(size_contexto);
+
+    // Recibimos todo el payload
+    //printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_contexto, 0) != size_contexto){
+        printf("Fallo al recibir todo el payload\n");
+        free(stream);
+        return false;
+    }
+
+    // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
+    size_t desplazamiento = 0;
+
+    deserializar_contexto(stream, size_contexto, contexto, desplazamiento);
 
     free(stream);
     return true;
@@ -93,7 +144,13 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
 // Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
 // Asi nos evitamos que el switch quede muy grande, ya que no todos los servers van a entender los mismos mensajes
 
+
+
+
+
 // ------------------------------ PROCESAR ------------------------------ //
+
+
 
 
 // ESTO VUELA, es un procesar conexion por cada módulo.

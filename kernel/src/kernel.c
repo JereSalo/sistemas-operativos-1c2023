@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     // CLIENTES -> CPU, Memoria y File System
 
     // Conexión con la CPU
-    //int conexion_cpu = conectar_con(CPU, config, logger);
+    int conexion_cpu = conectar_con(CPU, config, logger);
 
     // Conexión con FileSystem
     //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
@@ -28,10 +28,15 @@ int main(int argc, char** argv){
     inicializar_semaforos();
     inicializar_colas();
 
-    
+    //Aca labura el plani de largo plazo
     pthread_t hilo_planificador_largo;
 	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, (void*) logger);
 	pthread_detach(hilo_planificador_largo);
+
+    //Aca labura el plani de cortito plazo
+    pthread_t hilo_planificador_corto;
+	pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, (void *) (intptr_t) conexion_cpu);
+	pthread_detach(hilo_planificador_corto);
    
 
 

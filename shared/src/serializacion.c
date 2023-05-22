@@ -45,9 +45,8 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
 }
 
 
-void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instrucciones_recibidas){
+void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instrucciones_recibidas, size_t desplazamiento){
     // Tenemos todo el stream con los elementos y sus tamaños.
-    size_t desplazamiento = 0;
 
     while(desplazamiento < stream_size){        
         size_t tamanio_string = 0;
@@ -65,7 +64,85 @@ void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instr
 }
 
 
-// ------------------------------ SERIALIZACION NUMERO ------------------------------ //
+// ------------------------------ SERIALIZACION CONTEXTO DE EJECUCION ------------------------------ //
+
+// ACA VAMOS A SERIALIZAR TODO EL CONTEXTO MENOS LOS REGISTROS
+void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
+
+    size_t size_instrucciones;
+
+    void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, contexto->instrucciones);
+
+     // stream completo
+     *size =    sizeof(op_code)
+                + sizeof(size_t)        //size total del payload
+                + sizeof(int)           //pid
+                + sizeof(int)           //pc
+                + sizeof(size_t)        // size instrucciones
+                + size_instrucciones;   // instrucciones
+    
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
+   
+    void* paquete = malloc(*size);
+    
+    op_code codigo_operacion = CONTEXTO_EJECUCION;
+  
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
+           
+    free(stream_instrucciones);
+    return paquete;
+}
+
+void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t desplazamiento) {
+
+    copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), &desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), &desplazamiento);
+    deserializar_instrucciones(stream, stream_size, contexto->instrucciones, desplazamiento);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------------ SERIALIZACION NUMERO (PRUEBA) ------------------------------ //
 
 void* serializar_numero(int numero) {
     

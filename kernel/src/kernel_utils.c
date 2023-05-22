@@ -82,7 +82,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 
     return pcb;
 }
-
+/*
 void cargar_contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_de_ejecucion){
     contexto_de_ejecucion->pid = proceso->pid;
     contexto_de_ejecucion->pc = proceso->pc;
@@ -92,6 +92,7 @@ void cargar_contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto
     }
     
 }
+*/
 
 
 void procesar_conexion_kernel(void* void_cliente_socket) {

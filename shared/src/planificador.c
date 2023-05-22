@@ -46,13 +46,15 @@ void planificador_largo_plazo(void* logger_parametro) {
 }
 
 // ------------------------------ PLANIFICADOR DE CORTITO PLAZO ------------------------------ //
-/*
-void planificador_corto_plazo(){
+
+void planificador_corto_plazo(int fd) {
+    
+    //t_log* logger = (t_log*) logger_parametro;
     
     while(1){
 
         t_pcb* proceso;
-        t_contexto_ejecucion* contexto_de_ejecucion;
+        t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
 
         // Sacamos un proceso de ready y lo mandamos a ejecutar
         
@@ -64,6 +66,7 @@ void planificador_corto_plazo(){
         proceso = list_remove(procesos_en_ready, 0);
         pthread_mutex_unlock(&mutex_ready);
 
+        
         // Ahora lo mandamos a ejecutar
         
         // Lo guardamos en una variable auxiliar
@@ -71,11 +74,28 @@ void planificador_corto_plazo(){
         proceso_en_running = proceso;
         pthread_mutex_unlock(&mutex_running);
 
+       
+
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
 
         cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
         
+        //log_info(logger, "EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
+        printf("EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
+
+        send_contexto(fd,contexto_de_ejecucion);
+
+
+        //send(CPU, contexto_de_ejecucion);
     }  
 }
-*/
+
+
+void cargar_contexto_de_ejecucion(t_pcb* pcb, t_contexto_ejecucion* contexto) {
+
+    contexto->pid = pcb->pid;
+    contexto->pc = pcb->pc;
+    //contexto->registros_cpu = pcb->registros_cpu; DESPUES LO VEMOS
+    contexto->instrucciones = pcb->instrucciones;
+}

@@ -17,7 +17,6 @@
 #include "commons/collections/queue.h"
 #include <semaphore.h>
 
-
 void mostrar_lista(t_list* lista);
 void* sumarSizeConLongitudString(void* a, void* b);
 size_t tamanio_lista(t_list* lista);

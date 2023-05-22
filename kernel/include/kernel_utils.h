@@ -52,7 +52,7 @@ void esperar_clientes_kernel(int server_socket);
 void procesar_conexion_kernel(void* cliente_socket);
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones);
 t_pcb* inicializar_pcb(int cliente_socket);
-void contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_ejecucion);
+//void contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_ejecucion);
 
 
 #endif

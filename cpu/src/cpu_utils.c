@@ -1,16 +1,62 @@
 #include "cpu_utils.h"
 
 t_log* logger;
+t_dictionary* diccionario_instrucciones;
+
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto) {
-    
-    // Fetch 
-    contexto->instrucciones[contexto->pc];
 
+    char* instruccion;
+    char** instruccion_decodificada;
+
+    mostrar_lista(contexto->instrucciones);
+/*
+    //while(contexto->pc < list_size(contexto->instrucciones)) {
     
-    ;
+        // Fetch: buscamos la proxima instruccion dada por el PC
+        instruccion = list_get(contexto->instrucciones, contexto->pc);
+        
+        // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
+        instruccion_decodificada = string_split(instruccion, " ");
+
+        //["SET", "AX", "HOLA"]
+        
+        printf("PROGRAM COUNTER STRIKE %d", contexto->pc);
+        ejecutar_instruccion(instruccion_decodificada, contexto);
+        
+        //contexto->pc++;
+
+    }
+    */
 }
 
+
+void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
+
+    // matcheamos con el primer elemento de la instruccion decodificada, osea la FIRMA de la instruccion
+    int op_instruccion = (int) dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]);
+
+    switch(op_instruccion) {
+        case SET:
+        {
+            printf("EJECUTE SET \n");
+            break;
+        }
+        case EXIT:
+        {
+            printf("EJECUTE EXIT \n");
+            break;   
+        }
+        case YIELD:
+        {
+            printf("EJECUTE YIELD \n");  
+            break;        
+        }
+        default: {
+            printf("INSTRUCCION DESCONOCIDA \n");
+        }
+    }
+}
 
 
 void procesar_conexion_cpu(int cliente_socket) {

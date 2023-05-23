@@ -17,6 +17,7 @@
 #include "commons/collections/queue.h"
 #include <semaphore.h>
 #include <stdint.h>
+#include <commons/collections/dictionary.h>
 
 
 typedef struct{

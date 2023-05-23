@@ -2,6 +2,17 @@
 
 t_log* logger;
 
+void ejecutar_proceso(t_contexto_ejecucion* contexto) {
+    
+    // Fetch 
+    contexto->instrucciones[contexto->pc];
+
+    
+    ;
+}
+
+
+
 void procesar_conexion_cpu(int cliente_socket) {
     while(1) {
         // Aca pensaba que había que usar semáforos pero no, el recv se encarga de recibir solo cuando el otro hace un send, sino se queda clavado.
@@ -24,12 +35,17 @@ void procesar_conexion_cpu(int cliente_socket) {
 
                 log_info(logger, "Contexto PID: %d", contexto->pid);
                 log_info(logger, "Contexto PC: %d", contexto->pc);
+                //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
+
+                ejecutar_proceso(contexto);
+
 
                 // Falta tema registros. No va a poder mostrar la lista bien hasta que los registros no esten hechos (por el orden de serializacion)
                 // mostrar_lista(contexto->instrucciones);
 
                 break;
             }
+
             case -1:
             {
 			    log_error(logger, "El cliente se desconecto. Terminando Servidor");

@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include "commons/collections/queue.h"
 #include <semaphore.h>
+#include <stdint.h>
 
 
 typedef struct{

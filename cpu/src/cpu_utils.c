@@ -1,42 +1,32 @@
 #include "cpu_utils.h"
 
+t_log* logger;
+
 void procesar_conexion_cpu(int cliente_socket) {
     while(1) {
         // Aca pensaba que había que usar semáforos pero no, el recv se encarga de recibir solo cuando el otro hace un send, sino se queda clavado.
         op_code cod_op = recibir_operacion(cliente_socket);
         
-        switch(cod_op) {
-            case NUMERO: // Este está de prueba todavía
+        switch((int)cod_op) {
+            case CONTEXTO_EJECUCION:
             {
-                printf("El cop que me llegó es Número\n");
-                int numero_recibido;
-
-                if(!recv_numero(cliente_socket, &numero_recibido)) {
-                    log_error(logger, "Fallo recibiendo NUMERO");
+                printf("El cop que me llegó es Contexto Ejecucion\n");
+                t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
+                contexto->instrucciones = list_create();
+                
+                if(!recv_contexto(cliente_socket, contexto)) {
+                    log_error(logger, "Fallo recibiendo CONTEXTO");
                     break;
                 }
 
-                log_info(logger, "RECIBI EL MENSAJE %d", numero_recibido);
+                log_info(logger, "RECIBI BIEN EL CONTEXTO");
 
-                break;
-            }
-            case INSTRUCCIONES:
-            {
-                printf("El cop que me llegó es Instrucciones\n");
-                t_list* instrucciones_recibidas = list_create();
+                log_info(logger, "Contexto PID: %d", contexto->pid);
+                log_info(logger, "Contexto PC: %d", contexto->pc);
 
-                if(!recv_instrucciones(cliente_socket,instrucciones_recibidas)){
-                    log_error(logger, "Fallo recibiendo INSTRUCCIONES");
-                    break;
-                }
+                // Falta tema registros. No va a poder mostrar la lista bien hasta que los registros no esten hechos (por el orden de serializacion)
+                // mostrar_lista(contexto->instrucciones);
 
-                log_info(logger, "RECIBI LAS INSTRUCCIONES\n");
-
-                mostrar_lista(instrucciones_recibidas);
-
-                // ACA VIENE TODO EL COMPORTAMIENTO DE LA INSTRUCCION
-
-                list_destroy_and_destroy_elements(instrucciones_recibidas,free);
                 break;
             }
             case -1:

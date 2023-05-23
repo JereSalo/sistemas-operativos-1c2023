@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     // CLIENTES -> CPU, Memoria y File System
 
     // Conexión con la CPU
-    //int conexion_cpu = conectar_con(CPU, config, logger);
+    int conexion_cpu = conectar_con(CPU, config, logger);
 
     // Conexión con FileSystem
     //int conexion_fs = conectar_con(FILESYSTEM, config, logger);

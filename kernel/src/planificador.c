@@ -1,21 +1,5 @@
 #include "planificador.h"
 
-t_log* logger;
-
-// Colas de los estados de los procesos
-t_queue* procesos_en_new;
-t_list* procesos_en_ready;
-t_pcb* proceso_en_running;
-
-
-// Semaforos
-pthread_mutex_t mutex_new;
-pthread_mutex_t mutex_ready;
-pthread_mutex_t mutex_running;
-sem_t maximo_grado_de_multiprogramacion;
-sem_t cant_procesos_new;
-sem_t cant_procesos_ready;
-
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
 // Pasaje de NEW -> READY
@@ -48,9 +32,6 @@ void planificador_largo_plazo() {
 // ------------------------------ PLANIFICADOR DE CORTITO PLAZO ------------------------------ //
 
 void planificador_corto_plazo(int fd) {
-    
-    //t_log* logger = (t_log*) logger_parametro;
-    
     while(1){
 
         t_pcb* proceso;
@@ -74,17 +55,15 @@ void planificador_corto_plazo(int fd) {
         proceso_en_running = proceso;
         pthread_mutex_unlock(&mutex_running);
 
-       
-
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
 
         cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
         
-        //log_info(logger, "EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
-        printf("EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
+        log_info(logger, "EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
+        
 
-        send_contexto(fd,contexto_de_ejecucion);
+        send_contexto(fd, contexto_de_ejecucion);
 
     }  
 }

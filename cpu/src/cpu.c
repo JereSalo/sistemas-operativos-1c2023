@@ -1,6 +1,5 @@
 #include "cpu.h"
 
-
 int main(int argc, char** argv){
     int modulo = CPU;
     logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_INFO);
@@ -13,7 +12,9 @@ int main(int argc, char** argv){
     // SERVER -> Kernel
     int server_fd = preparar_servidor(modulo, config, logger);
 
-    esperar_clientes(server_fd, logger, "CPU");
+    int cliente_fd = esperar_cliente(server_fd, logger, "CPU");
+
+    procesar_conexion_cpu(cliente_fd);
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);

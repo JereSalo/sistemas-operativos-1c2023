@@ -3,6 +3,6 @@
 
 #include "shared.h"
 
-t_log* logger;
+extern t_log* logger;
 
 #endif

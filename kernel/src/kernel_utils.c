@@ -4,6 +4,19 @@ t_log* logger;
 t_kernel_config* config_kernel;
 int pid_counter = 1;
 
+// Colas de los estados de los procesos
+t_queue* procesos_en_new;
+t_list* procesos_en_ready;
+t_pcb* proceso_en_running;
+
+// Semaforos
+pthread_mutex_t mutex_new;
+pthread_mutex_t mutex_ready;
+pthread_mutex_t mutex_running;
+sem_t maximo_grado_de_multiprogramacion;
+sem_t cant_procesos_new;
+sem_t cant_procesos_ready;
+
 
 void cargar_config_kernel(t_config* config) {
     
@@ -25,7 +38,7 @@ void cargar_config_kernel(t_config* config) {
     
     config_kernel->ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
 
-    config_kernel->HRRN_ALFA = config_get_int_value(config, "HRRN_ALFA");
+    config_kernel->HRRN_ALFA = config_get_double_value(config, "HRRN_ALFA");
 
     config_kernel->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
 
@@ -33,8 +46,6 @@ void cargar_config_kernel(t_config* config) {
 
 
     log_info(logger, "Config cargada en config_kernel");
-
-    
 }
 
 void inicializar_semaforos() {
@@ -69,10 +80,9 @@ t_pcb* inicializar_pcb(int cliente_socket) {
 }
 
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
-
     t_pcb* pcb = malloc(sizeof(t_pcb));
-
     pcb->pid = pid;
+    pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
     //pcb->registros_cpu;                       //TODO: ver como inicializar los registros
     pcb->tabla_segmentos = list_create();       //TODO: la dejamos como vacia pero la tabla la va a armar la memoria

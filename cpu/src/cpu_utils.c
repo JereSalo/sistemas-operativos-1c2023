@@ -12,6 +12,7 @@ void procesar_conexion_cpu(int cliente_socket) {
             {
                 printf("El cop que me llegó es Contexto Ejecucion\n");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
+                contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
                 contexto->instrucciones = list_create();
                 
                 if(!recv_contexto(cliente_socket, contexto)) {

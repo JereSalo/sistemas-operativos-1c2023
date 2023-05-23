@@ -63,6 +63,33 @@ void inicializar_colas() {
     procesos_en_ready = list_create();
 }
 
+void inicializar_registros(t_registros_cpu* registros) {
+    
+    for(int i=0; i<4; i++) {
+        registros->AX[i] = 0;
+        registros->BX[i] = 0;
+        registros->CX[i] = 0;
+        registros->DX[i] = 0;
+    }
+
+    for (int i = 0; i < 8; i++)
+    {
+        registros->EAX[i] = 0;
+        registros->EBX[i] = 0;
+        registros->ECX[i] = 0;
+        registros->EDX[i] = 0;
+    }
+
+    for (int i = 0; i < 16; i++)
+    {
+        registros->RAX[i] = 0;
+        registros->RBX[i] = 0;
+        registros->RCX[i] = 0;
+        registros->RDX[i] = 0;
+    }
+}
+
+
 t_pcb* inicializar_pcb(int cliente_socket) {
     
     // Recibimos las instrucciones
@@ -84,8 +111,9 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     pcb->pid = pid;
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
-    //pcb->registros_cpu;                       //TODO: ver como inicializar los registros
-    pcb->tabla_segmentos = list_create();       //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
+    pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
+    inicializar_registros(pcb->registros_cpu);                          //TODO: ver como inicializar los registros
+    pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;
     pcb->tabla_archivos_abiertos = list_create();

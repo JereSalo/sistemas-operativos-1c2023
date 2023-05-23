@@ -71,12 +71,12 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
      // stream completo
      *size =    sizeof(op_code)
-                + sizeof(size_t)        //size total del payload
-                + sizeof(int)           //pid
-                + sizeof(int)           //pc
-                // Aca faltaria tema registros
-                + sizeof(size_t)        // size instrucciones
-                + size_instrucciones;   // instrucciones
+                + sizeof(size_t)            //size total del payload
+                + sizeof(int)               //pid
+                + sizeof(int)               //pc
+                + sizeof(t_registros_cpu)   // registros cpu
+                + sizeof(size_t)            // size instrucciones
+                + size_instrucciones;       // instrucciones
     
     size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
@@ -90,7 +90,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
-    // Aca faltaria tema registros
+    copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
            
@@ -102,7 +102,7 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
 
     copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), &desplazamiento);
     copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), &desplazamiento);
-    // Aca faltaria tema registros
+    copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), &desplazamiento);
     deserializar_instrucciones(stream, stream_size, contexto->instrucciones, desplazamiento);
 }
 

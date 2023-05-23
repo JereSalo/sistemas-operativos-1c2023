@@ -32,7 +32,7 @@ typedef struct {
     //int size;
     int pc;                             // program counter: número de la próxima instrucción a ejecutar.
 	//int cliente_socket;
-    t_registros_cpu registros_cpu;
+    t_registros_cpu* registros_cpu;
     t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
     double estimacion_prox_rafaga;      // Para HRRN
@@ -73,6 +73,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones);
 void esperar_clientes_kernel(int server_socket);
 void procesar_conexion_kernel(void* cliente_socket);
 
+void inicializar_registros(t_registros_cpu* registros);
 
 //void contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_ejecucion);
 

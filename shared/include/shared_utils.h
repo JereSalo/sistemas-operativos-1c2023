@@ -20,9 +20,9 @@
 
 
 typedef struct{
-    uint8_t registros_cpu_8[4];     // AX, BX, CX, DX
-    uint16_t registros_cpu_16[4];   // EAX, EBX, ECX, EDX
-    uint32_t registros_cpu_32[4];   // RAX, RBX, RCX, RDX
+    char AX[4], BX[4], CX[4], DX[4];
+    char EAX[8], EBX[8], ECX[8], EDX[8];
+    char RAX[16], RBX[16], RCX[16], RDX[16];
 } t_registros_cpu;
 
 typedef struct {
@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
     int pid;  
     int pc; 
-    t_registros_cpu registros_cpu;
+    t_registros_cpu* registros_cpu;
     t_list* instrucciones; 
 } t_contexto_ejecucion;
 

@@ -17,6 +17,28 @@
 #include "commons/collections/queue.h"
 #include <semaphore.h>
 
+
+typedef struct{
+    uint8_t registros_cpu_8[4];     // AX, BX, CX, DX
+    uint16_t registros_cpu_16[4];   // EAX, EBX, ECX, EDX
+    uint32_t registros_cpu_32[4];   // RAX, RBX, RCX, RDX
+} t_registros_cpu;
+
+typedef struct {
+    int id;
+    int direccion_base; // ???
+	int size; // Tamaño de segmento
+} t_segmento;
+
+typedef struct {
+    int pid;  
+    int pc; 
+    t_registros_cpu registros_cpu;
+    t_list* instrucciones; 
+} t_contexto_ejecucion;
+
+
+
 void mostrar_lista(t_list* lista);
 void* sumarSizeConLongitudString(void* a, void* b);
 size_t tamanio_lista(t_list* lista);

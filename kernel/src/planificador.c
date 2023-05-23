@@ -1,5 +1,7 @@
 #include "planificador.h"
 
+t_log* logger;
+
 // Colas de los estados de los procesos
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
@@ -17,10 +19,8 @@ sem_t cant_procesos_ready;
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
 // Pasaje de NEW -> READY
-void planificador_largo_plazo(void* logger_parametro) {
+void planificador_largo_plazo() {
     
-    t_log* logger = (t_log*) logger_parametro;
-
     while(1) {      
         t_pcb* proceso;
 
@@ -86,8 +86,6 @@ void planificador_corto_plazo(int fd) {
 
         send_contexto(fd,contexto_de_ejecucion);
 
-
-        //send(CPU, contexto_de_ejecucion);
     }  
 }
 

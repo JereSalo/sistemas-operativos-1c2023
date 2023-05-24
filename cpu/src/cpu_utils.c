@@ -3,15 +3,17 @@
 t_log* logger;
 t_dictionary* diccionario_instrucciones;
 
+int fin_proceso = 0;
+
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto) {
 
     char* instruccion;
     char** instruccion_decodificada;
 
-    mostrar_lista(contexto->instrucciones);
-/*
-    //while(contexto->pc < list_size(contexto->instrucciones)) {
+    //mostrar_lista(contexto->instrucciones);
+
+    while(!fin_proceso) {
     
         // Fetch: buscamos la proxima instruccion dada por el PC
         instruccion = list_get(contexto->instrucciones, contexto->pc);
@@ -21,36 +23,58 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
 
         //["SET", "AX", "HOLA"]
         
-        printf("PROGRAM COUNTER STRIKE %d", contexto->pc);
+        //printf("PROGRAM COUNTER: %d", contexto->pc);
+        
         ejecutar_instruccion(instruccion_decodificada, contexto);
         
-        //contexto->pc++;
+        contexto->pc++;
 
     }
-    */
+    
+}
+
+void asignar_a_registro(char* registro, char* valor, t_contexto_ejecucion* contexto) {
+
+    if(strcmp(registro, "AX") == 0) {
+        strcpy(contexto->registros_cpu->AX, valor); //strcpy copia todo el string salvo el \0
+    }
+
+    
+
 }
 
 
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
 
     // matcheamos con el primer elemento de la instruccion decodificada, osea la FIRMA de la instruccion
+    // esto nos tira un warning por el tema del casteo -> revisar!!
     int op_instruccion = (int) dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]);
 
     switch(op_instruccion) {
         case SET:
         {
             printf("EJECUTE SET \n");
+
+
+            asignar_a_registro(instruccion_decodificada[1], instruccion_decodificada[2], contexto);
+
+            printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %s \n", instruccion_decodificada[1], contexto->registros_cpu->AX);
+
+
             break;
-        }
-        case EXIT:
-        {
-            printf("EJECUTE EXIT \n");
-            break;   
         }
         case YIELD:
         {
             printf("EJECUTE YIELD \n");  
             break;        
+        }
+        case EXIT:
+        {
+            printf("EJECUTE EXIT \n");
+            fin_proceso = 1;
+            //HAY QUE DEVOLVER EL CONTEXTO DE EJECUCION AL KERNEL Y ADEMAS EL KERNEL TIENE QUE ELIMINAR EL PCB
+            // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION
+            break;   
         }
         default: {
             printf("INSTRUCCION DESCONOCIDA \n");
@@ -81,7 +105,8 @@ void procesar_conexion_cpu(int cliente_socket) {
 
                 log_info(logger, "Contexto PID: %d", contexto->pid);
                 log_info(logger, "Contexto PC: %d", contexto->pc);
-                mostrar_lista(contexto->instrucciones);
+                
+                //mostrar_lista(contexto->instrucciones);
                 //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
 
                 ejecutar_proceso(contexto);

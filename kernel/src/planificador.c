@@ -33,7 +33,6 @@ void planificador_largo_plazo() {
 
 void planificador_corto_plazo(int fd) {
     while(1){
-
         t_pcb* proceso;
         t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
 
@@ -73,7 +72,6 @@ void planificador_corto_plazo(int fd) {
 
 
 void cargar_contexto_de_ejecucion(t_pcb* pcb, t_contexto_ejecucion* contexto) {
-
     contexto->pid = pcb->pid;
     contexto->pc = pcb->pc;
     contexto->registros_cpu = pcb->registros_cpu;

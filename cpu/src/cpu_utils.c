@@ -19,9 +19,10 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         instruccion = list_get(contexto->instrucciones, contexto->pc);
         
         // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
-        instruccion_decodificada = string_split(instruccion, " ");
+        instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
 
         //["SET", "AX", "HOLA"]
+        //printf("Inst: %s\n",instruccion_decodificada[0]);
         
         //printf("PROGRAM COUNTER: %d", contexto->pc);
         
@@ -54,8 +55,9 @@ void asignar_a_registro(char* registro, char* valor, t_contexto_ejecucion* conte
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
 
     // matcheamos con el primer elemento de la instruccion decodificada, osea la FIRMA de la instruccion
-    // esto nos tira un warning por el tema del casteo -> revisar!!
-    int op_instruccion = (int) dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]);
+    // esto nos tira un warning por el tema del casteo -> revisar!! (Me parece que con intptr_t se soluciona)
+
+    int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]);
 
     switch(op_instruccion) {
         case SET:
@@ -99,10 +101,10 @@ void procesar_conexion_cpu(int cliente_socket) {
         switch((int)cod_op) {
             case CONTEXTO_EJECUCION:
             {
-                printf("El cop que me llegó es Contexto Ejecucion\n");
+                log_info(logger, "El cop que me llegó es Contexto Ejecucion");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
                 contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
-                //contexto->instrucciones = list_create();
+                contexto->instrucciones = list_create(); // Puse esto aca porque list_create() es como un malloc
                 
                 if(!recv_contexto(cliente_socket, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");
@@ -112,16 +114,14 @@ void procesar_conexion_cpu(int cliente_socket) {
                 log_info(logger, "RECIBI BIEN EL CONTEXTO");
 
                 log_info(logger, "Contexto PID: %d", contexto->pid);
-                log_info(logger, "Contexto PC: %d", contexto->pc);
+                // log_info(logger, "Contexto PC: %d", contexto->pc);
                 
-                //mostrar_lista(contexto->instrucciones);
+                // mostrar_lista(contexto->instrucciones);
+
+           
                 //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
 
                 ejecutar_proceso(contexto);
-
-
-                // Falta tema registros. No va a poder mostrar la lista bien hasta que los registros no esten hechos (por el orden de serializacion)
-                // mostrar_lista(contexto->instrucciones);
 
                 break;
             }

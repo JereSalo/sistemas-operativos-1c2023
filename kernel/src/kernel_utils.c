@@ -115,7 +115,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     inicializar_registros(pcb->registros_cpu);                          //TODO: ver como inicializar los registros
     pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
-    pcb->tiempo_llegada_ready = 0;
+    pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
 
     return pcb;

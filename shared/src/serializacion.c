@@ -108,9 +108,6 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
     copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), desplazamiento);
     copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), desplazamiento);
     copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), desplazamiento);
-    
-    contexto->instrucciones = list_create();
-
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 }
 

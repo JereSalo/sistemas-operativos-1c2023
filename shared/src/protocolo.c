@@ -132,7 +132,10 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
     }
 
     // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
+      
     size_t desplazamiento = 0;
+
+    //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
 
     deserializar_contexto(stream, size_contexto, contexto, desplazamiento);
 

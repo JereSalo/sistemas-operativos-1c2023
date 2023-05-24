@@ -47,7 +47,7 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
 // Dado un stream (con instrucciones) y una lista de instrucciones (vacia), la armamos con los elementos del stream.
 void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instrucciones_recibidas, size_t desplazamiento){
     // Tenemos todo el stream con los elementos y sus tamaños.
-
+   
     while(desplazamiento < stream_size){ 
         size_t tamanio_string = 0;
         copiar_stream_en_variable_y_desplazar(&tamanio_string, stream, sizeof(size_t), &desplazamiento);
@@ -75,8 +75,10 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(int)               //pid
                 + sizeof(int)               //pc
                 + sizeof(t_registros_cpu)   // registros cpu
-                + sizeof(size_t)            // size instrucciones
                 + size_instrucciones;       // instrucciones
+    
+    //ERA AL PEDO MANDAR PRIMERO EL SIZE DE INSTRUCCIONES Y DESPUES LAS INSTRUCCIONES
+    //SOLO DEBEMOS MANDAR EL SIZE DE TODO EL PAYLOAD UNA SOLA VEZ
     
     size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
@@ -91,7 +93,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
+    //copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
            
     free(stream_instrucciones);
@@ -100,9 +102,15 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
 void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t desplazamiento) {
 
+    //size_t size_instrucciones = 0;
+
     copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), &desplazamiento);
     copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), &desplazamiento);
     copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), &desplazamiento);
+    //copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), &desplazamiento);
+    
+    contexto->instrucciones = list_create();
+        
     deserializar_instrucciones(stream, stream_size, contexto->instrucciones, desplazamiento);
 }
 

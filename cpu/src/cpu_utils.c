@@ -70,7 +70,7 @@ void procesar_conexion_cpu(int cliente_socket) {
                 printf("El cop que me llegó es Contexto Ejecucion\n");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
                 contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
-                contexto->instrucciones = list_create();
+                //contexto->instrucciones = list_create();
                 
                 if(!recv_contexto(cliente_socket, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");
@@ -81,6 +81,7 @@ void procesar_conexion_cpu(int cliente_socket) {
 
                 log_info(logger, "Contexto PID: %d", contexto->pid);
                 log_info(logger, "Contexto PC: %d", contexto->pc);
+                mostrar_lista(contexto->instrucciones);
                 //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
 
                 ejecutar_proceso(contexto);

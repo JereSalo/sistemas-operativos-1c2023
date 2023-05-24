@@ -62,6 +62,8 @@ void planificador_corto_plazo(int fd) {
         
         log_info(logger, "EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
         
+        //mostrar_lista(contexto_de_ejecucion->instrucciones);
+
         //printf("EL VALOR DEL REGSITRO AX EN LA POSICION 2 ES: %d", contexto_de_ejecucion->registros_cpu->AX[2]);
 
         send_contexto(fd, contexto_de_ejecucion);

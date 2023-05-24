@@ -83,10 +83,9 @@ bool recv_instrucciones(int fd, t_list* instrucciones_recibidas){
         return false;
     }
 
-    // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
     size_t desplazamiento = 0;
 
-    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas, desplazamiento);
+    deserializar_instrucciones(stream, size_instrucciones, instrucciones_recibidas, &desplazamiento);
 
     free(stream);
     return true;
@@ -137,7 +136,7 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
 
     //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
 
-    deserializar_contexto(stream, size_contexto, contexto, desplazamiento);
+    deserializar_contexto(stream, size_contexto, contexto, &desplazamiento);
 
     free(stream);
     return true;

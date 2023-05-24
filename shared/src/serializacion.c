@@ -45,20 +45,20 @@ void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
 }
 
 // Dado un stream (con instrucciones) y una lista de instrucciones (vacia), la armamos con los elementos del stream.
-void deserializar_instrucciones(void* stream, size_t stream_size , t_list* instrucciones_recibidas, size_t desplazamiento){
+void deserializar_instrucciones(void* stream, size_t size_instrucciones , t_list* instrucciones_recibidas, size_t* desplazamiento){
     // Tenemos todo el stream con los elementos y sus tamaños.
-   
-    while(desplazamiento < stream_size){ 
+    size_t desplazamiento_inicial = *desplazamiento;
+
+    while(*desplazamiento < size_instrucciones + desplazamiento_inicial){
         size_t tamanio_string = 0;
-        copiar_stream_en_variable_y_desplazar(&tamanio_string, stream, sizeof(size_t), &desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&tamanio_string, stream, sizeof(size_t), desplazamiento);
         char* string = malloc(tamanio_string);
-        copiar_stream_en_variable_y_desplazar(string, stream, tamanio_string, &desplazamiento);
+        copiar_stream_en_variable_y_desplazar(string, stream, tamanio_string, desplazamiento);
 
         list_add(instrucciones_recibidas, string);
         // WARNING: NO HACER FREE DEL STRING, SE LIBERA DESPUÉS CUANDO DESTRUIMOS LA LISTA :)
     }
 }
-
 
 // ------------------------------ SERIALIZACION CONTEXTO DE EJECUCION ------------------------------ //
 
@@ -75,6 +75,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(int)               //pid
                 + sizeof(int)               //pc
                 + sizeof(t_registros_cpu)   // registros cpu
+                + sizeof(size_t)//add
                 + size_instrucciones;       // instrucciones
     
     //ERA AL PEDO MANDAR PRIMERO EL SIZE DE INSTRUCCIONES Y DESPUES LAS INSTRUCCIONES
@@ -93,25 +94,24 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
-    //copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento); //add
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
-           
+    
     free(stream_instrucciones);
     return paquete;
 }
 
-void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t desplazamiento) {
+void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento) {
+    size_t size_instrucciones;
 
-    //size_t size_instrucciones = 0;
-
-    copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), &desplazamiento);
-    copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), &desplazamiento);
-    copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), &desplazamiento);
-    //copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), &desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), desplazamiento);
     
     contexto->instrucciones = list_create();
-        
-    deserializar_instrucciones(stream, stream_size, contexto->instrucciones, desplazamiento);
+
+    deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 }
 
 

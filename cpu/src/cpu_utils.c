@@ -30,6 +30,13 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         contexto->pc++;
 
     }
+
+    //guardar_contexto()        GUARDAR CONTEXO ACA
+
+    if(fin_proceso) {
+        fin_proceso = 0;
+        //HACER SEND DEL CONTEXTO AL KERNEL -> cuando termina el proceso debemos mandarlo
+    }
     
 }
 
@@ -55,7 +62,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         {
             printf("EJECUTE SET \n");
 
-
+            //aca faltaria hacer el sleep del retardo del archivo de config del cpu
+            //para eso deberiamos cargar en un struct todo lo del archivo de config como hicimos con el kernel
             asignar_a_registro(instruccion_decodificada[1], instruccion_decodificada[2], contexto);
 
             printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %s \n", instruccion_decodificada[1], contexto->registros_cpu->AX);
@@ -73,7 +81,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             printf("EJECUTE EXIT \n");
             fin_proceso = 1;
             //HAY QUE DEVOLVER EL CONTEXTO DE EJECUCION AL KERNEL Y ADEMAS EL KERNEL TIENE QUE ELIMINAR EL PCB
-            // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION
+            // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION -> esto lo hacemos en el while
             break;   
         }
         default: {

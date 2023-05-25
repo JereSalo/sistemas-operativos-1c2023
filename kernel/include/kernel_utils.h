@@ -77,7 +77,7 @@ void inicializar_registros(t_registros_cpu* registros);
 
 //void contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_ejecucion);
 
-void procesar_conexion_kernel_cpu(int cliente_socket);
+void procesar_conexion_kernel_cpu(void* void_cliente_socket);
 
 
 #endif

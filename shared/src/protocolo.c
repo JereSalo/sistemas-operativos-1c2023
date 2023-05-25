@@ -218,8 +218,10 @@ bool send_string(int fd, char* string) {
 }
 
 
-bool recv_string(int fd, char* string){
+bool recv_string(int fd, char** string){
     // Recibimos el size del payload
+    
+
     size_t size_string;
     //printf("Intento recibir size del payload\n");
     if (recv(fd, &size_string, sizeof(size_t), 0) != sizeof(size_t)){
@@ -229,6 +231,8 @@ bool recv_string(int fd, char* string){
 
     // Hacemos malloc para poder guardar todo el payload
     void* stream = malloc(size_string);
+
+    
 
     // Recibimos todo el payload
     //printf("Intento recibir todo el payload\n");
@@ -244,7 +248,8 @@ bool recv_string(int fd, char* string){
 
     //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
 
-    deserializar_string(stream, string);
+    deserializar_string(stream, &string);
+
 
     free(stream);
     return true;

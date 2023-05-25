@@ -3,6 +3,8 @@
 t_log* logger;
 t_cpu_config config_cpu;
 t_dictionary* diccionario_instrucciones;
+t_dictionary* diccionario_registros_cpu;
+
 
 int fin_proceso = 0;
 
@@ -19,24 +21,41 @@ void cargar_config_cpu(t_config* config) {
 
 void inicializar_diccionarios() {
     
+    // Diccionario de instrucciones
     diccionario_instrucciones = dictionary_create();
 
-    dictionary_put(diccionario_instrucciones, "SET", (void*) (intptr_t)SET); 
-    dictionary_put(diccionario_instrucciones, "MOV_IN", (void*) (intptr_t)MOV_IN);
-    dictionary_put(diccionario_instrucciones, "MOV_OUT", (void*) (intptr_t)MOV_OUT);
-    dictionary_put(diccionario_instrucciones, "I_O", (void*) (intptr_t)I_O);
-    dictionary_put(diccionario_instrucciones, "F_OPEN", (void*) (intptr_t)F_OPEN);
-    dictionary_put(diccionario_instrucciones, "F_CLOSE", (void*) (intptr_t)F_CLOSE);
-    dictionary_put(diccionario_instrucciones, "F_SEEK", (void*) (intptr_t)F_SEEK);
-    dictionary_put(diccionario_instrucciones, "F_READ", (void*) (intptr_t)F_READ);
-    dictionary_put(diccionario_instrucciones, "F_WRITE",(void*) (intptr_t)F_WRITE);
-    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(void*) (intptr_t)F_TRUNCATE);
-    dictionary_put(diccionario_instrucciones, "WAIT",(void*) (intptr_t)WAIT);
-    dictionary_put(diccionario_instrucciones, "SIGNAL",(void*) (intptr_t)SIGNAL);
-    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(void*) (intptr_t)CREATE_SEGMENT);
-    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(void*) (intptr_t)DELETE_SEGMENT);
-    dictionary_put(diccionario_instrucciones, "YIELD",(void*) (intptr_t)YIELD);
-    dictionary_put(diccionario_instrucciones, "EXIT",(void*) (intptr_t)EXIT); 
+    dictionary_put(diccionario_instrucciones, "SET", (void*) (intptr_t) SET); 
+    dictionary_put(diccionario_instrucciones, "MOV_IN", (void*) (intptr_t) MOV_IN);
+    dictionary_put(diccionario_instrucciones, "MOV_OUT", (void*) (intptr_t) MOV_OUT);
+    dictionary_put(diccionario_instrucciones, "I_O", (void*) (intptr_t) I_O);
+    dictionary_put(diccionario_instrucciones, "F_OPEN", (void*) (intptr_t) F_OPEN);
+    dictionary_put(diccionario_instrucciones, "F_CLOSE", (void*) (intptr_t) F_CLOSE);
+    dictionary_put(diccionario_instrucciones, "F_SEEK", (void*) (intptr_t) F_SEEK);
+    dictionary_put(diccionario_instrucciones, "F_READ", (void*) (intptr_t) F_READ);
+    dictionary_put(diccionario_instrucciones, "F_WRITE",(void*) (intptr_t) F_WRITE);
+    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(void*) (intptr_t) F_TRUNCATE);
+    dictionary_put(diccionario_instrucciones, "WAIT",(void*) (intptr_t) WAIT);
+    dictionary_put(diccionario_instrucciones, "SIGNAL",(void*) (intptr_t) SIGNAL);
+    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(void*) (intptr_t) CREATE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(void*) (intptr_t) DELETE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "YIELD",(void*) (intptr_t) YIELD);
+    dictionary_put(diccionario_instrucciones, "EXIT",(void*) (intptr_t) EXIT); 
+
+    // Diccionario de registros CPU
+    diccionario_registros_cpu = dictionary_create();
+
+    dictionary_put(diccionario_registros_cpu, "AX",  (void*) (intptr_t) AX);
+    dictionary_put(diccionario_registros_cpu, "BX",  (void*) (intptr_t) BX);
+    dictionary_put(diccionario_registros_cpu, "CX",  (void*) (intptr_t) CX);
+    dictionary_put(diccionario_registros_cpu, "DX",  (void*) (intptr_t) DX);
+    dictionary_put(diccionario_registros_cpu, "EAX",  (void*) (intptr_t) EAX);
+    dictionary_put(diccionario_registros_cpu, "EBX",  (void*) (intptr_t) EBX);
+    dictionary_put(diccionario_registros_cpu, "ECX",  (void*) (intptr_t) ECX);
+    dictionary_put(diccionario_registros_cpu, "EDX",  (void*) (intptr_t) EDX);
+    dictionary_put(diccionario_registros_cpu, "RAX",  (void*) (intptr_t) RAX);
+    dictionary_put(diccionario_registros_cpu, "RBX",  (void*) (intptr_t) RBX);
+    dictionary_put(diccionario_registros_cpu, "RCX",  (void*) (intptr_t) RCX);
+    dictionary_put(diccionario_registros_cpu, "RDX",  (void*) (intptr_t) RDX);
 }
 
 
@@ -57,15 +76,9 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
         
         
-        
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        // Cargamos los parametrinios de la instruccion en un string para mostrarlos en el logger prolijamente
-        char parametros[100] = "";
-        parametros_instruccion(instruccion_decodificada, parametros);
-
-
-        log_info(logger, "PID: %d - Ejecutando %s %s", contexto->pid, instruccion_decodificada[0], parametros); //logger obligatorio
+        log_info(logger, "PID: %d - Ejecutando %s", contexto->pid, instruccion); //logger obligatorio
 
         contexto->pc++;
 
@@ -74,14 +87,20 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
     if(fin_proceso) {               // Caso EXIT
         fin_proceso = 0;
         
-        char* motivo_desalojo = strdup("Desalojo por EXIT");
+        
+        //char* motivo_desalojo = strdup("DESALOJO POR EXIT");
+        //contexto->motivo_desalojo = instruccion;
+
         //cliente socket es kernel
         printf("ESTOY POR ENTRAR A SEND");
         
-        send_contexto(cliente_socket, contexto);
-        send_string(cliente_socket, motivo_desalojo);
         
-        //send_contexto_desalojado(cliente_socket, contexto, motivo_desalojo);
+        //ACA ESTAMOS TENIENDO PROBLEMAS CON EL ENVIO DEL CONTEXTO AL KERNEL !!!!!!!
+        
+        send_contexto(cliente_socket, contexto);
+        //send_string(cliente_socket, motivo_desalojo); 
+        
+        
         
         //HACER SEND DEL CONTEXTO AL KERNEL -> cuando termina el proceso debemos mandarlo
     }
@@ -89,32 +108,52 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
     
 }
 
-// esto es una falopeada para que quede bien el logger y no tengamos que repetir el log_info en cada CASE de las instrucciones
-void parametros_instruccion(char** instruccion_decodificada, char *parametros) {
-    
-    int tamanio_instruccion_decodificada = string_array_size(instruccion_decodificada);
-
-
-    if (tamanio_instruccion_decodificada > 1) {
-        strcat(parametros, "- ");  // Agrega el guion y el espacio si hay más de un elemento
-    }
-
-    for (int i = 1; i < tamanio_instruccion_decodificada; i++) {
-        strcat(parametros, instruccion_decodificada[i]);  // Concatena el elemento actual
-
-        if (i < tamanio_instruccion_decodificada - 1) {
-            strcat(parametros, ", ");  // Agrega una coma y un espacio si no es el último elemento
-        }
-    }
-}
-
-
 void asignar_a_registro(char* registro, char* valor, t_contexto_ejecucion* contexto) {
 
-    if(strcmp(registro, "AX") == 0) {
-        strcpy(contexto->registros_cpu->AX, valor); //strcpy copia todo el string salvo el \0
-    }
+    registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
 
+    //strcpy copia todo el string salvo el \0
+    
+    switch(reg) {
+        case AX: 
+            strcpy(contexto->registros_cpu->AX, valor); 
+            break;
+        case BX: 
+            strcpy(contexto->registros_cpu->BX, valor); 
+            break;
+        case CX: 
+            strcpy(contexto->registros_cpu->CX, valor); 
+            break;
+        case DX: 
+            strcpy(contexto->registros_cpu->DX, valor); 
+            break;
+        case EAX: 
+            strcpy(contexto->registros_cpu->EAX, valor); 
+            break;
+        case EBX: 
+            strcpy(contexto->registros_cpu->EBX, valor); 
+            break;
+        case ECX: 
+            strcpy(contexto->registros_cpu->ECX, valor); 
+            break;
+        case EDX: 
+            strcpy(contexto->registros_cpu->EDX, valor); 
+            break;
+        case RAX: 
+            strcpy(contexto->registros_cpu->RAX, valor); 
+            break;
+        case RBX: 
+            strcpy(contexto->registros_cpu->RBX, valor); 
+            break;
+        case RCX: 
+            strcpy(contexto->registros_cpu->RCX, valor); 
+            break;
+        case RDX: 
+            strcpy(contexto->registros_cpu->RDX, valor); 
+            break;
+        default:
+            printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
+    }
 }
 
 
@@ -132,7 +171,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             //aca faltaria hacer el sleep del retardo del archivo de config del cpu
             //para eso deberiamos cargar en un struct todo lo del archivo de config como hicimos con el kernel
-            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);
+            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      //si no le ponemos el * 1000 ni se nota el retardo
             
             asignar_a_registro(instruccion_decodificada[1], instruccion_decodificada[2], contexto);
 
@@ -152,6 +191,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             fin_proceso = 1;
             //HAY QUE DEVOLVER EL CONTEXTO DE EJECUCION AL KERNEL Y ADEMAS EL KERNEL TIENE QUE ELIMINAR EL PCB
             // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION -> esto lo hacemos en el while
+            
+            //contexto->motivo_fin_proceso = SUCCESS;
             break;   
         }
         default: {

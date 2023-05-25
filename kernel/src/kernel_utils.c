@@ -176,20 +176,22 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
 
 
 
-void procesar_conexion_kernel_cpu(int cliente_socket) {
+void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
     
-    
+    int cliente_socket = (intptr_t) void_cliente_socket;
+
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
-        t_contexto_ejecucion* contexto_recibido;
-        char* motivo_desalojo;
+        t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
+        contexto_recibido->instrucciones = list_create();
+        //char* motivo_desalojo;
         
 
         switch((int)cod_op) {
             
-            case PROCESO_DESALOJADO:
+            case CONTEXTO_EJECUCION:
             {
-                log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO");
+                log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION");
                 recv_contexto(cliente_socket, contexto_recibido);
                 
             }
@@ -197,9 +199,9 @@ void procesar_conexion_kernel_cpu(int cliente_socket) {
             case STRING:
             {
                 log_info(logger, "Me llego el codigo de operacion STRING");
-                recv_string(cliente_socket, motivo_desalojo);
+                //recv_string(cliente_socket, &motivo_desalojo);
 
-                printf("EL MOTIVO DE DESALOJO ES: %s", motivo_desalojo);
+                //printf("EL MOTIVO DE DESALOJO ES: %s", motivo_desalojo);
                 
             }
             case -1:

@@ -19,6 +19,15 @@ int main(int argc, char** argv){
 
     int cliente_fd = esperar_cliente(server_fd, logger, "CPU");
 
+    
+    //Manejo de conexion con el Kernel -> recibe los contextos de ejecucion
+    
+    //pthread_t hilo;
+    //pthread_create(&hilo, NULL, (void *)procesar_conexion_cpu, (void *) (intptr_t) cliente_fd);
+    //pthread_detach(hilo);
+    
+    
+    
     procesar_conexion_cpu(cliente_fd);
 
     liberar_conexion(&server_fd);

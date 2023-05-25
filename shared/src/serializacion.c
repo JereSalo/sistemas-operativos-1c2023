@@ -112,11 +112,10 @@ void* serializar_string(size_t* size, char* string) {
     size_t size_string = strlen(string) + 1;
 
     *size =    sizeof(op_code)
-                + sizeof(size_t)            //size total del payload
                 + sizeof(size_t)            //size string
                 + size_string;              //string
     
-    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
+    //size_t size_payload = *size - sizeof(op_code);
    
     void* paquete = malloc(*size);
     
@@ -125,7 +124,6 @@ void* serializar_string(size_t* size, char* string) {
     size_t desplazamiento = 0;
 
     copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &size_string, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, string, size_string, &desplazamiento);
     
@@ -133,16 +131,19 @@ void* serializar_string(size_t* size, char* string) {
 
 }
 
-void* deserializar_string(void* stream, char* string) {
-
+void* deserializar_string(void* stream, char** string) {
 
     size_t desplazamiento = 0;
     size_t size_string;
     copiar_stream_en_variable_y_desplazar(&size_string, stream, sizeof(size_t), &desplazamiento);
     
+    char* string_r = malloc(size_string);
+    
     string = malloc(size_string);
     
     copiar_stream_en_variable_y_desplazar(string, stream, size_string, &desplazamiento);
+
+    *string = string_r;
 
 }
 

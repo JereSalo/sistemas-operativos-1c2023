@@ -27,16 +27,20 @@ int main(int argc, char** argv){
     inicializar_semaforos();
     inicializar_colas();
 
-    //Aca labura el plani de largo plazo
+    // Aca labura el plani de largo plazo
     pthread_t hilo_planificador_largo;
 	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, (void*) logger);
 	pthread_detach(hilo_planificador_largo);
 
-    //Aca labura el plani de cortito plazo
+    // Aca labura el plani de cortito plazo
     pthread_t hilo_planificador_corto;
 	pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, (void *) (intptr_t) conexion_cpu);
 	pthread_detach(hilo_planificador_corto);
-   
+
+    // Recibe los contextos de ejecucion de la CPU
+    pthread_t hilo_kernel_cpu;
+    pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_conexion_kernel_cpu, (void*) (intptr_t) conexion_cpu);
+    pthread_detach(&hilo_kernel_cpu);
 
     //CONEXION CPU DISPATCH
     //procesar_conexion_kernel_cpu(conexion_cpu); ?????????????

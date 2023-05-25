@@ -25,6 +25,6 @@ void* serializar_contexto_desalojado(size_t* size, t_contexto_ejecucion* context
 void deserializar_contexto_desalojado(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento, char* motivo_desalojo);
 
 void* serializar_string(size_t* size, char* string);
-void* deserializar_string(void* stream, char* string);
+void* deserializar_string(void* stream, char** string);
 
 #endif

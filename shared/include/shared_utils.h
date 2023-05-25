@@ -32,11 +32,17 @@ typedef struct {
 	int size; // Tamaño de segmento
 } t_segmento;
 
+typedef enum {
+    SUCCESS,
+    SEG_FAULT,
+    OUT_OF_MEMORY
+} t_motivo_fin_proceso;
+
 typedef struct {
     int pid;  
     int pc; 
     t_registros_cpu* registros_cpu;
-    t_list* instrucciones; 
+    t_list* instrucciones;
 } t_contexto_ejecucion;
 
 

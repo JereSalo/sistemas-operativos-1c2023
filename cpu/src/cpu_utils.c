@@ -1,9 +1,43 @@
 #include "cpu_utils.h"
 
 t_log* logger;
+t_cpu_config config_cpu;
 t_dictionary* diccionario_instrucciones;
 
 int fin_proceso = 0;
+
+void cargar_config_cpu(t_config* config) {
+    
+    config_cpu.RETARDO_INSTRUCCION = config_get_int_value(config, "RETARDO_INSTRUCCION");
+    config_cpu.IP_MEMORIA          = config_get_string_value(config, "IP_MEMORIA");
+    config_cpu.PUERTO_MEMORIA      = config_get_int_value(config, "PUERTO_MEMORIA");
+    config_cpu.PUERTO_ESCUCHA      = config_get_int_value(config, "PUERTO_ESCUCHA");
+    config_cpu.TAM_MAX_SEGMENTO    = config_get_int_value(config, "TAM_MAX_SEGMENTO");
+
+    log_info(logger, "Config cargada en config_cpu");
+}
+
+void inicializar_diccionarios() {
+    
+    diccionario_instrucciones = dictionary_create();
+
+    dictionary_put(diccionario_instrucciones, "SET", (int) SET); 
+    dictionary_put(diccionario_instrucciones, "MOV_IN", (int) MOV_IN);
+    dictionary_put(diccionario_instrucciones, "MOV_OUT", (int) MOV_OUT);
+    dictionary_put(diccionario_instrucciones, "I_O", (int) I_O);
+    dictionary_put(diccionario_instrucciones, "F_OPEN", (int) F_OPEN);
+    dictionary_put(diccionario_instrucciones, "F_CLOSE", (int) F_CLOSE);
+    dictionary_put(diccionario_instrucciones, "F_SEEK", (int) F_SEEK);
+    dictionary_put(diccionario_instrucciones, "F_READ", (int)F_READ);
+    dictionary_put(diccionario_instrucciones, "F_WRITE",(int) F_WRITE);
+    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(int) F_TRUNCATE);
+    dictionary_put(diccionario_instrucciones, "WAIT",(int) WAIT);
+    dictionary_put(diccionario_instrucciones, "SIGNAL",(int) SIGNAL);
+    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(int) CREATE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(int) DELETE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "YIELD",(int) YIELD);
+    dictionary_put(diccionario_instrucciones, "EXIT",(int) EXIT); 
+}
 
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto) {
@@ -20,26 +54,51 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         
         // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
         instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
-
-        //["SET", "AX", "HOLA"]
-        //printf("Inst: %s\n",instruccion_decodificada[0]);
         
-        //printf("PROGRAM COUNTER: %d", contexto->pc);
+        
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
-        
+
+        // Cargamos los parametros de la instruccion en un string para mostrarlos en el logger prolijamente
+        char parametros[100] = "";
+        parametros_instruccion(instruccion_decodificada, parametros);
+
+
+        log_info(logger, "PID: %d - Ejecutando %s %s", contexto->pid, instruccion_decodificada[0], parametros);
+
         contexto->pc++;
 
     }
 
-    //guardar_contexto()        GUARDAR CONTEXO ACA
+    //guardar_contexto(contexto);        GUARDAR CONTEXO ACA
 
-    if(fin_proceso) {
+    if(fin_proceso) {               // Caso EXIT
         fin_proceso = 0;
         //HACER SEND DEL CONTEXTO AL KERNEL -> cuando termina el proceso debemos mandarlo
     }
+
     
 }
+
+
+void parametros_instruccion(char** instruccion_decodificada, char *parametros) {
+    
+    int tamanio_instruccion_decodificada = string_array_size(instruccion_decodificada);
+
+
+    if (tamanio_instruccion_decodificada > 1) {
+        strcat(parametros, "- ");  // Agrega el guion y el espacio si hay más de un elemento
+    }
+
+    for (int i = 1; i < tamanio_instruccion_decodificada; i++) {
+        strcat(parametros, instruccion_decodificada[i]);  // Concatena el elemento actual
+
+        if (i < tamanio_instruccion_decodificada - 1) {
+            strcat(parametros, ", ");  // Agrega una coma y un espacio si no es el último elemento
+        }
+    }
+}
+
 
 void asignar_a_registro(char* registro, char* valor, t_contexto_ejecucion* contexto) {
 
@@ -66,6 +125,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             //aca faltaria hacer el sleep del retardo del archivo de config del cpu
             //para eso deberiamos cargar en un struct todo lo del archivo de config como hicimos con el kernel
+            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);
+            
             asignar_a_registro(instruccion_decodificada[1], instruccion_decodificada[2], contexto);
 
             printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %s \n", instruccion_decodificada[1], contexto->registros_cpu->AX);

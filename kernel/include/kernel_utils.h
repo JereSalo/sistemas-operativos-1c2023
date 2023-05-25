@@ -24,7 +24,7 @@ typedef struct {
     //t_list* INSTANCIAS_RECURSOS;
 
 } t_kernel_config;
-extern t_kernel_config* config_kernel;
+extern t_kernel_config config_kernel;
 
 
 typedef struct {

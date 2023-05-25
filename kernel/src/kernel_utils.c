@@ -1,7 +1,7 @@
 #include "kernel_utils.h"
 
 t_log* logger;
-t_kernel_config* config_kernel;
+t_kernel_config config_kernel;
 int pid_counter = 1;
 
 // Colas de los estados de los procesos
@@ -20,27 +20,25 @@ sem_t cant_procesos_ready;
 
 void cargar_config_kernel(t_config* config) {
     
-    config_kernel = malloc(sizeof(t_kernel_config));
+    config_kernel.IP_MEMORIA = config_get_string_value(config, "IP_MEMORIA");
+    config_kernel.PUERTO_MEMORIA = config_get_int_value(config, "PUERTO_MEMORIA");
 
-    config_kernel->IP_MEMORIA = config_get_string_value(config, "IP_MEMORIA");
-    config_kernel->PUERTO_MEMORIA = config_get_int_value(config, "PUERTO_MEMORIA");
+    config_kernel.IP_FILESYSTEM = config_get_string_value(config, "IP_FILESYSTEM");
+    config_kernel.PUERTO_FILESYSTEM = config_get_int_value(config, "PUERTO_FILESYSTEM");
 
-    config_kernel->IP_FILESYSTEM = config_get_string_value(config, "IP_FILESYSTEM");
-    config_kernel->PUERTO_FILESYSTEM = config_get_int_value(config, "PUERTO_FILESYSTEM");
+    config_kernel.IP_CPU = config_get_string_value(config, "IP_CPU");
+    config_kernel.PUERTO_CPU = config_get_int_value(config, "PUERTO_CPU");
 
-    config_kernel->IP_CPU = config_get_string_value(config, "IP_CPU");
-    config_kernel->PUERTO_CPU = config_get_int_value(config, "PUERTO_CPU");
+    config_kernel.PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
 
-    config_kernel->PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
-
-    config_kernel->ALGORITMO_PLANIFICACION = config_get_string_value(config, "IP_ALGORITMO_PLANIFICACION");
+    config_kernel.ALGORITMO_PLANIFICACION = config_get_string_value(config, "IP_ALGORITMO_PLANIFICACION");
     
     
-    config_kernel->ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
+    config_kernel.ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
 
-    config_kernel->HRRN_ALFA = config_get_double_value(config, "HRRN_ALFA");
+    config_kernel.HRRN_ALFA = config_get_double_value(config, "HRRN_ALFA");
 
-    config_kernel->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
+    config_kernel.GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
 
     //FALTAN LAS DOS LISTAS
 
@@ -55,7 +53,7 @@ void inicializar_semaforos() {
     
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
-    sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel->GRADO_MAX_MULTIPROGRAMACION);
+    sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel.GRADO_MAX_MULTIPROGRAMACION);
 }
 
 void inicializar_colas() {
@@ -114,7 +112,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
     inicializar_registros(pcb->registros_cpu);                          //TODO: ver como inicializar los registros
     pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
-    pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
+    pcb->estimacion_prox_rafaga = config_kernel.ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
 

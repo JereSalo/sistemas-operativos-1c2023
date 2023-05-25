@@ -50,7 +50,7 @@ int main(int argc, char** argv){
     }
 
     cerrar_programa(logger, config);
-    free(config_kernel);
+    //free(config_kernel);
 
     return 0;
 }

@@ -21,26 +21,27 @@ void inicializar_diccionarios() {
     
     diccionario_instrucciones = dictionary_create();
 
-    dictionary_put(diccionario_instrucciones, "SET", (int) SET); 
-    dictionary_put(diccionario_instrucciones, "MOV_IN", (int) MOV_IN);
-    dictionary_put(diccionario_instrucciones, "MOV_OUT", (int) MOV_OUT);
-    dictionary_put(diccionario_instrucciones, "I_O", (int) I_O);
-    dictionary_put(diccionario_instrucciones, "F_OPEN", (int) F_OPEN);
-    dictionary_put(diccionario_instrucciones, "F_CLOSE", (int) F_CLOSE);
-    dictionary_put(diccionario_instrucciones, "F_SEEK", (int) F_SEEK);
-    dictionary_put(diccionario_instrucciones, "F_READ", (int)F_READ);
-    dictionary_put(diccionario_instrucciones, "F_WRITE",(int) F_WRITE);
-    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(int) F_TRUNCATE);
-    dictionary_put(diccionario_instrucciones, "WAIT",(int) WAIT);
-    dictionary_put(diccionario_instrucciones, "SIGNAL",(int) SIGNAL);
-    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(int) CREATE_SEGMENT);
-    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(int) DELETE_SEGMENT);
-    dictionary_put(diccionario_instrucciones, "YIELD",(int) YIELD);
-    dictionary_put(diccionario_instrucciones, "EXIT",(int) EXIT); 
+    dictionary_put(diccionario_instrucciones, "SET", (void*) (intptr_t)SET); 
+    dictionary_put(diccionario_instrucciones, "MOV_IN", (void*) (intptr_t)MOV_IN);
+    dictionary_put(diccionario_instrucciones, "MOV_OUT", (void*) (intptr_t)MOV_OUT);
+    dictionary_put(diccionario_instrucciones, "I_O", (void*) (intptr_t)I_O);
+    dictionary_put(diccionario_instrucciones, "F_OPEN", (void*) (intptr_t)F_OPEN);
+    dictionary_put(diccionario_instrucciones, "F_CLOSE", (void*) (intptr_t)F_CLOSE);
+    dictionary_put(diccionario_instrucciones, "F_SEEK", (void*) (intptr_t)F_SEEK);
+    dictionary_put(diccionario_instrucciones, "F_READ", (void*) (intptr_t)F_READ);
+    dictionary_put(diccionario_instrucciones, "F_WRITE",(void*) (intptr_t)F_WRITE);
+    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(void*) (intptr_t)F_TRUNCATE);
+    dictionary_put(diccionario_instrucciones, "WAIT",(void*) (intptr_t)WAIT);
+    dictionary_put(diccionario_instrucciones, "SIGNAL",(void*) (intptr_t)SIGNAL);
+    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(void*) (intptr_t)CREATE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(void*) (intptr_t)DELETE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "YIELD",(void*) (intptr_t)YIELD);
+    dictionary_put(diccionario_instrucciones, "EXIT",(void*) (intptr_t)EXIT); 
 }
 
 
-void ejecutar_proceso(t_contexto_ejecucion* contexto) {
+
+void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 
     char* instruccion;
     char** instruccion_decodificada;
@@ -59,28 +60,36 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        // Cargamos los parametros de la instruccion en un string para mostrarlos en el logger prolijamente
+        // Cargamos los parametrinios de la instruccion en un string para mostrarlos en el logger prolijamente
         char parametros[100] = "";
         parametros_instruccion(instruccion_decodificada, parametros);
 
 
-        log_info(logger, "PID: %d - Ejecutando %s %s", contexto->pid, instruccion_decodificada[0], parametros);
+        log_info(logger, "PID: %d - Ejecutando %s %s", contexto->pid, instruccion_decodificada[0], parametros); //logger obligatorio
 
         contexto->pc++;
 
     }
 
-    //guardar_contexto(contexto);        GUARDAR CONTEXO ACA
-
     if(fin_proceso) {               // Caso EXIT
         fin_proceso = 0;
+        
+        char* motivo_desalojo = strdup("Desalojo por EXIT");
+        //cliente socket es kernel
+        printf("ESTOY POR ENTRAR A SEND");
+        
+        send_contexto(cliente_socket, contexto);
+        send_string(cliente_socket, motivo_desalojo);
+        
+        //send_contexto_desalojado(cliente_socket, contexto, motivo_desalojo);
+        
         //HACER SEND DEL CONTEXTO AL KERNEL -> cuando termina el proceso debemos mandarlo
     }
 
     
 }
 
-
+// esto es una falopeada para que quede bien el logger y no tengamos que repetir el log_info en cada CASE de las instrucciones
 void parametros_instruccion(char** instruccion_decodificada, char *parametros) {
     
     int tamanio_instruccion_decodificada = string_array_size(instruccion_decodificada);
@@ -105,8 +114,6 @@ void asignar_a_registro(char* registro, char* valor, t_contexto_ejecucion* conte
     if(strcmp(registro, "AX") == 0) {
         strcpy(contexto->registros_cpu->AX, valor); //strcpy copia todo el string salvo el \0
     }
-
-    
 
 }
 
@@ -182,7 +189,7 @@ void procesar_conexion_cpu(int cliente_socket) {
            
                 //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
 
-                ejecutar_proceso(contexto);
+                ejecutar_proceso(contexto, cliente_socket);
 
                 break;
             }

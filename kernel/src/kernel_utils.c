@@ -173,3 +173,45 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
         }
     }
 }
+
+
+
+void procesar_conexion_kernel_cpu(int cliente_socket) {
+    
+    
+    while(1) {
+        op_code cod_op = recibir_operacion(cliente_socket);
+        t_contexto_ejecucion* contexto_recibido;
+        char* motivo_desalojo;
+        
+
+        switch((int)cod_op) {
+            
+            case PROCESO_DESALOJADO:
+            {
+                log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO");
+                recv_contexto(cliente_socket, contexto_recibido);
+                
+            }
+            
+            case STRING:
+            {
+                log_info(logger, "Me llego el codigo de operacion STRING");
+                recv_string(cliente_socket, motivo_desalojo);
+
+                printf("EL MOTIVO DE DESALOJO ES: %s", motivo_desalojo);
+                
+            }
+            case -1:
+            {
+			    log_info(logger, "El cliente se desconecto. Terminando Servidor");
+			    return;
+            }
+		    default:
+            {
+			    log_warning(logger,"Operación desconocida. Hubo un problemita !");
+			    break;
+            }
+        }
+    }
+}

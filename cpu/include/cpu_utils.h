@@ -40,8 +40,9 @@ typedef enum {
 void cargar_config_cpu(t_config* config);
 void inicializar_diccionarios();
 void procesar_conexion_cpu(int);
-void ejecutar_proceso(t_contexto_ejecucion* contexto);
+void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket);
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto);
 void parametros_instruccion(char** instruccion_decodificada, char *parametros);
+void guardar_contexto(t_contexto_ejecucion* contexto);
 
 #endif

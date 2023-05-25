@@ -62,7 +62,6 @@ void deserializar_instrucciones(void* stream, size_t size_instrucciones , t_list
 
 // ------------------------------ SERIALIZACION CONTEXTO DE EJECUCION ------------------------------ //
 
-// ACA VAMOS A SERIALIZAR TODO EL CONTEXTO MENOS LOS REGISTROS
 void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
     size_t size_instrucciones;
@@ -75,11 +74,8 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(int)               //pid
                 + sizeof(int)               //pc
                 + sizeof(t_registros_cpu)   // registros cpu
-                + sizeof(size_t)//add
+                + sizeof(size_t)            //size instrucciones
                 + size_instrucciones;       // instrucciones
-    
-    //ERA AL PEDO MANDAR PRIMERO EL SIZE DE INSTRUCCIONES Y DESPUES LAS INSTRUCCIONES
-    //SOLO DEBEMOS MANDAR EL SIZE DE TODO EL PAYLOAD UNA SOLA VEZ
     
     size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
@@ -111,6 +107,95 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 }
 
+//A CHEQUEAR SI FUNCIONA -> CREEMOS QUE SI
+void* serializar_string(size_t* size, char* string) {
+    size_t size_string = strlen(string) + 1;
+
+    *size =    sizeof(op_code)
+                + sizeof(size_t)            //size total del payload
+                + sizeof(size_t)            //size string
+                + size_string;              //string
+    
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
+   
+    void* paquete = malloc(*size);
+    
+    op_code codigo_operacion = STRING;
+  
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_string, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, string, size_string, &desplazamiento);
+    
+    return paquete;
+
+}
+
+void* deserializar_string(void* stream, char* string) {
+
+
+    size_t desplazamiento = 0;
+    size_t size_string;
+    copiar_stream_en_variable_y_desplazar(&size_string, stream, sizeof(size_t), &desplazamiento);
+    
+    string = malloc(size_string);
+    
+    copiar_stream_en_variable_y_desplazar(string, stream, size_string, &desplazamiento);
+
+}
+
+
+
+
+//ESTO ES UN ASCO PERRITO MALVADO, VAMOS A TRATAR DE HACERLO DE OTRA FORMA -> HACIENDO DOS SEND SEPARADOS (UNO DEL CONTEXTO Y OTRO DEL STRING DEL MOTIVO)
+//DE ESA FORMA REUTILIZAMOS SEND_CONTEXTO Y PODEMOS HACER UNA QUE SEA SEND_STRING
+void* serializar_contexto_desalojado(size_t* size, t_contexto_ejecucion* contexto, char* motivo_desalojo) {
+
+    size_t size_contexto;
+
+    size_t size_motivo_desalojo = strlen(motivo_desalojo) + 1;
+
+    void* stream_contexto = serializar_contexto(&size_contexto, contexto);
+
+     // stream completo
+     *size =    sizeof(op_code)
+                + sizeof(size_t)            //size total del payload
+                + sizeof(size_t)            //size total del contexto
+                + size_contexto             //esto incluye pid, pc, registros, size instrucciones e instrucciones
+                + sizeof(size_t)            //size motivo desalojo
+                + motivo_desalojo;          //motivo desalojo
+
+    
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
+   
+    void* paquete = malloc(*size);
+    
+    op_code codigo_operacion = PROCESO_DESALOJADO;
+  
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_contexto, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_contexto, size_contexto, &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_motivo_desalojo, sizeof(size_t), &desplazamiento); 
+    copiar_variable_en_stream_y_desplazar(paquete, motivo_desalojo, size_motivo_desalojo, &desplazamiento);
+    
+    free(stream_contexto);
+    return paquete;
+}
+
+void deserializar_contexto_desalojado(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento, char* motivo_desalojo) {
+    size_t size_contexto;
+    size_t size_motivo_desalojo;
+
+    copiar_stream_en_variable_y_desplazar(&size_contexto, stream, sizeof(size_t), desplazamiento);
+    deserializar_contexto(stream, size_contexto, contexto, desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&size_motivo_desalojo, stream, sizeof(size_t), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(motivo_desalojo, stream, size_motivo_desalojo, desplazamiento);
+}
 
 
 

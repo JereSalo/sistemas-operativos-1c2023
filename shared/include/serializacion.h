@@ -6,7 +6,9 @@
 typedef enum {
     NUMERO,
     INSTRUCCIONES,
-    CONTEXTO_EJECUCION
+    CONTEXTO_EJECUCION,
+    PROCESO_DESALOJADO,
+    STRING
 } op_code;
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones);
@@ -19,5 +21,10 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
 void* serializar_numero(int numero);
 void deserializar_numero(void* stream, int* numero);
 
+void* serializar_contexto_desalojado(size_t* size, t_contexto_ejecucion* contexto, char* motivo_desalojo);
+void deserializar_contexto_desalojado(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento, char* motivo_desalojo);
+
+void* serializar_string(size_t* size, char* string);
+void* deserializar_string(void* stream, char* string);
 
 #endif

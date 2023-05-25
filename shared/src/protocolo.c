@@ -142,7 +142,110 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
     return true;
 }
 
+// ------------------------------ ENVIO Y RECEPCION DE CONTEXTITO DESALOJADO ------------------------------ //
+
+bool send_contexto_desalojado(int fd, t_contexto_ejecucion* contexto, char* motivo_desalojo) {
+    
+    size_t size = 0;
+    void* paquete = serializar_contexto_desalojado(&size, contexto, motivo_desalojo);
+    
+    //mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send\n");
+        free(paquete);
+        return false;
+    }
+    
+    free(paquete);
+    return true;
+}
+
+
+bool recv_contexto_desalojado(int fd, t_contexto_ejecucion* contexto, char* motivo_desalojo){
+    // Recibimos el size del payload
+    size_t size_contexto;
+    //printf("Intento recibir size del payload\n");
+    if (recv(fd, &size_contexto, sizeof(size_t), 0) != sizeof(size_t)){
+        printf("Fallo recibiendo size del payload\n");
+        return false;
+    }
+
+    // Hacemos malloc para poder guardar todo el payload
+    void* stream = malloc(size_contexto);
+
+    // Recibimos todo el payload
+    //printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_contexto, 0) != size_contexto){
+        printf("Fallo al recibir todo el payload\n");
+        free(stream);
+        return false;
+    }
+
+    // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
+      
+    size_t desplazamiento = 0;
+
+    //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
+
+    deserializar_contexto_desalojado(stream, size_contexto, contexto, &desplazamiento, motivo_desalojo);
+
+    free(stream);
+    return true;
+}
+
+
 
 // Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
 // Asi nos evitamos que el switch quede muy grande, ya que no todos los servers van a entender los mismos mensajes
 
+
+// ------------------------------ ENVIO Y RECEPCION DE STRINGCITO ------------------------------ //
+
+bool send_string(int fd, char* string) {
+    
+    size_t size = 0;
+    void* paquete = serializar_string(&size, string);
+    
+    //mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send\n");
+        free(paquete);
+        return false;
+    }
+    
+    free(paquete);
+    return true;
+}
+
+
+bool recv_string(int fd, char* string){
+    // Recibimos el size del payload
+    size_t size_string;
+    //printf("Intento recibir size del payload\n");
+    if (recv(fd, &size_string, sizeof(size_t), 0) != sizeof(size_t)){
+        printf("Fallo recibiendo size del payload\n");
+        return false;
+    }
+
+    // Hacemos malloc para poder guardar todo el payload
+    void* stream = malloc(size_string);
+
+    // Recibimos todo el payload
+    //printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_string, 0) != size_string){
+        printf("Fallo al recibir todo el payload\n");
+        free(stream);
+        return false;
+    }
+
+    // Esto lo hacemos para que deserializar instrucciones se pueda usar en cualquier funcion
+      
+    size_t desplazamiento = 0;
+
+    //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
+
+    deserializar_string(stream, string);
+
+    free(stream);
+    return true;
+}

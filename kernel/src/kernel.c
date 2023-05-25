@@ -1,6 +1,5 @@
 #include "kernel.h"
 
-
 int main(int argc, char** argv){
     int modulo = KERNEL;
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
@@ -39,6 +38,14 @@ int main(int argc, char** argv){
 	pthread_detach(hilo_planificador_corto);
    
 
+    //CONEXION CPU DISPATCH
+    //procesar_conexion_kernel_cpu(conexion_cpu); ?????????????
+    
+
+    //TENEMOS QUE CONECTAR EL LA CPU CON EL KERNEL PARA QUE PUEDA RECIBIR LOS MENSAJES DEL CPU
+
+
+
 
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo
     while (1)
@@ -50,7 +57,7 @@ int main(int argc, char** argv){
     }
 
     cerrar_programa(logger, config);
-    //free(config_kernel);
+    
 
     return 0;
 }

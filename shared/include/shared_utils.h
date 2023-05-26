@@ -18,6 +18,7 @@
 #include <semaphore.h>
 #include <stdint.h>
 #include <commons/collections/dictionary.h>
+#include <unistd.h>
 
 
 typedef struct{
@@ -25,6 +26,12 @@ typedef struct{
     char EAX[8], EBX[8], ECX[8], EDX[8];
     char RAX[16], RBX[16], RCX[16], RDX[16];
 } t_registros_cpu;
+
+typedef enum {
+    AX, BX, CX, DX,
+    EAX, EBX, ECX, EDX,
+    RAX, RBX, RCX, RDX
+} registro_cpu;
 
 typedef struct {
     int id;
@@ -45,6 +52,28 @@ typedef struct {
     t_list* instrucciones;
 } t_contexto_ejecucion;
 
+typedef enum {
+    SET,
+    MOV_IN,
+    MOV_OUT,
+    I_O,
+    F_OPEN,
+    F_CLOSE,
+    F_SEEK,
+    F_READ,
+    F_WRITE,
+    F_TRUNCATE,
+    WAIT,
+    SIGNAL,
+    CREATE_SEGMENT,
+    DELETE_SEGMENT,
+    YIELD,
+    EXIT
+} op_instruccion;
+
+
+extern t_dictionary* diccionario_instrucciones;
+extern t_dictionary* diccionario_registros_cpu;
 
 
 void mostrar_lista(t_list* lista);
@@ -54,5 +83,7 @@ size_t tamanio_lista(t_list* lista);
 void copiar_variable_en_stream_y_desplazar(void* paquete, void* elemento, size_t tamanio_elemento, size_t* desplazamiento);
 void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_list* lista_instrucciones);
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento);
+void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
+void inicializar_diccionarios();
 
 #endif

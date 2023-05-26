@@ -61,30 +61,22 @@ void inicializar_colas() {
     procesos_en_ready = list_create();
 }
 
-void inicializar_registros(t_registros_cpu* registros) {
+void inicializar_registros(t_registros_cpu* registros) {        
+    asignar_a_registro("AX", "0000", registros);
+    asignar_a_registro("BX", "0000", registros);
+    asignar_a_registro("CX", "0000", registros);
+    asignar_a_registro("DX", "0000", registros);
+
+    asignar_a_registro("EAX", "00000000", registros);
+    asignar_a_registro("EBX", "00000000", registros);
+    asignar_a_registro("ECX", "00000000", registros);
+    asignar_a_registro("EDX", "00000000", registros);
     
-    for(int i=0; i<4; i++) {
-        registros->AX[i] = 0;
-        registros->BX[i] = 0;
-        registros->CX[i] = 0;
-        registros->DX[i] = 0;
-    }
-
-    for (int i = 0; i < 8; i++)
-    {
-        registros->EAX[i] = 0;
-        registros->EBX[i] = 0;
-        registros->ECX[i] = 0;
-        registros->EDX[i] = 0;
-    }
-
-    for (int i = 0; i < 16; i++)
-    {
-        registros->RAX[i] = 0;
-        registros->RBX[i] = 0;
-        registros->RCX[i] = 0;
-        registros->RDX[i] = 0;
-    }
+    asignar_a_registro("RAX", "0000000000000000", registros);
+    asignar_a_registro("RBX", "0000000000000000", registros);
+    asignar_a_registro("RCX", "0000000000000000", registros);
+    asignar_a_registro("RDX", "0000000000000000", registros);
+    
 }
 
 
@@ -110,7 +102,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
-    inicializar_registros(pcb->registros_cpu);                          //TODO: ver como inicializar los registros
+    inicializar_registros(pcb->registros_cpu);
     pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
     pcb->estimacion_prox_rafaga = config_kernel.ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
@@ -118,18 +110,6 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 
     return pcb;
 }
-/*
-void cargar_contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_de_ejecucion){
-    contexto_de_ejecucion->pid = proceso->pid;
-    contexto_de_ejecucion->pc = proceso->pc;
-
-    for(int i=0; i<5; i++){
-        contexto_de_ejecucion->registros_cpu.registros_cpu_8[i] = proceso->registros_cpu.registros_cpu_8[i];
-    }
-    
-}
-*/
-
 
 void procesar_conexion_kernel(void* void_cliente_socket) {
     
@@ -145,8 +125,6 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
                 pcb = inicializar_pcb(cliente_socket);
-                
-                //mostrar_lista(pcb->instrucciones); //chequeo para ver si se cargaron bien las instrucciones
                 
                 // Agregamos el proceso creado a NEW
                 pthread_mutex_lock(&mutex_new);
@@ -192,7 +170,7 @@ void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
             case CONTEXTO_EJECUCION:
             {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION");
-                recv_contexto(cliente_socket, contexto_recibido);
+                //recv_contexto(cliente_socket, contexto_recibido);
                 
             }
             

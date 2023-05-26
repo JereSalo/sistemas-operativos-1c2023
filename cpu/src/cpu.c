@@ -5,12 +5,10 @@ int main(int argc, char** argv){
     int modulo = CPU;
     logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_INFO);
     t_config *config = config_create("cpu.config");
+    inicializar_diccionarios();
 
     cargar_config_cpu(config);
-    
-    inicializar_diccionarios();
-    
-
+       
     // CLIENTE -> Memoria
     // int conexion = conectar_con(MEMORIA, config, logger);
 

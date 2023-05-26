@@ -2,8 +2,10 @@
 
 // Este archivo está compuesto por funciones auxiliares, para que no ocupen espacio en otros archivos más específicos.
 
+t_dictionary* diccionario_instrucciones;
+t_dictionary* diccionario_registros_cpu;
+
 void* sumarSizeConLongitudString(void* a, void* b){
-    
     size_t y = strlen((char*)b) + 1;
     *(size_t*)a += y;
     return a;
@@ -57,4 +59,95 @@ void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_li
     }
 
     list_iterate(lista_instrucciones, copiar_y_desplazar_string_con_tamanio);
+}
+
+void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
+    registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
+
+    char* registroObjetivo;
+
+    switch(reg) {
+        case AX: 
+            registroObjetivo = registros->AX;
+            break;
+        case BX: 
+            registroObjetivo = registros->BX;
+            break;
+        case CX: 
+            registroObjetivo = registros->CX;
+            break;
+        case DX: 
+            registroObjetivo = registros->DX;
+            break;
+        case EAX: 
+            registroObjetivo = registros->EAX;
+            break;
+        case EBX: 
+            registroObjetivo = registros->EBX;
+            break;
+        case ECX: 
+            registroObjetivo = registros->ECX;
+            break;
+        case EDX: 
+            registroObjetivo = registros->EDX;
+            break;
+        case RAX: 
+            registroObjetivo = registros->RAX;
+            break;
+        case RBX: 
+            registroObjetivo = registros->RBX;
+            break;
+        case RCX: 
+            registroObjetivo = registros->RCX;
+            break;
+        case RDX: 
+            registroObjetivo = registros->RDX;
+            break;
+        default:
+            printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
+    }
+
+    strncpy(registroObjetivo, valor, strlen(valor));
+}
+
+
+void inicializar_diccionarios() {
+    // Diccionario de instrucciones
+
+    diccionario_instrucciones = dictionary_create();
+
+    dictionary_put(diccionario_instrucciones, "SET", (void*) (intptr_t) SET); 
+    dictionary_put(diccionario_instrucciones, "MOV_IN", (void*) (intptr_t) MOV_IN);
+    dictionary_put(diccionario_instrucciones, "MOV_OUT", (void*) (intptr_t) MOV_OUT);
+    dictionary_put(diccionario_instrucciones, "I_O", (void*) (intptr_t) I_O);
+    dictionary_put(diccionario_instrucciones, "F_OPEN", (void*) (intptr_t) F_OPEN);
+    dictionary_put(diccionario_instrucciones, "F_CLOSE", (void*) (intptr_t) F_CLOSE);
+    dictionary_put(diccionario_instrucciones, "F_SEEK", (void*) (intptr_t) F_SEEK);
+    dictionary_put(diccionario_instrucciones, "F_READ", (void*) (intptr_t) F_READ);
+    dictionary_put(diccionario_instrucciones, "F_WRITE",(void*) (intptr_t) F_WRITE);
+    dictionary_put(diccionario_instrucciones, "F_TRUNCATE",(void*) (intptr_t) F_TRUNCATE);
+    dictionary_put(diccionario_instrucciones, "WAIT",(void*) (intptr_t) WAIT);
+    dictionary_put(diccionario_instrucciones, "SIGNAL",(void*) (intptr_t) SIGNAL);
+    dictionary_put(diccionario_instrucciones, "CREATE_SEGMENT",(void*) (intptr_t) CREATE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "DELETE_SEGMENT",(void*) (intptr_t) DELETE_SEGMENT);
+    dictionary_put(diccionario_instrucciones, "YIELD",(void*) (intptr_t) YIELD);
+    dictionary_put(diccionario_instrucciones, "EXIT",(void*) (intptr_t) EXIT); 
+
+    // Diccionario de registros CPU
+    diccionario_registros_cpu = dictionary_create();
+
+    dictionary_put(diccionario_registros_cpu, "AX",  (void*) (intptr_t) AX);
+    dictionary_put(diccionario_registros_cpu, "BX",  (void*) (intptr_t) BX);
+    dictionary_put(diccionario_registros_cpu, "CX",  (void*) (intptr_t) CX);
+    dictionary_put(diccionario_registros_cpu, "DX",  (void*) (intptr_t) DX);
+    dictionary_put(diccionario_registros_cpu, "EAX",  (void*) (intptr_t) EAX);
+    dictionary_put(diccionario_registros_cpu, "EBX",  (void*) (intptr_t) EBX);
+    dictionary_put(diccionario_registros_cpu, "ECX",  (void*) (intptr_t) ECX);
+    dictionary_put(diccionario_registros_cpu, "EDX",  (void*) (intptr_t) EDX);
+    dictionary_put(diccionario_registros_cpu, "RAX",  (void*) (intptr_t) RAX);
+    dictionary_put(diccionario_registros_cpu, "RBX",  (void*) (intptr_t) RBX);
+    dictionary_put(diccionario_registros_cpu, "RCX",  (void*) (intptr_t) RCX);
+    dictionary_put(diccionario_registros_cpu, "RDX",  (void*) (intptr_t) RDX);
+
+    printf("diccionarios inicializados\n");
 }

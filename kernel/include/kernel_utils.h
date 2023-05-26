@@ -59,6 +59,9 @@ extern sem_t maximo_grado_de_multiprogramacion;
 extern sem_t cant_procesos_new;
 extern sem_t cant_procesos_ready;
 
+extern sem_t cpu_libre;
+
+
 
 
 // FUNCIONES EN KERNEL_UTILS.C

@@ -64,52 +64,51 @@ void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_li
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
     registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
 
-    char* registroObjetivo;
+    char* registro_objetivo;
 
     switch(reg) {
         case AX: 
-            registroObjetivo = registros->AX;
+            registro_objetivo = registros->AX;
             break;
         case BX: 
-            registroObjetivo = registros->BX;
+            registro_objetivo = registros->BX;
             break;
         case CX: 
-            registroObjetivo = registros->CX;
+            registro_objetivo = registros->CX;
             break;
         case DX: 
-            registroObjetivo = registros->DX;
+            registro_objetivo = registros->DX;
             break;
         case EAX: 
-            registroObjetivo = registros->EAX;
+            registro_objetivo = registros->EAX;
             break;
         case EBX: 
-            registroObjetivo = registros->EBX;
+            registro_objetivo = registros->EBX;
             break;
         case ECX: 
-            registroObjetivo = registros->ECX;
+            registro_objetivo = registros->ECX;
             break;
         case EDX: 
-            registroObjetivo = registros->EDX;
+            registro_objetivo = registros->EDX;
             break;
         case RAX: 
-            registroObjetivo = registros->RAX;
+            registro_objetivo = registros->RAX;
             break;
         case RBX: 
-            registroObjetivo = registros->RBX;
+            registro_objetivo = registros->RBX;
             break;
         case RCX: 
-            registroObjetivo = registros->RCX;
+            registro_objetivo = registros->RCX;
             break;
         case RDX: 
-            registroObjetivo = registros->RDX;
+            registro_objetivo = registros->RDX;
             break;
         default:
             printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
     }
 
-    strncpy(registroObjetivo, valor, strlen(valor));
+    strncpy(registro_objetivo, valor, strlen(valor));
 }
-
 
 void inicializar_diccionarios() {
     // Diccionario de instrucciones

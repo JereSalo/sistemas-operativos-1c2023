@@ -40,6 +40,9 @@ void planificador_corto_plazo(int fd) {
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
         
+        // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
+        sem_wait(&cpu_libre);
+        
         // ESTO ES POR FIFO, MAS ADELANTE ACA TAMBIEN VA A ESTAR EL HRRN
         pthread_mutex_lock(&mutex_ready);
         proceso = list_remove(procesos_en_ready, 0);

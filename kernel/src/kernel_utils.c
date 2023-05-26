@@ -16,6 +16,9 @@ pthread_mutex_t mutex_running;
 sem_t maximo_grado_de_multiprogramacion;
 sem_t cant_procesos_new;
 sem_t cant_procesos_ready;
+//sem_t sem_procesar_consola;
+sem_t cpu_libre;
+
 
 
 void cargar_config_kernel(t_config* config) {
@@ -54,6 +57,8 @@ void inicializar_semaforos() {
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
     sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel.GRADO_MAX_MULTIPROGRAMACION);
+
+    sem_init(&cpu_libre, 0, 1);
 }
 
 void inicializar_colas() {
@@ -114,6 +119,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
 void procesar_conexion_kernel(void* void_cliente_socket) {
     
     int cliente_socket = (intptr_t) void_cliente_socket;
+    
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
         t_pcb* pcb;
@@ -157,31 +163,33 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
 void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
     
     int cliente_socket = (intptr_t) void_cliente_socket;
-
+    
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
         t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-        contexto_recibido->instrucciones = list_create();
-        //char* motivo_desalojo;
+        char* motivo_desalojo;
         
-
+        //post para avisar que el proceso deja de correr, y que puede ingresar otro en la cpu
+        sem_post(&cpu_libre);
         switch((int)cod_op) {
             
             case CONTEXTO_EJECUCION:
             {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION");
-                //recv_contexto(cliente_socket, contexto_recibido);
+                
+                recv_contexto(cliente_socket, contexto_recibido);
+                break;
                 
             }
             
-            case STRING:
+            /* case STRING:
             {
                 log_info(logger, "Me llego el codigo de operacion STRING");
                 //recv_string(cliente_socket, &motivo_desalojo);
 
                 //printf("EL MOTIVO DE DESALOJO ES: %s", motivo_desalojo);
-                
-            }
+                break;
+            } */
             case -1:
             {
 			    log_info(logger, "El cliente se desconecto. Terminando Servidor");
@@ -189,7 +197,7 @@ void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
             }
 		    default:
             {
-			    log_warning(logger,"Operación desconocida. Hubo un problemita !");
+			    log_warning(logger,"Operación desconocida. Hubo un problemita !2222");
 			    break;
             }
         }

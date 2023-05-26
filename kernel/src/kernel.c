@@ -41,7 +41,7 @@ int main(int argc, char** argv){
     // Recibe los contextos de ejecucion de la CPU
     pthread_t hilo_kernel_cpu;
     pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_conexion_kernel_cpu, (void*) (intptr_t) conexion_cpu);
-    pthread_detach(&hilo_kernel_cpu);
+    pthread_detach(hilo_kernel_cpu);
 
     //CONEXION CPU DISPATCH
     //procesar_conexion_kernel_cpu(conexion_cpu); ?????????????
@@ -56,6 +56,7 @@ int main(int argc, char** argv){
     while (1)
     {
         int consola_fd = esperar_cliente(server_fd, logger, "Kernel");
+        
         pthread_t hilo;
         pthread_create(&hilo, NULL, (void *)procesar_conexion_kernel, (void *) (intptr_t) consola_fd);
         pthread_detach(hilo);

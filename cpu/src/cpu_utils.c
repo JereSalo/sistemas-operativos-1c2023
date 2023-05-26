@@ -59,7 +59,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         //ACA ESTAMOS TENIENDO PROBLEMAS CON EL ENVIO DEL CONTEXTO AL KERNEL !!!!!!!
         
-        // send_contexto(cliente_socket, contexto);
+        send_contexto(cliente_socket, contexto);
         //send_string(cliente_socket, motivo_desalojo); 
         
         
@@ -72,7 +72,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 
 
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
-    char* nemonico_instruccion = instruccion_decodificada[0]; 
+    char* nemonico_instruccion = instruccion_decodificada[0];  //PELADO BOTON QUE TE CREES DE LA RAE GIL, nemonico: palabra que sustituye a un codigo de operacion. pertenece a la memoria.
 
     int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, nemonico_instruccion);
 
@@ -128,8 +128,6 @@ void procesar_conexion_cpu(int cliente_socket) {
             {
                 log_info(logger, "El cop que me llegó es Contexto Ejecucion");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
-                contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
-                contexto->instrucciones = list_create(); // Puse esto aca porque list_create() es como un malloc
                 
                 if(!recv_contexto(cliente_socket, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");

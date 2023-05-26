@@ -1,5 +1,8 @@
 #include "consola_utils.h"
 
+
+sem_t sem_procesar_consola;
+
 /* ---------------------------------- PARSER ---------------------------------- */
 
 

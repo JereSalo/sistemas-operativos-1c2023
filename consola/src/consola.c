@@ -8,6 +8,8 @@ int main(int argc, char** argv){
 
     t_config *config = config_create("consola.config");                         //cambiar por ruta recibida del main
     
+
+    sem_init(&sem_procesar_consola, 0, 0);
     
     // CLIENTE -> Kernel
 
@@ -19,7 +21,13 @@ int main(int argc, char** argv){
 
     t_list* instrucciones = generar_lista_instrucciones(path_instrucciones);    
 
+    //SEMAFORO PARA DECIRLE AL KERNEL QUE YA PUEDE PROCESAR LA CONEXION
+    //sem_post(&sem_procesar_consola);
+    
     send_instrucciones(conexion, instrucciones);
+    
+    
+
 
         
     free(path_instrucciones);

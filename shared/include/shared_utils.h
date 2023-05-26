@@ -75,6 +75,9 @@ typedef enum {
 extern t_dictionary* diccionario_instrucciones;
 extern t_dictionary* diccionario_registros_cpu;
 
+extern sem_t sem_procesar_consola;
+
+
 
 void mostrar_lista(t_list* lista);
 void* sumarSizeConLongitudString(void* a, void* b);

@@ -4,6 +4,7 @@ int main(int argc, char** argv){
     int modulo = KERNEL;
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config");
+    inicializar_diccionarios();
 
     cargar_config_kernel(config);
 

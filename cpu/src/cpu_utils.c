@@ -97,7 +97,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         //ACA ESTAMOS TENIENDO PROBLEMAS CON EL ENVIO DEL CONTEXTO AL KERNEL !!!!!!!
         
-        send_contexto(cliente_socket, contexto);
+        // send_contexto(cliente_socket, contexto);
         //send_string(cliente_socket, motivo_desalojo); 
         
         
@@ -167,16 +167,17 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
     switch(op_instruccion) {
         case SET:
         {
-            printf("EJECUTE SET \n");
+            // SET (Registro, Valor)
+            printf("EJECUTANDO SET \n");
 
-            //aca faltaria hacer el sleep del retardo del archivo de config del cpu
-            //para eso deberiamos cargar en un struct todo lo del archivo de config como hicimos con el kernel
-            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      //si no le ponemos el * 1000 ni se nota el retardo
+            char* registro = instruccion_decodificada[1];
+            char* valor = instruccion_decodificada[2];
+
+            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
             
-            asignar_a_registro(instruccion_decodificada[1], instruccion_decodificada[2], contexto);
+            asignar_a_registro(registro, valor, contexto);
 
-            printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %s \n", instruccion_decodificada[1], contexto->registros_cpu->AX);
-
+            printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %s \n", "AX", contexto->registros_cpu->AX);
 
             break;
         }

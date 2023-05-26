@@ -192,7 +192,7 @@ void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
             case CONTEXTO_EJECUCION:
             {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION");
-                recv_contexto(cliente_socket, contexto_recibido);
+                //recv_contexto(cliente_socket, contexto_recibido);
                 
             }
             

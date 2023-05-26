@@ -18,6 +18,7 @@
 #include <semaphore.h>
 #include <stdint.h>
 #include <commons/collections/dictionary.h>
+#include <unistd.h>
 
 
 typedef struct{

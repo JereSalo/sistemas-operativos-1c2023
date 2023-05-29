@@ -72,17 +72,16 @@ void cargar_config_kernel(t_config* config);
 
 void inicializar_semaforos();
 void inicializar_colas();
+
 t_pcb* inicializar_pcb(int cliente_socket);
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones);
 
 void esperar_clientes_kernel(int server_socket);
-void procesar_conexion_kernel(void* cliente_socket);
 
 void inicializar_registros(t_registros_cpu* registros);
 
-//void contexto_de_ejecucion(t_pcb* proceso, t_contexto_ejecucion* contexto_ejecucion);
-
-void procesar_conexion_kernel_cpu(void* void_cliente_socket);
+void procesar_consola(void* cliente_socket);
+void procesar_cpu(void* void_cliente_socket);
 
 
 #endif

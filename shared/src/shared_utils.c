@@ -20,23 +20,27 @@ size_t tamanio_lista(t_list* lista){
     return tamanio_lista;
 }
 
-//void lista_a_string(t_list* lista, char string[]) {
+char* lista_a_string(t_list* lista, char string[]) {
     
- //   t_list_iterator* lista_it = list_iterator_create(lista);
-  //  for(int i = 0; list_iterator_has_next(lista_it); i++) {
-   //     strcat(string, (char*)list_iterator_next(lista_it));
-    //    strcat(string, ", ");
-     //   lista->
-   // }
-   // list_iterator_destroy(lista_it);
+    string[0] = '\0';
 
-//}
+    t_list_iterator* lista_it = list_iterator_create(lista);
+    for(int i = 0; list_iterator_has_next(lista_it); i++) {
+       strcat(string, (char*)list_iterator_next(lista_it));
+       if(list_size(lista) > 1 && list_iterator_has_next(lista_it))
+        strcat(string, ", ");
+    }
+    list_iterator_destroy(lista_it);
+
+    return string;
+
+}
 
 
 
 void mostrar_lista(t_list* lista) {
     
-    printf("mostrando lista\n");
+    //printf("mostrando lista\n");
     t_list_iterator* lista_it = list_iterator_create(lista);
     for(int i = 0; list_iterator_has_next(lista_it); i++) {
         printf("%s \n", (char*)list_iterator_next(lista_it));
@@ -124,6 +128,7 @@ void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros)
 }
 
 void inicializar_diccionarios() {
+    
     // Diccionario de instrucciones
 
     diccionario_instrucciones = dictionary_create();
@@ -160,6 +165,4 @@ void inicializar_diccionarios() {
     dictionary_put(diccionario_registros_cpu, "RBX",  (void*) (intptr_t) RBX);
     dictionary_put(diccionario_registros_cpu, "RCX",  (void*) (intptr_t) RCX);
     dictionary_put(diccionario_registros_cpu, "RDX",  (void*) (intptr_t) RDX);
-
-    printf("diccionarios inicializados\n");
 }

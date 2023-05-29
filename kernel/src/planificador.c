@@ -8,6 +8,7 @@
 void planificador_largo_plazo() {
     while(1) {      
         t_pcb* proceso;
+        char pids[100];     // esto es para mostrar la lista de pids en el logger
 
         // Preguntamos si hay procesos en NEW y por el maximo grado de multiprogramacion
         sem_wait(&cant_procesos_new);
@@ -23,16 +24,20 @@ void planificador_largo_plazo() {
         list_add(procesos_en_ready, proceso);
         pthread_mutex_unlock(&mutex_ready);
 
+
+       
+
         // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-        //list_add(lista_pids, proceso->pid);
+        list_add(lista_pids, string_itoa(proceso->pid));
+                
+        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
+        
+        log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));       //log obligatorio
+
+
         
         //mostrar_lista(lista_pids);
-        
 
-        //log_info(logger, "Cola Ready %s:", config_kernel->ALGORITMO_PLANIFICACION);       //log obligatorio
-        
-        log_info(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY", proceso->pid); //log obligatorio
-        
         // Avisamos que agregamos un nuevo proceso a de READY
         sem_post(&cant_procesos_ready);
     }
@@ -44,6 +49,7 @@ void planificador_corto_plazo(int fd) {
     while(1){
         t_pcb* proceso;
         t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
+
 
         // Sacamos un proceso de ready y lo mandamos a ejecutar
         
@@ -58,7 +64,7 @@ void planificador_corto_plazo(int fd) {
         proceso = list_remove(procesos_en_ready, 0);
         pthread_mutex_unlock(&mutex_ready);
 
-        //list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
+        list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
 
         // Ahora lo mandamos a ejecutar
         
@@ -72,9 +78,11 @@ void planificador_corto_plazo(int fd) {
 
         cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
         
-        log_info(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING", proceso->pid); //log obligatorio
-        
+        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso->pid); //log obligatorio
+ 
         send_contexto(fd, contexto_de_ejecucion);
+
+        free(contexto_de_ejecucion);
 
     }  
 }

@@ -37,7 +37,7 @@ void cargar_config_kernel(t_config* config) {
 
     config_kernel->PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
 
-    config_kernel->ALGORITMO_PLANIFICACION = config_get_string_value(config, "IP_ALGORITMO_PLANIFICACION");
+    config_kernel->ALGORITMO_PLANIFICACION = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
     
     
     config_kernel->ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
@@ -49,7 +49,7 @@ void cargar_config_kernel(t_config* config) {
     //FALTAN LAS DOS LISTAS
 
 
-    log_info(logger, "Config cargada en config_kernel");
+    //log_info(logger, "Config cargada en config_kernel \n");
 }
 
 void inicializar_semaforos() {
@@ -62,6 +62,8 @@ void inicializar_semaforos() {
     sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel->GRADO_MAX_MULTIPROGRAMACION);
 
     sem_init(&cpu_libre, 0, 1);
+
+    //log_info(logger, "Semaforos inicializados \n");
 }
 
 void inicializar_colas() {
@@ -95,7 +97,7 @@ t_pcb* inicializar_pcb(int cliente_socket) {
     t_list* instrucciones_recibidas = list_create();
 
     if(!recv_instrucciones(cliente_socket, instrucciones_recibidas)){
-        log_error(logger, "Fallo recibiendo INSTRUCCIONES");
+        log_error(logger, "Fallo recibiendo INSTRUCCIONES \n");
     }
 
     // Creamos el PCB
@@ -120,7 +122,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     return pcb;
 }
 
-void procesar_conexion_kernel(void* void_cliente_socket) {
+void procesar_consola(void* void_cliente_socket) {
     
     int cliente_socket = (intptr_t) void_cliente_socket;
     
@@ -131,7 +133,7 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
         switch((int)cod_op) {
             case INSTRUCCIONES:
             {
-                log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES");
+                log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
                 pcb = inicializar_pcb(cliente_socket);
@@ -141,7 +143,7 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
                 queue_push(procesos_en_new, pcb);
                 pthread_mutex_unlock(&mutex_new);
 
-                log_info(logger, "Se crea el proceso %d en NEW", pcb->pid); //log obligatorio
+                log_warning(logger, "Se crea el proceso %d en NEW \n", pcb->pid); //log obligatorio
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
@@ -150,12 +152,12 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
             }
             case -1:
             {
-			    log_info(logger, "El cliente se desconecto. Terminando Servidor");
+			    log_error(logger, "El cliente CONSOLA se desconecto. Terminando Servidor \n");
 			    return;
             }
 		    default:
             {
-			    log_warning(logger,"Operación desconocida. Hubo un problemita !");
+			    log_error(logger,"Operación desconocida. Hubo un problemita! \n");
 			    break;
             }
         }
@@ -164,24 +166,32 @@ void procesar_conexion_kernel(void* void_cliente_socket) {
 
 
 
-void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
+void procesar_cpu(void* void_cliente_socket) {
     
     int cliente_socket = (intptr_t) void_cliente_socket;
     
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
         t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-        char* motivo_desalojo;
         
-        //post para avisar que el proceso deja de correr, y que puede ingresar otro en la cpu
+        // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         sem_post(&cpu_libre);
+        
+        // Avisamos que ya puede entrar otro proceso a memoria principal
+        sem_post(&maximo_grado_de_multiprogramacion);
+        
         switch((int)cod_op) {
             
             case CONTEXTO_EJECUCION:
             {
-                log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION");
+                log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
                 
                 recv_contexto(cliente_socket, contexto_recibido);
+
+                
+                free(contexto_recibido->registros_cpu);
+                list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
+                free(contexto_recibido);
                 break;
                 
             }
@@ -196,12 +206,12 @@ void procesar_conexion_kernel_cpu(void* void_cliente_socket) {
             } */
             case -1:
             {
-			    log_info(logger, "El cliente se desconecto. Terminando Servidor");
+			    log_error(logger, "El cliente CPU se desconecto. Terminando Servidor \n");
 			    return;
             }
 		    default:
             {
-			    log_warning(logger,"Operación desconocida. Hubo un problemita !2222");
+			    log_error(logger,"Operación desconocida. Hubo un problemita! \n");
 			    break;
             }
         }

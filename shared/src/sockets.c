@@ -49,7 +49,7 @@ int esperar_cliente(int socket_servidor, t_log *logger, const char *name)
 
     if (socket_cliente == -1)
     {
-        log_error(logger, "Fallo del %s al aceptar la conexión entrante", name); // Capaz el log podria ser mejor
+        log_error(logger, "Fallo del %s al aceptar la conexión entrante \n", name); // Capaz el log podria ser mejor
         return -1;                                                               // Ya se que es lo mismo que dejar return socket_cliente porque vale -1 pero me parece mejor dejarlo claro de esta forma.
     }
 
@@ -88,7 +88,7 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger)
     {
     case KERNEL:
         ip = config_get_string_value(config, "IP_KERNEL");
-        nombre_modulo = "Kernel";
+        nombre_modulo = "KERNEL";
         break;
     case CPU:
         ip = config_get_string_value(config, "IP_CPU");
@@ -96,17 +96,17 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger)
         break;
     case MEMORIA:
         ip = config_get_string_value(config, "IP_MEMORIA");
-        nombre_modulo = "Memoria";
+        nombre_modulo = "MEMORIA";
         break;
     case FILESYSTEM:
         ip = config_get_string_value(config, "IP_FILESYSTEM");
-        nombre_modulo = "FileSystem";
+        nombre_modulo = "FILESYSTEM";
         break;
     }
 
     int server_fd = iniciar_servidor(ip, puerto, logger, nombre_modulo);
 
-    log_info(logger, "Servidor listo para recibir al cliente");
+    log_info(logger, "Servidor listo para recibir al cliente \n");
 
     return server_fd;
 }
@@ -135,7 +135,7 @@ int crear_conexion(t_log *logger, const char *server_name, char *ip, char *puert
     // Fallo en crear el socket
     if (socket_cliente == -1)
     {
-        log_error(logger, "Error creando el socket para %s:%s", ip, puerto);
+        log_error(logger, "Error creando el socket para %s:%s \n", ip, puerto);
         return 0;
     }
 
@@ -166,6 +166,7 @@ void cerrar_programa(t_log *logger, t_config *config)
 {
     log_destroy(logger);
     config_destroy(config);
+    
 }
 
 // conectarCon es para cuando sos un cliente y queres conectarte con el servidor.
@@ -181,7 +182,7 @@ int conectar_con(int modulo, t_config *config, t_log *logger)
     case KERNEL:
         ip = config_get_string_value(config, "IP_KERNEL");
         puerto = config_get_string_value(config, "PUERTO_KERNEL");
-        nombre_modulo = "Kernel";
+        nombre_modulo = "KERNEL";
         break;
     case CPU:
         ip = config_get_string_value(config, "IP_CPU");
@@ -191,23 +192,23 @@ int conectar_con(int modulo, t_config *config, t_log *logger)
     case MEMORIA:
         ip = config_get_string_value(config, "IP_MEMORIA");
         puerto = config_get_string_value(config, "PUERTO_MEMORIA");
-        nombre_modulo = "Memoria";
+        nombre_modulo = "MEMORIA";
         break;
     case FILESYSTEM:
         ip = config_get_string_value(config, "IP_FILESYSTEM");
         puerto = config_get_string_value(config, "PUERTO_FILESYSTEM");
-        nombre_modulo = "FileSystem";
+        nombre_modulo = "FILESYSTEM";
         break;
     }
 
-    log_info(logger, "El cliente se conectara a %s:%s", ip, puerto);
+    log_info(logger, "El cliente se conectara a %s:%s \n", ip, puerto);
 
     if ((conexion = crear_conexion(logger, nombre_modulo, ip, puerto)) == 0)
     { // Si conexion = 0 significa que hubo error. Por eso detenemos la ejecución.
         // log_error(logger, "No se pudo establecer la conexión con el kernel."); // Medio al pepe este log porque ya crear_conexion tiene los log_error
         exit(2);
     }
-    log_info(logger, "Conexión exitosa con el modulo %s", nombre_modulo); // No tengo idea para qué querría mostrar conexion pero bueno.
+    log_info(logger, "Conexión exitosa con el modulo %s \n", nombre_modulo); // No tengo idea para qué querría mostrar conexion pero bueno.
 
     return conexion;
 }

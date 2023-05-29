@@ -57,10 +57,11 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         printf("ESTOY POR ENTRAR A SEND");
         
         
-        //ACA ESTAMOS TENIENDO PROBLEMAS CON EL ENVIO DEL CONTEXTO AL KERNEL !!!!!!!
+        
         
         send_contexto(cliente_socket, contexto);
         //send_string(cliente_socket, motivo_desalojo); 
+        
         
         
         
@@ -151,12 +152,12 @@ void procesar_conexion_cpu(int cliente_socket) {
 
             case -1:
             {
-			    log_error(logger, "El cliente se desconecto. Terminando Servidor");
+			    log_error(logger, "El cliente se desconecto. Terminando Servidor \n");
 			    return;
             }
 		    default:
             {
-			    log_warning(logger,"Operación desconocida. Hubo un problemita !");
+			    log_error(logger,"Operación desconocida. Hubo un problemita! \n");
 			    break;
             }
         }

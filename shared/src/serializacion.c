@@ -111,6 +111,14 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 }
 
+
+
+
+
+
+
+
+
 //A CHEQUEAR SI FUNCIONA -> CREEMOS QUE SI
 /* void* serialgizar_strin(size_t* size, char* string) {
     size_t size_string = strlen(string) + 1;
@@ -135,7 +143,7 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
 
 } */
 
-/* void* deserializar_string(void* stream, char** string) {
+/* void* deserializar_string(void* stream, char* string) {
 
     size_t desplazamiento = 0;
     size_t size_string;
@@ -146,8 +154,6 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
     string = malloc(size_string);
     
     copiar_stream_en_variable_y_desplazar(string, stream, size_string, &desplazamiento);
-
-    *string = string_r;
 
 }
  */

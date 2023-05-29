@@ -55,7 +55,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 
         send_contexto(cliente_socket, contexto); // Esto me parece bien hacerlo aca
         
-        send(cliente_socket, instruccion, strlen(instruccion) + 1, 0); // No esta chequeado esto
+        // send(cliente_socket, instruccion, strlen(instruccion) + 1, 0); // No esta chequeado esto
 
         // send(cliente_socket, paquete_desalojo, tamanio_paquete_desalojo, 0);
         // No se que opinan sobre armar paquete_desalojo dentro del switch de ejecutar_instruccion y poner su tamaño ahí. Onda que la serialización ocurra ahí adentro, porque depende de cada funcion, pero no se.

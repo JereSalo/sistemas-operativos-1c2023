@@ -12,6 +12,8 @@ int main(int argc, char** argv){
 
     esperar_clientes(server_fd, logger, "Memoria");
 
+    // aca crea el hilo de "responder_orden()"
+
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);
 

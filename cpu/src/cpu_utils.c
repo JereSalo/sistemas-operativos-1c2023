@@ -6,6 +6,8 @@ t_cpu_config config_cpu;
 
 
 int desalojado = 0;
+// void* paquete_desalojo;
+// size_t tamanio_paquete_desalojo;
 
 void cargar_config_cpu(t_config* config) {
     
@@ -50,10 +52,15 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         //cliente socket es kernel
         printf("ESTOY POR ENTRAR A SEND");
         
+
+        send_contexto(cliente_socket, contexto); // Esto me parece bien hacerlo aca
         
-        
-        
-        send_contexto(cliente_socket, contexto);
+        send(cliente_socket, instruccion, strlen(instruccion) + 1, 0); // No esta chequeado esto
+
+        // send(cliente_socket, paquete_desalojo, tamanio_paquete_desalojo, 0);
+        // No se que opinan sobre armar paquete_desalojo dentro del switch de ejecutar_instruccion y poner su tamaño ahí. Onda que la serialización ocurra ahí adentro, porque depende de cada funcion, pero no se.
+
+
         //send_string(cliente_socket, motivo_desalojo); 
         
         
@@ -94,7 +101,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case YIELD:
         {
             // YIELD
-            printf("EJECUTE YIELD \n");  
+            printf("EJECUTE YIELD \n");
+            desalojado = 1;
             break;        
         }
         case EXIT:

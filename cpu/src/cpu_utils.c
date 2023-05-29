@@ -5,7 +5,7 @@ t_cpu_config config_cpu;
 
 
 
-int fin_proceso = 0;
+int desalojado = 0;
 
 void cargar_config_cpu(t_config* config) {
     
@@ -23,31 +23,25 @@ void cargar_config_cpu(t_config* config) {
 
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
-
     char* instruccion;
     char** instruccion_decodificada;
 
-    //mostrar_lista(contexto->instrucciones);
-
-    while(!fin_proceso) {
-    
+    while(!desalojado) {
         // Fetch: buscamos la proxima instruccion dada por el PC
         instruccion = list_get(contexto->instrucciones, contexto->pc);
         
         // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
         instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
         
-        
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        log_info(logger, "PID: %d - Ejecutando %s", contexto->pid, instruccion); //logger obligatorio
+        log_info(logger, "Instruccion %s finalizada", instruccion);
 
         contexto->pc++;
-
     }
 
-    if(fin_proceso) {               // Caso EXIT
-        fin_proceso = 0;
+    if(desalojado) {               // Caso instrucción con desalojo
+        desalojado = 0;
         
         
         //char* motivo_desalojo = strdup("DESALOJO POR EXIT");
@@ -75,13 +69,15 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
     char* nemonico_instruccion = instruccion_decodificada[0];  //PELADO BOTON QUE TE CREES DE LA RAE GIL, nemonico: palabra que sustituye a un codigo de operacion. pertenece a la memoria.
 
+    log_warning(logger, "PID: %d - Ejecutando %s", contexto->pid, nemonico_instruccion); //logger obligatorio
+
     int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, nemonico_instruccion);
 
     switch(op_instruccion) {
         case SET:
         {
             // SET (Registro, Valor)
-            printf("EJECUTANDO SET \n");
+            log_info(logger, "EJECUTANDO SET");
 
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
@@ -90,8 +86,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
-            printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
-            printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
+            // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
+            // printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
 
             break;
         }
@@ -105,15 +101,15 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         {
             // EXIT
             printf("EJECUTE EXIT \n");
-            fin_proceso = 1;
+            desalojado = 1;
             //HAY QUE DEVOLVER EL CONTEXTO DE EJECUCION AL KERNEL Y ADEMAS EL KERNEL TIENE QUE ELIMINAR EL PCB
             // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION -> esto lo hacemos en el while
             
-            //contexto->motivo_fin_proceso = SUCCESS;
+            //contexto->motivo_desalojado = SUCCESS;
             break;   
         }
         default: {
-            printf("INSTRUCCION DESCONOCIDA \n");
+            log_error(logger, "INSTRUCCION DESCONOCIDA");
         }
     }
 }
@@ -135,17 +131,14 @@ void procesar_conexion_cpu(int cliente_socket) {
                     break;
                 }
 
-                log_info(logger, "RECIBI BIEN EL CONTEXTO");
+                log_info(logger, "Recibi el Contexto del Proceso %d",contexto->pid);
 
-                log_info(logger, "Contexto PID: %d", contexto->pid);
-                // log_info(logger, "Contexto PC: %d", contexto->pc);
-                
-                // mostrar_lista(contexto->instrucciones);
+                ejecutar_proceso(contexto, cliente_socket); // esta funcion podria modificar el contexto y retornar el motivo con los parametros?
 
-           
-                //log_info(logger, "REGISTRO AX en posicion 2: %d", contexto->registros_cpu->AX[2]);
+                // send_contexto(contexto, cliente_socket);
+                // send motivo_con_parametros(motivo, cliente_socket);
 
-                ejecutar_proceso(contexto, cliente_socket);
+
 
                 break;
             }

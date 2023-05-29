@@ -22,13 +22,10 @@ void planificador_largo_plazo() {
         // Agregamos el proceso obtenido a READY
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
-        pthread_mutex_unlock(&mutex_ready);
-
-
-       
-
         // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
         list_add(lista_pids, string_itoa(proceso->pid));
+        pthread_mutex_unlock(&mutex_ready);
+        
                 
         log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
         
@@ -62,9 +59,11 @@ void planificador_corto_plazo(int fd) {
         // ESTO ES POR FIFO, MAS ADELANTE ACA TAMBIEN VA A ESTAR EL HRRN
         pthread_mutex_lock(&mutex_ready);
         proceso = list_remove(procesos_en_ready, 0);
-        pthread_mutex_unlock(&mutex_ready);
 
         list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
+        pthread_mutex_unlock(&mutex_ready);
+
+        
 
         // Ahora lo mandamos a ejecutar
         

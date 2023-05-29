@@ -1,5 +1,7 @@
 #include "planificador.h"
 
+
+
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
 // Pasaje de NEW -> READY
@@ -20,7 +22,15 @@ void planificador_largo_plazo() {
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
         pthread_mutex_unlock(&mutex_ready);
-              
+
+        // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
+        //list_add(lista_pids, proceso->pid);
+        
+        //mostrar_lista(lista_pids);
+        
+
+        //log_info(logger, "Cola Ready %s:", config_kernel->ALGORITMO_PLANIFICACION);       //log obligatorio
+        
         log_info(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY", proceso->pid); //log obligatorio
         
         // Avisamos que agregamos un nuevo proceso a de READY
@@ -48,7 +58,8 @@ void planificador_corto_plazo(int fd) {
         proceso = list_remove(procesos_en_ready, 0);
         pthread_mutex_unlock(&mutex_ready);
 
-        
+        //list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
+
         // Ahora lo mandamos a ejecutar
         
         // Lo guardamos en una variable auxiliar
@@ -61,8 +72,8 @@ void planificador_corto_plazo(int fd) {
 
         cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
         
-        log_info(logger, "EL PID DEL PROCESO QUE SE CARGO ES %d", contexto_de_ejecucion->pid);
-
+        log_info(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING", proceso->pid); //log obligatorio
+        
         send_contexto(fd, contexto_de_ejecucion);
 
     }  

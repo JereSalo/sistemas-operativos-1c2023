@@ -8,6 +8,7 @@ int main(int argc, char** argv){
 
     cargar_config_kernel(config);
 
+    
     // Kernel es server del módulo Consola.
     int server_fd = preparar_servidor(modulo, config, logger);
 
@@ -63,7 +64,7 @@ int main(int argc, char** argv){
     }
 
     cerrar_programa(logger, config);
-    
+    free(config_kernel);
 
     return 0;
 }

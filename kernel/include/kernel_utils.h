@@ -24,7 +24,8 @@ typedef struct {
     //t_list* INSTANCIAS_RECURSOS;
 
 } t_kernel_config;
-extern t_kernel_config config_kernel;
+
+extern t_kernel_config* config_kernel;
 
 
 typedef struct {
@@ -49,6 +50,7 @@ extern t_queue* procesos_en_new;
 extern t_list* procesos_en_ready;
 extern t_pcb* proceso_en_running;
 
+extern t_list* lista_pids;
 
 // Semáforos
 extern pthread_mutex_t mutex_new;

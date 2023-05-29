@@ -20,6 +20,19 @@ size_t tamanio_lista(t_list* lista){
     return tamanio_lista;
 }
 
+//void lista_a_string(t_list* lista, char string[]) {
+    
+ //   t_list_iterator* lista_it = list_iterator_create(lista);
+  //  for(int i = 0; list_iterator_has_next(lista_it); i++) {
+   //     strcat(string, (char*)list_iterator_next(lista_it));
+    //    strcat(string, ", ");
+     //   lista->
+   // }
+   // list_iterator_destroy(lista_it);
+
+//}
+
+
 
 void mostrar_lista(t_list* lista) {
     

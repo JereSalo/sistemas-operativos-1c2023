@@ -88,5 +88,6 @@ void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_li
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento);
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
 void inicializar_diccionarios();
+void lista_a_string(t_list* lista, char string[]);
 
 #endif

@@ -99,15 +99,15 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
 void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento) {
     size_t size_instrucciones;
-    printf("falopa 2.5\n");
+
     copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), desplazamiento);
-    printf("falopa 3\n");
+
     copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), desplazamiento);
-    printf("falopa 4\n");
+
     copiar_stream_en_variable_y_desplazar(contexto->registros_cpu, stream, sizeof(t_registros_cpu), desplazamiento);
-    printf("falopa 5\n");
+
     copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), desplazamiento);
-    printf("falopa 6\n");
+
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 }
 

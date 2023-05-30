@@ -168,17 +168,23 @@ void procesar_consola(void* void_cliente_socket) {
 
 void procesar_cpu(void* void_cliente_socket) {
     
+    log_info(logger, "ENTRE A PROCESAR CPU \n");
+
     int cliente_socket = (intptr_t) void_cliente_socket;
     
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
+        
         t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
+
+        int motivo_desalojo;
+        t_list* lista_parametros = list_create();
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         sem_post(&cpu_libre);
-        
-        // Avisamos que ya puede entrar otro proceso a memoria principal
+
         sem_post(&maximo_grado_de_multiprogramacion);
+
         
         switch((int)cod_op) {
             
@@ -187,23 +193,70 @@ void procesar_cpu(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
                 
                 recv_contexto(cliente_socket, contexto_recibido);
-
                 
-                free(contexto_recibido->registros_cpu);
-                list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
-                free(contexto_recibido);
+                // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
+
+                //proceso_en_running->pc = contexto_recibido->pc;
+                //proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
+
+                //free(contexto_recibido->registros_cpu);
+                //list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
+                //free(contexto_recibido);
                 break;
                 
             }
             
-            /* case STRING:
+            case PROCESO_DESALOJADO:
             {
-                log_info(logger, "Me llego el codigo de operacion STRING");
-                //recv_string(cliente_socket, &motivo_desalojo);
+                log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
-                //printf("EL MOTIVO DE DESALOJO ES: %s", motivo_desalojo);
-                break;
-            } */
+                recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros);
+
+                log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
+                
+                switch(motivo_desalojo) {
+                    case YIELD:{
+                        log_info(logger, "Motivo desalojo es YIELD \n");         
+                        
+                        // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
+                        // Como todavia no hicimos HRRN lo hago por FIFO
+
+                        // Ya tenemos el PCB con el contexto modificado (case anterior)
+
+                        
+                        //sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
+                        
+                        // Agregamos el proceso obtenido a READY
+                        //pthread_mutex_lock(&mutex_ready);
+                        //list_add(procesos_en_ready, proceso_en_running);
+                        
+                        // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
+                        //list_add(lista_pids, string_itoa(proceso_en_running->pid));
+                        //pthread_mutex_unlock(&mutex_ready);
+
+
+                        //mostrar_lista(lista_pids);
+
+                        // Avisamos que agregamos un nuevo proceso a READY
+                        //sem_post(&cant_procesos_ready);
+                        break;
+
+                    }
+                    case EXIT:{
+                            
+                        log_info(logger, "Motivo desalojo es EXIT \n");         
+                        // Avisamos que ya puede entrar otro proceso a memoria principal
+                        //sem_post(&maximo_grado_de_multiprogramacion);
+                        
+                        log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", contexto_recibido->pid);       //log obligatorio 
+                        break;
+                    }
+                }
+                
+                //mostrar_lista(lista_parametros); 
+
+
+            }
             case -1:
             {
 			    log_error(logger, "El cliente CPU se desconecto. Terminando Servidor \n");

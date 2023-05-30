@@ -18,13 +18,12 @@ void deserializar_instrucciones(void* stream, size_t size_instrucciones, t_list*
 void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto);
 void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento);
 
+void* serializar_desalojo(size_t* size, int motivo_desalojo, t_list* lista_parametros);
+void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desalojo, t_list* lista_parametros, size_t* desplazamiento);
+
 void* serializar_numero(int numero);
 void deserializar_numero(void* stream, int* numero);
 
-void* serializar_contexto_desalojado(size_t* size, t_contexto_ejecucion* contexto, char* motivo_desalojo);
-void deserializar_contexto_desalojado(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento, char* motivo_desalojo);
 
-void* serializar_string(size_t* size, char* string);
-void* deserializar_string(void* stream, char** string);
 
 #endif

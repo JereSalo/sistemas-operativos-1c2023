@@ -42,6 +42,7 @@ void planificador_largo_plazo() {
 
 // ------------------------------ PLANIFICADOR DE CORTITO PLAZO ------------------------------ //
 
+// Pasaje de READY -> RUNNING
 void planificador_corto_plazo(int fd) {
     while(1){
         t_pcb* proceso;

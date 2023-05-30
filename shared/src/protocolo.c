@@ -149,22 +149,16 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
 
 
 
+// ------------------------------ ENVIO Y RECEPCION DESALOJO ------------------------------ //
 
-
-// Hacer un procesar conexion por cada cliente -> esto va a ser util para los servers que tengan varios clientes
-// Asi nos evitamos que el switch quede muy grande, ya que no todos los servers van a entender los mismos mensajes
-
-
-// ------------------------------ ENVIO Y RECEPCION DE STRINGCITO ------------------------------ //
-
-/* bool send_string(int fd, char* string) {
+bool send_desalojo(int fd, int motivo_desalojo, t_list* lista_parametros) {
     
     size_t size = 0;
-    void* paquete = serializar_string(&size, string);
+    void* paquete = serializar_desalojo(&size, motivo_desalojo, lista_parametros);
     
-    //mandamos los datos copiados en ese stream al destinatario
+    // Mandamos los datos copiados en ese stream al destinatario
     if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
-        printf("Hubo un error con el send\n");
+        printf("Hubo un error con el send DESALOJO \n");
         free(paquete);
         return false;
     }
@@ -173,26 +167,24 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
     return true;
 }
 
+bool recv_desalojo(int fd, int* motivo_desalojo, t_list* lista_parametros) {
+    //lista_parametros = list_create();
 
-bool recv_string(int fd, char** string){
     // Recibimos el size del payload
+    size_t size_desalojo;
     
-
-    size_t size_string;
     //printf("Intento recibir size del payload\n");
-    if (recv(fd, &size_string, sizeof(size_t), 0) != sizeof(size_t)){
+    if (recv(fd, &size_desalojo, sizeof(size_t), 0) != sizeof(size_t)){
         printf("Fallo recibiendo size del payload\n");
         return false;
     }
 
     // Hacemos malloc para poder guardar todo el payload
-    void* stream = malloc(size_string);
-
-    
+    void* stream = malloc(size_desalojo);
 
     // Recibimos todo el payload
-    //printf("Intento recibir todo el payload\n");
-    if (recv(fd, stream, size_string, 0) != size_string){
+    // printf("Intento recibir todo el payload\n");
+    if (recv(fd, stream, size_desalojo, 0) != size_desalojo){
         printf("Fallo al recibir todo el payload\n");
         free(stream);
         return false;
@@ -203,10 +195,8 @@ bool recv_string(int fd, char** string){
     size_t desplazamiento = 0;
 
     //size_contexto = size_contexto - sizeof(int)*2 - sizeof(t_registros_cpu) - sizeof(size_t);
-
-    deserializar_string(stream, &string);
-
-
+    deserializar_desalojo(stream, size_desalojo, motivo_desalojo, lista_parametros, &desplazamiento);
+   
     free(stream);
     return true;
-} */
+}

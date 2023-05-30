@@ -2,7 +2,7 @@
 
 t_log* logger;
 t_cpu_config config_cpu;
-
+t_list* lista_parametros;
 
 
 int desalojado = 0;
@@ -35,38 +35,34 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
         instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
         
+        lista_parametros = list_create();
+        
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
         log_info(logger, "Instruccion %s finalizada", instruccion);
+
+        //log_info(logger, "Valor de desalojado %d", desalojado);
+        
 
         contexto->pc++;
     }
 
     if(desalojado) {               // Caso instrucción con desalojo
         desalojado = 0;
-        
-        
-        //char* motivo_desalojo = strdup("DESALOJO POR EXIT");
-        //contexto->motivo_desalojo = instruccion;
 
+        log_info(logger, "Estoy por enviar el contexto a KERNEL");
+        
         //cliente socket es kernel
-        printf("ESTOY POR ENTRAR A SEND");
+        send_contexto(cliente_socket, contexto);
         
+        log_info(logger, "Estoy por enviar info del desalojo a KERNEL");
 
-        send_contexto(cliente_socket, contexto); // Esto me parece bien hacerlo aca
-        
-        // send(cliente_socket, instruccion, strlen(instruccion) + 1, 0); // No esta chequeado esto
-
-        // send(cliente_socket, paquete_desalojo, tamanio_paquete_desalojo, 0);
-        // No se que opinan sobre armar paquete_desalojo dentro del switch de ejecutar_instruccion y poner su tamaño ahí. Onda que la serialización ocurra ahí adentro, porque depende de cada funcion, pero no se.
+        //mostrar_lista(lista_parametros);
 
 
-        //send_string(cliente_socket, motivo_desalojo); 
-        
-        
-        
-        
-        //HACER SEND DEL CONTEXTO AL KERNEL -> cuando termina el proceso debemos mandarlo
+        //ESTO ANDA MAL!!!
+        //send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
+       
     }
 
     
@@ -89,10 +85,15 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
 
+            //list_add(lista_parametros, registro);
+            //list_add(lista_parametros, valor);
+            
             usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
+
+            //mostrar_lista(lista_parametros);
             // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
             // printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
 
@@ -102,6 +103,10 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         {
             // YIELD
             printf("EJECUTE YIELD \n");
+
+            //list_add(lista_parametros, "falopa");
+            //list_add(lista_parametros, "falopa2");
+            
             desalojado = 1;
             break;        
         }

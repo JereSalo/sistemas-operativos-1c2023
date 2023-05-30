@@ -113,55 +113,50 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
 
 
 
+// Serializa el motivo de desalojo y la lista de parametros
+void* serializar_desalojo(size_t* size, int motivo_desalojo, t_list* lista_parametros) {
 
+    size_t size_parametros;
 
+    void* stream_parametros = serializar_lista_instrucciones(&size_parametros, lista_parametros);
 
-
-
-
-//A CHEQUEAR SI FUNCIONA -> CREEMOS QUE SI
-/* void* serialgizar_strin(size_t* size, char* string) {
-    size_t size_string = strlen(string) + 1;
-
-    *size =    sizeof(op_code)
-                + sizeof(size_t)            //size string
-                + size_string;              //string
+     // stream completo
+     *size =    sizeof(op_code)
+                + sizeof(size_t)            //size total del payload
+                + sizeof(int)               //motivo de desalojo
+                + sizeof(size_t)            //size parametros
+                + size_parametros;         // parametros
     
-    //size_t size_payload = *size - sizeof(op_code);
+    size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
     void* paquete = malloc(*size);
     
-    op_code codigo_operacion = STRING;
+    op_code codigo_operacion = PROCESO_DESALOJADO;
   
     size_t desplazamiento = 0;
 
     copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, &size_string, sizeof(size_t), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, string, size_string, &desplazamiento);
-    
+    copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &motivo_desalojo, sizeof(int), &desplazamiento); //CHEQUEAR
+    copiar_variable_en_stream_y_desplazar(paquete, &size_parametros, sizeof(size_t), &desplazamiento); 
+    copiar_variable_en_stream_y_desplazar(paquete, stream_parametros, size_parametros, &desplazamiento);
+
     return paquete;
 
-} */
-
-/* void* deserializar_string(void* stream, char* string) {
-
-    size_t desplazamiento = 0;
-    size_t size_string;
-    copiar_stream_en_variable_y_desplazar(&size_string, stream, sizeof(size_t), &desplazamiento);
-    
-    char* string_r = malloc(size_string);
-    
-    string = malloc(size_string);
-    
-    copiar_stream_en_variable_y_desplazar(string, stream, size_string, &desplazamiento);
-
 }
- */
 
+void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desalojo, t_list* lista_parametros, size_t* desplazamiento) {
+    
+    size_t size_parametros;
 
+    copiar_stream_en_variable_y_desplazar(motivo_desalojo, stream, sizeof(int), desplazamiento);
 
+    copiar_stream_en_variable_y_desplazar(&size_parametros, stream, sizeof(size_t), desplazamiento);
 
+    //printf("CANTIDAD DE PARAMETROS: %d", size_parametros);
 
+    deserializar_instrucciones(stream, size_parametros, lista_parametros, desplazamiento);
+}
 
 
 

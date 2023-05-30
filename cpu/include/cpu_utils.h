@@ -15,7 +15,7 @@ typedef struct {
 } t_cpu_config;
 
 extern t_cpu_config config_cpu;
-
+extern t_list* lista_parametros;
 
 
 

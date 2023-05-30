@@ -40,7 +40,7 @@ char* lista_a_string(t_list* lista, char string[]) {
 
 void mostrar_lista(t_list* lista) {
     
-    //printf("mostrando lista\n");
+    printf("Mostrando lista: \n");
     t_list_iterator* lista_it = list_iterator_create(lista);
     for(int i = 0; list_iterator_has_next(lista_it); i++) {
         printf("%s \n", (char*)list_iterator_next(lista_it));

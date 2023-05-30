@@ -16,9 +16,8 @@ pthread_mutex_t mutex_running;
 sem_t maximo_grado_de_multiprogramacion;
 sem_t cant_procesos_new;
 sem_t cant_procesos_ready;
-//sem_t sem_procesar_consola;
 sem_t cpu_libre;
-
+pthread_mutex_t mutex_pids;
 t_list* lista_pids;
 
 void cargar_config_kernel(t_config* config) {
@@ -56,7 +55,9 @@ void inicializar_semaforos() {
     pthread_mutex_init(&mutex_new, NULL);
     pthread_mutex_init(&mutex_ready, NULL);
     pthread_mutex_init(&mutex_running, NULL);
-    
+    pthread_mutex_init(&mutex_pids, NULL);
+
+    //sem_init(&sem_proceso_en_running, 0, 0);
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
     sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel->GRADO_MAX_MULTIPROGRAMACION);
@@ -170,6 +171,8 @@ void procesar_cpu(void* void_cliente_socket) {
     
     int cliente_socket = (intptr_t) void_cliente_socket;
     
+    
+    
     while(1) {
         op_code cod_op = recibir_operacion(cliente_socket);
         
@@ -179,10 +182,7 @@ void procesar_cpu(void* void_cliente_socket) {
         t_list* lista_parametros = list_create();
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
-        sem_post(&cpu_libre);
-
-        sem_post(&maximo_grado_de_multiprogramacion);
-
+        
         
         switch((int)cod_op) {
             
@@ -192,20 +192,28 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 recv_contexto(cliente_socket, contexto_recibido);
 
+                log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", contexto_recibido->pid);
+
+                
+                
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
 
-                //proceso_en_running->pc = contexto_recibido->pc;
-                //proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
+                proceso_en_running->pc = contexto_recibido->pc;
+                proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
 
-                //free(contexto_recibido->registros_cpu);
-                //list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
-                //free(contexto_recibido);
+                free(contexto_recibido->registros_cpu);
+                list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
+                free(contexto_recibido);
                 break;
                 
             }
             
             case PROCESO_DESALOJADO:
             {
+                
+                sem_post(&cpu_libre);
+                sem_post(&maximo_grado_de_multiprogramacion);
+                
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
                 recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros);
@@ -214,6 +222,7 @@ void procesar_cpu(void* void_cliente_socket) {
 
 
                 // Aca deberiamos hacer un switch nuevo para preguntar que se debe hacer segun el motivo que se recibio
+                manejar_proceso_desalojado(motivo_desalojo, lista_parametros);
 
 
                 break;
@@ -231,10 +240,52 @@ void procesar_cpu(void* void_cliente_socket) {
         }
     }
 }
+
+void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros) {
+   
+    //log_info(logger, " \n");         
+
+    switch(motivo_desalojo) {
+        case YIELD:{
+            log_info(logger, "Motivo desalojo es YIELD \n");         
+            volver_a_encolar_en_ready();         
+                                   
+            break;
+
+            }
+            case EXIT:
+            {
+                    
+                log_info(logger, "Motivo desalojo es EXIT \n");         
+                // Avisamos que ya puede entrar otro proceso a memoria principal
+                sem_post(&maximo_grado_de_multiprogramacion);
                 
+                matar_proceso();
+                
+                break;
+            }
+                   
+        //mostrar_lista(lista_parametros); 
+            
+    }  
+}
+
+    
+
+
+
+
+
+
+
+
+
+
                 /*switch(motivo_desalojo) {
                     case YIELD:{
                         log_info(logger, "Motivo desalojo es YIELD \n");         
+                        
+                        
                         
                         // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
                         // Como todavia no hicimos HRRN lo hago por FIFO
@@ -275,16 +326,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 
 
             }
-            case -1:
-            {
-			    log_error(logger, "El cliente CPU se desconecto. Terminando Servidor \n");
-			    return;
-            }
-		    default:
-            {
-			    log_error(logger,"Operación desconocida. Hubo un problemita! \n");
-			    break;
-            }
+            
         }
     }
 }*/

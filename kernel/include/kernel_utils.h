@@ -50,12 +50,15 @@ extern t_queue* procesos_en_new;
 extern t_list* procesos_en_ready;
 extern t_pcb* proceso_en_running;
 
+
+
 extern t_list* lista_pids;
 
 // Semáforos
 extern pthread_mutex_t mutex_new;
 extern pthread_mutex_t mutex_ready;
 extern pthread_mutex_t mutex_running;
+extern pthread_mutex_t mutex_pids;
 
 extern sem_t maximo_grado_de_multiprogramacion;
 extern sem_t cant_procesos_new;
@@ -83,5 +86,8 @@ void inicializar_registros(t_registros_cpu* registros);
 void procesar_consola(void* cliente_socket);
 void procesar_cpu(void* void_cliente_socket);
 
+void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
+void matar_proceso();
+void volver_a_encolar_en_ready();
 
 #endif

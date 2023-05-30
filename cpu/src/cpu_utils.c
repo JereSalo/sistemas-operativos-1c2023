@@ -47,6 +47,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         contexto->pc++;
     }
 
+    //ESTE IF ESTA AL PEDITO
     if(desalojado) {               // Caso instrucción con desalojo
         desalojado = 0;
 
@@ -54,7 +55,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         //cliente socket es kernel
         send_contexto(cliente_socket, contexto);
-        
+     
         log_info(logger, "Estoy por enviar info del desalojo a KERNEL");
 
         //mostrar_lista(lista_parametros);
@@ -85,7 +86,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             //list_add(lista_parametros, registro);
             //list_add(lista_parametros, valor);
             
-            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
+            usleep(config_cpu.RETARDO_INSTRUCCION * 2000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
@@ -144,6 +145,11 @@ void procesar_conexion_cpu(int cliente_socket) {
                 log_info(logger, "Recibi el Contexto del Proceso %d",contexto->pid);
 
                 ejecutar_proceso(contexto, cliente_socket); // esta funcion podria modificar el contexto y retornar el motivo con los parametros?
+                
+                
+                
+            
+
 
                 // send_contexto(contexto, cliente_socket);
                 // send motivo_con_parametros(motivo, cliente_socket);

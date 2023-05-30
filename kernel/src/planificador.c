@@ -31,12 +31,12 @@ void planificador_largo_plazo() {
                 
         log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
         
-        //log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));       //log obligatorio
+        log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));       //log obligatorio
 
 
         //muestro la lista de pids para debuggear porque hay un problema
         //cuando deja de correr la cpu no se encolan bien las cosas a la cola de ready        
-        mostrar_lista(lista_pids);
+        //mostrar_lista(lista_pids);
 
         // Avisamos que agregamos un nuevo proceso a de READY
         sem_post(&cant_procesos_ready);
@@ -45,11 +45,12 @@ void planificador_largo_plazo() {
 
 void matar_proceso() {
 
+    log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", proceso_en_running->pid);       //log obligatorio 
+    
     list_destroy_and_destroy_elements(proceso_en_running->instrucciones, free);
     //free(proceso_en_running->registros_cpu);
     free(proceso_en_running); // lo mata
 
-    log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", proceso_en_running->pid);       //log obligatorio 
     
     sem_post(&maximo_grado_de_multiprogramacion);
 
@@ -61,7 +62,7 @@ void matar_proceso() {
 // Pasaje de READY -> RUNNING
 void planificador_corto_plazo(int fd) {
     while(1){
-        t_pcb* proceso;
+        //t_pcb* proceso;
         t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
 
         int valor;
@@ -97,12 +98,12 @@ void planificador_corto_plazo(int fd) {
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
 
-        cargar_contexto_de_ejecucion(proceso, contexto_de_ejecucion);
+        cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
         
         send_contexto(fd, contexto_de_ejecucion);
 
         
-        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
  
         
         free(contexto_de_ejecucion);
@@ -115,8 +116,7 @@ void volver_a_encolar_en_ready() {
     // Como todavia no hicimos HRRN lo hago por FIFO
 
     // Ya tenemos el PCB con el contexto modificado (case anterior)
-         
-                
+
     // Agregamos el proceso obtenido a READY
     pthread_mutex_lock(&mutex_ready);
     list_add(procesos_en_ready, proceso_en_running);
@@ -126,7 +126,7 @@ void volver_a_encolar_en_ready() {
     pthread_mutex_unlock(&mutex_ready);
 
 
-    mostrar_lista(lista_pids);
+    //mostrar_lista(lista_pids);
 
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);

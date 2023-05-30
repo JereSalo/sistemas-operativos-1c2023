@@ -197,7 +197,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
-
+                
                 proceso_en_running->pc = contexto_recibido->pc;
                 proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
 
@@ -211,19 +211,23 @@ void procesar_cpu(void* void_cliente_socket) {
             case PROCESO_DESALOJADO:
             {
                 
-                sem_post(&cpu_libre);
-                sem_post(&maximo_grado_de_multiprogramacion);
-                
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
                 recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros);
 
-                log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
+                //log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
 
 
                 // Aca deberiamos hacer un switch nuevo para preguntar que se debe hacer segun el motivo que se recibio
                 manejar_proceso_desalojado(motivo_desalojo, lista_parametros);
 
+                
+                // El semaforo debe ir al final del case debido a que la variable proceso_en_running debe ser la misma hasta 
+                // que vuelva a encolar en ready, en manejar_proceso_desalojado, una vez que hace esto ya puede liberarse la cpu con el semaforo
+                // Si el semaforo se pone antes, el planificador (que esta en otro hilo) va a pisar el proceso en running (variable global)
+                // Al toque roque al pique enrique
+                sem_post(&cpu_libre);
+                sem_post(&maximo_grado_de_multiprogramacion);
 
                 break;
             }
@@ -243,30 +247,27 @@ void procesar_cpu(void* void_cliente_socket) {
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros) {
    
-    //log_info(logger, " \n");         
-
     switch(motivo_desalojo) {
-        case YIELD:{
+        case YIELD:
+        {
             log_info(logger, "Motivo desalojo es YIELD \n");         
             volver_a_encolar_en_ready();         
                                    
             break;
-
-            }
-            case EXIT:
-            {
-                    
-                log_info(logger, "Motivo desalojo es EXIT \n");         
-                // Avisamos que ya puede entrar otro proceso a memoria principal
-                sem_post(&maximo_grado_de_multiprogramacion);
+        }
+        case EXIT:
+        {
                 
-                matar_proceso();
-                
-                break;
-            }
-                   
-        //mostrar_lista(lista_parametros); 
+            log_info(logger, "Motivo desalojo es EXIT \n");         
+            // Avisamos que ya puede entrar otro proceso a memoria principal
+            sem_post(&maximo_grado_de_multiprogramacion);
             
+            matar_proceso();
+            
+            break;
+        }
+                   
+        //mostrar_lista(lista_parametros);   
     }  
 }
 

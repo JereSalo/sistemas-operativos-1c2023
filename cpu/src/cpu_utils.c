@@ -39,7 +39,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        log_info(logger, "Instruccion %s finalizada", instruccion);
+        log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
 
         //log_info(logger, "Valor de desalojado %d", desalojado);
         
@@ -47,7 +47,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         contexto->pc++;
     }
 
-    //ESTE IF ESTA AL PEDITO
+    //ESTE IF PUEDE LLEGAR A ESTAR AL PEDITO -> Por ahora lo dejamos
     if(desalojado) {               // Caso instrucción con desalojo
         desalojado = 0;
 
@@ -78,7 +78,6 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case SET:
         {
             // SET (Registro, Valor)
-            log_info(logger, "EJECUTANDO SET");
 
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
@@ -98,25 +97,18 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             break;
         }
         case YIELD:
-        {
-            // YIELD
-            printf("EJECUTE YIELD \n");
-
-            //list_add(lista_parametros, "falopa");
-            //list_add(lista_parametros, "falopa2");
-            
+        case EXIT: 
+        {   
             desalojado = 1;
             break;        
         }
-        case EXIT:
+        case I_O:
         {
-            // EXIT
-            printf("EJECUTE EXIT \n");
-            desalojado = 1;
-            //HAY QUE DEVOLVER EL CONTEXTO DE EJECUCION AL KERNEL Y ADEMAS EL KERNEL TIENE QUE ELIMINAR EL PCB
-            // Y DISMINUIR EN UNA UNIDAD EL SEMAFORO DE GRADO DE MULTIPROGRAMACION -> esto lo hacemos en el while
             
-            //contexto->motivo_desalojado = SUCCESS;
+            list_add(lista_parametros, instruccion_decodificada[1]);
+
+            desalojado = 1;
+            
             break;   
         }
         default: {

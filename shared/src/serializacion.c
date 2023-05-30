@@ -149,11 +149,10 @@ void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desaloj
     
     size_t size_parametros;
 
+    printf("MOTIVO DE DESALOJO: %d", *motivo_desalojo);
     copiar_stream_en_variable_y_desplazar(motivo_desalojo, stream, sizeof(int), desplazamiento);
 
     copiar_stream_en_variable_y_desplazar(&size_parametros, stream, sizeof(size_t), desplazamiento);
-
-    //printf("CANTIDAD DE PARAMETROS: %d", size_parametros);
 
     deserializar_instrucciones(stream, size_parametros, lista_parametros, desplazamiento);
 }

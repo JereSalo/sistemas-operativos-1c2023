@@ -59,13 +59,10 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 
         //mostrar_lista(lista_parametros);
 
-
-        //ESTO ANDA MAL!!!
-        //send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
+        send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
        
     }
-
-    
+   
 }
 
 

@@ -168,8 +168,6 @@ void procesar_consola(void* void_cliente_socket) {
 
 void procesar_cpu(void* void_cliente_socket) {
     
-    log_info(logger, "ENTRE A PROCESAR CPU \n");
-
     int cliente_socket = (intptr_t) void_cliente_socket;
     
     while(1) {
@@ -193,7 +191,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
                 
                 recv_contexto(cliente_socket, contexto_recibido);
-                
+
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
 
                 //proceso_en_running->pc = contexto_recibido->pc;
@@ -213,8 +211,28 @@ void procesar_cpu(void* void_cliente_socket) {
                 recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros);
 
                 log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
+
+
+                // Aca deberiamos hacer un switch nuevo para preguntar que se debe hacer segun el motivo que se recibio
+
+
+                break;
+            }
+            case -1:
+            {
+			    log_error(logger, "El cliente CPU se desconecto. Terminando Servidor \n");
+			    return;
+            }
+		    default:
+            {
+			    log_error(logger,"Operación desconocida. Hubo un problemita! \n");
+			    break;
+            }
+        }
+    }
+}
                 
-                switch(motivo_desalojo) {
+                /*switch(motivo_desalojo) {
                     case YIELD:{
                         log_info(logger, "Motivo desalojo es YIELD \n");         
                         
@@ -254,7 +272,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 }
                 
                 //mostrar_lista(lista_parametros); 
-
+                
 
             }
             case -1:
@@ -269,4 +287,4 @@ void procesar_cpu(void* void_cliente_socket) {
             }
         }
     }
-}
+}*/

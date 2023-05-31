@@ -8,7 +8,7 @@ int pid_counter = 1;
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
 t_pcb* proceso_en_running;
-
+t_list* recursos;
 // Semaforos
 pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;
@@ -45,7 +45,11 @@ void cargar_config_kernel(t_config* config) {
 
     config_kernel->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
 
-    //FALTAN LAS DOS LISTAS
+    
+    config_kernel->RECURSOS = config_get_array_value(config, "RECURSOS");
+    config_kernel->INSTANCIAS_RECURSOS = config_get_array_value(config, "INSTANCIAS_RECURSOS");
+    
+    
 
 
     //log_info(logger, "Config cargada en config_kernel \n");
@@ -90,6 +94,51 @@ void inicializar_registros(t_registros_cpu* registros) {
     asignar_a_registro("RDX", "0000000000000000", registros);
     
 }
+
+
+void inicializar_recursos() {
+    
+    recursos = list_create();    
+
+    t_recurso* recurso = malloc(sizeof(t_recurso));
+    
+    
+    int i = 0;
+    while(config_kernel->RECURSOS[i] != NULL) {
+
+        recurso->dispositivo = config_kernel->RECURSOS[i];
+        recurso->cantidad_disponible = atoi(config_kernel->INSTANCIAS_RECURSOS[i]);
+        recurso->cola_bloqueados = queue_create();
+
+        list_add(recursos, recurso);
+
+        i ++;
+    }
+    
+
+}
+
+
+
+void falopa1() {
+    //int i = 0;
+
+    /*while(recursos[i] != NULL) {
+       t_recurso* dd = list_get(recursos, i);
+       printf("DISPOSITIVO: %s", dd->dispositivo);
+       printf("CANTIDAD: %d", dd->cantidad_disponible);
+       
+       i++;
+    }*/
+
+    t_recurso* dd = list_remove(recursos, 1);
+    printf("DISPOSITIVO: %s \n", dd->dispositivo);
+    printf("CANTIDAD: %d \n", dd->cantidad_disponible);
+
+
+
+}
+
 
 
 t_pcb* inicializar_pcb(int cliente_socket) {
@@ -179,7 +228,7 @@ void procesar_cpu(void* void_cliente_socket) {
         t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
 
         int motivo_desalojo;
-        t_list* lista_parametros = list_create();
+        t_list* lista_parametros_recibida = list_create();
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         
@@ -213,13 +262,16 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
-                recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros);
+                recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros_recibida);
+
+                mostrar_lista(lista_parametros_recibida);
+
 
                 //log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
 
 
                 // Aca deberiamos hacer un switch nuevo para preguntar que se debe hacer segun el motivo que se recibio
-                manejar_proceso_desalojado(motivo_desalojo, lista_parametros);
+                manejar_proceso_desalojado(motivo_desalojo, lista_parametros_recibida);
 
                 
                 // El semaforo debe ir al final del case debido a que la variable proceso_en_running debe ser la misma hasta 
@@ -247,10 +299,17 @@ void procesar_cpu(void* void_cliente_socket) {
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros) {
    
+    
+    
+    
     switch(motivo_desalojo) {
         case YIELD:
         {
-            log_info(logger, "Motivo desalojo es YIELD \n");         
+            log_info(logger, "Motivo desalojo es YIELD \n");  
+
+            // Hay un problema con la cola de ready, se estan llenando de mas. Intentamos hacer el sem_wait pero no deja que los procesos ejecuten.
+            //sem_wait(&maximo_grado_de_multiprogramacion);
+
             volver_a_encolar_en_ready();         
                                    
             break;
@@ -266,68 +325,147 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             break;
         }
-                   
-        //mostrar_lista(lista_parametros);   
+        case WAIT:
+        {
+            // log_info(logger, "Motivo desalojo es WAIT \n");
+
+            // mostrar_lista(lista_parametros);
+
+
+            // //ACA HAY UN PROBLEMA, ARRIBA MUESTRA LA LISTA PERO CUANDO QUEREMOS ACCEDER AL PARAMETRO SE QUEDA TRABADO LA FUNCION Y NO SIGUE EJECUTANDO 
+            // char* recurso_solicitado = (char*)list_get(lista_parametros, 0);  
+
+            // printf("RECURSO SOLICITADO ES %s", recurso_solicitado);
+
+            // t_recurso* recurso = recurso_en_lista(recurso_solicitado);
+            
+
+            // if(recurso != NULL) {
+            //     recurso->cantidad_disponible--;
+            //     if(recurso->cantidad_disponible < 0)
+            //     {
+            //         printf("ME BLOQUEEEEE \n");
+            //         queue_push(recurso->cola_bloqueados, proceso_en_running);
+
+            //     }
+            //     //else
+            //         //volver_a_running;       //hay que hacer esta funcion
+            // }
+            // else {
+            //     printf("NO ENCONTRE EL RECURSITO");
+            // }
+            // break;
+        }
+        case SIGNAL:
+        {
+            // TO DO
+            /*
+            log_info(logger, "Motivo desalojo es WAIT \n");
+
+            char* recurso_solicitado = list_get(lista_parametros, 0);
+
+            t_recurso* recurso = recurso_en_lista(recurso_solicitado);
+
+            if(recurso != NULL) {
+                recurso->cantidad_disponible++;
+                if(recurso->cantidad_disponible < 0)
+                    queue_push(recurso->cola_bloqueados, proceso_en_running);
+            } 
+            else {
+                printf("NO ENCONTRE EL RECURSITO");
+            }
+            */
+            break;
+        }  
     }  
 }
 
-    
 
+t_recurso* recurso_en_lista(char* recurso_solicitado) {
+    t_list_iterator* lista_it = list_iterator_create(recursos);
 
-
-
-
-
-
-
-
-
-                /*switch(motivo_desalojo) {
-                    case YIELD:{
-                        log_info(logger, "Motivo desalojo es YIELD \n");         
-                        
-                        
-                        
-                        // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
-                        // Como todavia no hicimos HRRN lo hago por FIFO
-
-                        // Ya tenemos el PCB con el contexto modificado (case anterior)
-
-                        
-                        //sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
-                        
-                        // Agregamos el proceso obtenido a READY
-                        //pthread_mutex_lock(&mutex_ready);
-                        //list_add(procesos_en_ready, proceso_en_running);
-                        
-                        // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-                        //list_add(lista_pids, string_itoa(proceso_en_running->pid));
-                        //pthread_mutex_unlock(&mutex_ready);
-
-
-                        //mostrar_lista(lista_pids);
-
-                        // Avisamos que agregamos un nuevo proceso a READY
-                        //sem_post(&cant_procesos_ready);
-                        break;
-
-                    }
-                    case EXIT:{
-                            
-                        log_info(logger, "Motivo desalojo es EXIT \n");         
-                        // Avisamos que ya puede entrar otro proceso a memoria principal
-                        //sem_post(&maximo_grado_de_multiprogramacion);
-                        
-                        log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", contexto_recibido->pid);       //log obligatorio 
-                        break;
-                    }
-                }
-                
-                //mostrar_lista(lista_parametros); 
-                
-
-            }
-            
+    while (list_iterator_has_next(lista_it)) {
+        t_recurso* recurso = (t_recurso*)list_iterator_next(lista_it);
+        
+        if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
+            list_iterator_destroy(lista_it);
+            return recurso;
         }
     }
-}*/
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+    
+/* t_recurso* recurso_en_lista(char* recurso_solicitado) {
+
+    t_recurso* recurso;
+    
+   t_list_iterator* lista_it = list_iterator_create(recursos);
+   
+    
+    for(int i = 0; i < list_size(recursos) ; i++) {
+        
+        
+        recurso = list_remove(recursos, i);
+        printf("FALOPA 1: \n");
+        printf("FALOPA 2: \n");
+
+
+        printf("EL RECURSITO QUE ENCONTRE ES %s", recurso->dispositivo);
+
+        if(strcmp(recurso->dispositivo, recurso_solicitado) == 0) 
+        {
+            list_iterator_destroy(lista_it);
+            return recurso;
+        } 
+
+        list_iterator_next(lista_it);
+
+        
+    }
+    
+    list_iterator_destroy(lista_it);
+    recurso = NULL;
+    return recurso;
+}
+ */
+
+
+/* typedef struct {
+    void* dispositivoDeseado;
+    char* parametroAdicional;
+} ComparadorParams;
+
+bool compararDispositivo(void* elemento, void* parametros) {
+    t_recurso* recurso = (t_recurso*)elemento;
+    ComparadorParams* params = (ComparadorParams*)parametros;
+    
+    char* dispositivoDeseado = (char*)params->dispositivoDeseado;
+    char* parametroAdicional = params->parametroAdicional;
+    
+    // Realizar la comparación utilizando los parámetros
+    
+    return strcmp(recurso->dispositivo, dispositivoDeseado) == 0;
+}
+ */
+
+
+
+
+
+
+
+
+
+
+/* 
+Nodo* buscar(Nodo*lista,unsigned unLeg)
+{
+    Nodo*r=lista;
+    while(r!=NULL && r->info.leg!=unLeg)
+        r=r->sig;
+    return r;
+}
+ */

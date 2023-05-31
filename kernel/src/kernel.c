@@ -5,7 +5,18 @@ int main(int argc, char** argv){
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     t_config *config = config_create("kernel.config");
     
+    
     cargar_config_kernel(config);
+  
+
+    inicializar_recursos();
+
+    
+
+    falopa1();    
+    
+    
+    //mostrar_lista(recursos);
 
     inicializar_diccionarios();
     inicializar_semaforos();
@@ -20,11 +31,11 @@ int main(int argc, char** argv){
     int conexion_cpu = conectar_con(CPU, config, logger);
 
 
-    /* ------------------------- CONEXION CON FILESYSTEM -------------------------*/
+    /* -------------------------CONEXION CON FILESYSTEM --------------------*/
     //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
 
 
-    /* ------------------------- CONEXION CON MEMORIA -------------------------*/
+    /* ------------------------- CONEXION CON MEMORIA -----------------------*/
     //int conexion_mem = conectar_con(MEMORIA, config, logger);
 
 

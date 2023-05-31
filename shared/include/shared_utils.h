@@ -74,6 +74,9 @@ typedef enum {
 } op_instruccion;
 
 
+
+
+
 extern t_dictionary* diccionario_instrucciones;
 extern t_dictionary* diccionario_registros_cpu;
 

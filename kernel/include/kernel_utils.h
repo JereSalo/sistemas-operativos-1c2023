@@ -18,10 +18,10 @@ typedef struct {
     int PUERTO_ESCUCHA;
     char* ALGORITMO_PLANIFICACION;
     int ESTIMACION_INICIAL;
-    double HRRN_ALFA; // Es double por el config_get_double_value
+    double HRRN_ALFA;                   // Es double por el config_get_double_value
     int GRADO_MAX_MULTIPROGRAMACION;
-    //t_list* RECURSOS;
-    //t_list* INSTANCIAS_RECURSOS;
+    char** RECURSOS;
+    char** INSTANCIAS_RECURSOS;
 
 } t_kernel_config;
 
@@ -41,6 +41,14 @@ typedef struct {
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
 } t_pcb;
 
+
+typedef struct {
+    char* dispositivo;
+    int cantidad_disponible;
+    t_queue* cola_bloqueados; 
+} t_recurso;
+
+
 // VARIABLES PARA PCB
 
 extern int pid_counter;
@@ -50,6 +58,7 @@ extern t_queue* procesos_en_new;
 extern t_list* procesos_en_ready;
 extern t_pcb* proceso_en_running;
 
+extern t_list* recursos;
 
 
 extern t_list* lista_pids;
@@ -89,5 +98,10 @@ void procesar_cpu(void* void_cliente_socket);
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
 void matar_proceso();
 void volver_a_encolar_en_ready();
+
+void inicializar_recursos();
+void falopa1();
+
+t_recurso* recurso_en_lista(char* recurso_solicitado);
 
 #endif

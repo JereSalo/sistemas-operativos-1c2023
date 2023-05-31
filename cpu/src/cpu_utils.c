@@ -58,7 +58,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
      
         log_info(logger, "Estoy por enviar info del desalojo a KERNEL");
 
-        //mostrar_lista(lista_parametros);
+        mostrar_lista(lista_parametros);
 
         send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
        
@@ -102,10 +102,12 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             desalojado = 1;
             break;        
         }
-        case I_O:
+        case WAIT:
         {
             
             list_add(lista_parametros, instruccion_decodificada[1]);
+
+            //mostrar_lista(lista_parametros);
 
             desalojado = 1;
             

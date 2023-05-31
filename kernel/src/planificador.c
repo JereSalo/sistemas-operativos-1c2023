@@ -73,7 +73,7 @@ void planificador_corto_plazo(int fd) {
         sem_wait(&cant_procesos_ready);
         
          sem_getvalue(&cpu_libre, &valor);
-        printf("LA CPU TIENE %d PROCESOS", valor);
+        printf("LA CPU TIENE %d PROCESOS\n", valor);
 
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
         sem_wait(&cpu_libre);

@@ -250,9 +250,9 @@ void procesar_cpu(void* void_cliente_socket) {
                 proceso_en_running->pc = contexto_recibido->pc;
                 proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
 
-                free(contexto_recibido->registros_cpu);
-                list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
-                free(contexto_recibido);
+                // free(contexto_recibido->registros_cpu); // ESTE NO VA PORQUE ESTOY LIBERANDO EL ESPACIO EN MEMORIA EN DONDE ESTAN LOS REGISTROS.
+                // list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
+                // free(contexto_recibido);
                 break;
                 
             }
@@ -279,7 +279,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 // Si el semaforo se pone antes, el planificador (que esta en otro hilo) va a pisar el proceso en running (variable global)
                 // Al toque roque al pique enrique
                 sem_post(&cpu_libre);
-                sem_post(&maximo_grado_de_multiprogramacion);
+                // sem_post(&maximo_grado_de_multiprogramacion); // ESTO NO VA
 
                 break;
             }
@@ -302,13 +302,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
     
     
     
-    switch(motivo_desalojo) {
+    switch((int)motivo_desalojo) {
         case YIELD:
         {
             log_info(logger, "Motivo desalojo es YIELD \n");  
 
             // Hay un problema con la cola de ready, se estan llenando de mas. Intentamos hacer el sem_wait pero no deja que los procesos ejecuten.
-            //sem_wait(&maximo_grado_de_multiprogramacion);
+            //sem_wait(&maximo_grado_de_muliprogramacion); // ESTO NO VA PORQUE EL PROCESO QUE ESTABA CORRIENDO SIGUE CONTANDO PARA EL GRADO DE MULTIPROGRAMACION.
 
             volver_a_encolar_en_ready();         
                                    
@@ -318,24 +318,24 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
                 
             log_info(logger, "Motivo desalojo es EXIT \n");         
+            
+            matar_proceso(); // A CHEQUEAR
+
             // Avisamos que ya puede entrar otro proceso a memoria principal
-            sem_post(&maximo_grado_de_multiprogramacion);
-            
-            matar_proceso();
-            
+        
             break;
         }
         case WAIT:
         {
-            // log_info(logger, "Motivo desalojo es WAIT \n");
+            log_info(logger, "Motivo desalojo es WAIT \n");
 
             // mostrar_lista(lista_parametros);
 
 
-            // //ACA HAY UN PROBLEMA, ARRIBA MUESTRA LA LISTA PERO CUANDO QUEREMOS ACCEDER AL PARAMETRO SE QUEDA TRABADO LA FUNCION Y NO SIGUE EJECUTANDO 
+            // //ACA HAY UN PROBLEMA, ARRIBA MUESTRA LA LISTA PERO CUANDO QUEREMOS ACCEDER AL PARAMETRO SE QUEDA TRABADO LA FUNCION Y NO SIGUE EJECUTANDO. Parece solucionado
             // char* recurso_solicitado = (char*)list_get(lista_parametros, 0);  
 
-            // printf("RECURSO SOLICITADO ES %s", recurso_solicitado);
+            // log_info(logger, "RECURSO SOLICITADO ES %s\n", recurso_solicitado);
 
             // t_recurso* recurso = recurso_en_lista(recurso_solicitado);
             
@@ -349,12 +349,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             //     }
             //     //else
+            //          printf("Voy a volver a running\n");
             //         //volver_a_running;       //hay que hacer esta funcion
             // }
             // else {
             //     printf("NO ENCONTRE EL RECURSITO");
             // }
-            // break;
+            break;
         }
         case SIGNAL:
         {

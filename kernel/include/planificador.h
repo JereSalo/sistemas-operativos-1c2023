@@ -10,5 +10,6 @@ void planificador_corto_plazo(int);
 void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
 void matar_proceso();
 
+
 #endif
 

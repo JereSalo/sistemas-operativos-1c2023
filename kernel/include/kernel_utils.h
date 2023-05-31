@@ -75,7 +75,7 @@ extern sem_t cant_procesos_ready;
 
 extern sem_t cpu_libre;
 
-
+extern int cliente_socket_cpu;
 
 
 // FUNCIONES EN KERNEL_UTILS.C
@@ -97,11 +97,13 @@ void procesar_cpu(void* void_cliente_socket);
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
 void matar_proceso();
-void volver_a_encolar_en_ready();
+void volver_a_encolar_en_ready(t_pcb* proceso);
 
 void inicializar_recursos();
 void falopa1();
 
 t_recurso* recurso_en_lista(char* recurso_solicitado);
+
+void volver_a_running();
 
 #endif

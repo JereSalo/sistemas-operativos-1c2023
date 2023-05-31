@@ -9,6 +9,8 @@ t_queue* procesos_en_new;
 t_list* procesos_en_ready;
 t_pcb* proceso_en_running;
 t_list* recursos;
+
+
 // Semaforos
 pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;
@@ -22,6 +24,7 @@ pthread_mutex_t mutex_pids;
 
 t_list* lista_pids;
 
+int cliente_socket_cpu;
 
 
 void cargar_config_kernel(t_config* config) {
@@ -96,10 +99,12 @@ void inicializar_registros(t_registros_cpu* registros) {
 
 void inicializar_recursos() {
     recursos = list_create();    
-    t_recurso* recurso = malloc(sizeof(t_recurso));
+    t_recurso* recurso;
     
     int i = 0;
     while(config_kernel->RECURSOS[i] != NULL) {
+        recurso = malloc(sizeof(t_recurso));
+        
         recurso->dispositivo = config_kernel->RECURSOS[i];
         recurso->cantidad_disponible = atoi(config_kernel->INSTANCIAS_RECURSOS[i]);
         recurso->cola_bloqueados = queue_create();
@@ -211,12 +216,12 @@ void procesar_consola(void* void_cliente_socket) {
 
 void procesar_cpu(void* void_cliente_socket) {
     
-    int cliente_socket = (intptr_t) void_cliente_socket;
+    cliente_socket_cpu = (intptr_t) void_cliente_socket;
     
     
     
     while(1) {
-        op_code cod_op = recibir_operacion(cliente_socket);
+        op_code cod_op = recibir_operacion(cliente_socket_cpu);
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         
@@ -226,7 +231,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
 
                 t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-                recv_contexto(cliente_socket, contexto_recibido);
+                recv_contexto(cliente_socket_cpu, contexto_recibido);
 
                 log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", contexto_recibido->pid);
 
@@ -250,7 +255,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
-                recv_desalojo(cliente_socket, &motivo_desalojo, lista_parametros_recibida);
+                recv_desalojo(cliente_socket_cpu, &motivo_desalojo, lista_parametros_recibida);
 
                 // mostrar_lista(lista_parametros_recibida);
 
@@ -293,7 +298,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             log_info(logger, "Motivo desalojo es YIELD \n");  
 
-            volver_a_encolar_en_ready();
+            volver_a_encolar_en_ready(proceso_en_running);
             
             sem_post(&cpu_libre);
             break;
@@ -312,27 +317,25 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_info(logger, "Motivo desalojo es WAIT \n");
 
             // mostrar_lista(lista_parametros);
-
-
-            // //ACA HAY UN PROBLEMA, ARRIBA MUESTRA LA LISTA PERO CUANDO QUEREMOS ACCEDER AL PARAMETRO SE QUEDA TRABADO LA FUNCION Y NO SIGUE EJECUTANDO. Parece solucionado
+            
             char* recurso_solicitado = (char*)list_get(lista_parametros, 0);  
 
             log_info(logger, "RECURSO SOLICITADO ES %s\n", recurso_solicitado);
 
             t_recurso* recurso = recurso_en_lista(recurso_solicitado);
-            
+
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible--;
                 if(recurso->cantidad_disponible < 0)
                 {
-                    printf("ME BLOQUEE \n");
-                    queue_push(recurso->cola_bloqueados, proceso_en_running);
+                    printf("ME BLOQUEE AYUDAME LOCOOO\n");
+                    queue_push(recurso->cola_bloqueados, proceso_en_running);       //mutexito???
                     sem_post(&cpu_libre);
                 }
                 else{
                     printf("Voy a volver a running\n");
-                    //volver_a_running;       //hay que hacer esta funcion. 
+                    volver_a_running();
                 }
             }
             else {
@@ -342,24 +345,27 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case SIGNAL:
         {
-            // TO DO
-            /*
-            log_info(logger, "Motivo desalojo es WAIT \n");
+            // log_info(logger, "Motivo desalojo es SIGNAL \n");
+            // // NO ESTA PASANDO DE ACA !!!!
+            // char* recurso_solicitado = (char*)list_get(lista_parametros, 0);
+            // printf("FALOPA");  // prueba
+            // t_recurso* recurso = recurso_en_lista(recurso_solicitado);
 
-            char* recurso_solicitado = list_get(lista_parametros, 0);
+            // if(recurso != NULL) {
+            //     recurso->cantidad_disponible++;
+            //     printf("Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
+            //     if(recurso->cantidad_disponible <= 0){
+            //         t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
+            //         printf("voy a volver a encolar en ready");   // prueba
+            //         volver_a_encolar_en_ready(proceso);
+            //     }
+            // } 
+            // else {
+            //     log_info(logger, "NO ENCONTRE EL RECURSITO");
+            // }
 
-            t_recurso* recurso = recurso_en_lista(recurso_solicitado);
-
-            if(recurso != NULL) {
-                recurso->cantidad_disponible++;
-                if(recurso->cantidad_disponible < 0)
-                    queue_push(recurso->cola_bloqueados, proceso_en_running);
-            } 
-            else {
-                printf("NO ENCONTRE EL RECURSITO");
-            }
-            */
-            sem_post(&cpu_libre);
+            
+            // sem_post(&cpu_libre);
             break;
         }  
     }  

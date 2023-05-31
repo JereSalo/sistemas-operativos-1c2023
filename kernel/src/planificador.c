@@ -108,7 +108,24 @@ void planificador_corto_plazo(int fd) {
     }  
 }
 
-void volver_a_encolar_en_ready() {
+void volver_a_running() {
+    
+    t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
+
+    cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
+
+
+    send_contexto(cliente_socket_cpu, contexto_de_ejecucion);
+
+    log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
+
+    free(contexto_de_ejecucion);
+}
+
+
+
+
+void volver_a_encolar_en_ready(t_pcb* proceso) {
     // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
     // Como todavia no hicimos HRRN lo hago por FIFO
 
@@ -116,10 +133,10 @@ void volver_a_encolar_en_ready() {
 
     // Agregamos el proceso obtenido a READY
     pthread_mutex_lock(&mutex_ready);
-    list_add(procesos_en_ready, proceso_en_running);
+    list_add(procesos_en_ready, proceso);
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-    list_add(lista_pids, string_itoa(proceso_en_running->pid));
+    list_add(lista_pids, string_itoa(proceso->pid));
     pthread_mutex_unlock(&mutex_ready);
 
 

@@ -96,6 +96,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             break;        
         }
         case WAIT:
+        case SIGNAL:
         {
             list_add(lista_parametros, instruccion_decodificada[1]);
 

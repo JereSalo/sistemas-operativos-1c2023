@@ -44,16 +44,14 @@ void planificador_largo_plazo() {
 }
 
 void matar_proceso() {
-
     log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", proceso_en_running->pid);       //log obligatorio 
     
     list_destroy_and_destroy_elements(proceso_en_running->instrucciones, free);
-    //free(proceso_en_running->registros_cpu);
+    free(proceso_en_running->registros_cpu);
     free(proceso_en_running); // lo mata
 
     
     sem_post(&maximo_grado_de_multiprogramacion);
-
 }
 
 
@@ -65,15 +63,15 @@ void planificador_corto_plazo(int fd) {
         //t_pcb* proceso;
         t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
 
-        int valor;
+        // int valor;
 
         // Sacamos un proceso de ready y lo mandamos a ejecutar
         
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
         
-         sem_getvalue(&cpu_libre, &valor);
-        printf("LA CPU TIENE %d PROCESOS\n", valor);
+        // sem_getvalue(&cpu_libre, &valor);
+        // printf("LA CPU TIENE %d PROCESOS\n", valor);
 
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
         sem_wait(&cpu_libre);
@@ -107,7 +105,6 @@ void planificador_corto_plazo(int fd) {
  
         
         free(contexto_de_ejecucion);
-
     }  
 }
 

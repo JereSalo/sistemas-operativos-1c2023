@@ -58,12 +58,10 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
      
         log_info(logger, "Estoy por enviar info del desalojo a KERNEL");
 
-        mostrar_lista(lista_parametros);
+        // mostrar_lista(lista_parametros);
 
         send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
-       
     }
-   
 }
 
 
@@ -81,30 +79,24 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
-
-            //list_add(lista_parametros, registro);
-            //list_add(lista_parametros, valor);
             
             usleep(config_cpu.RETARDO_INSTRUCCION * 2000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
-
-            //mostrar_lista(lista_parametros);
             // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
             // printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
 
             break;
         }
         case YIELD:
-        case EXIT: 
+        case EXIT:
         {   
             desalojado = 1;
             break;        
         }
         case WAIT:
         {
-            
             list_add(lista_parametros, instruccion_decodificada[1]);
 
             //mostrar_lista(lista_parametros);
@@ -138,21 +130,10 @@ void procesar_conexion_cpu(int cliente_socket) {
 
                 log_info(logger, "Recibi el Contexto del Proceso %d",contexto->pid);
 
-                ejecutar_proceso(contexto, cliente_socket); // esta funcion podria modificar el contexto y retornar el motivo con los parametros?
-                
-                
-                
-            
-
-
-                // send_contexto(contexto, cliente_socket);
-                // send motivo_con_parametros(motivo, cliente_socket);
-
-
+                ejecutar_proceso(contexto, cliente_socket); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
 
                 break;
             }
-
             case -1:
             {
 			    log_error(logger, "El cliente se desconecto. Terminando Servidor \n");

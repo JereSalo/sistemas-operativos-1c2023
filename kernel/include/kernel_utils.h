@@ -107,7 +107,6 @@ void matar_proceso(char* motivo); // Prototipo de la función pero no está defi
 void volver_a_encolar_en_ready(t_pcb* proceso);
 
 void inicializar_recursos();
-void falopa1();
 
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 

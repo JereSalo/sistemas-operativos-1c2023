@@ -161,31 +161,29 @@ void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desaloj
 
 // Serializar finalizacion
 
-void* serializar_finalizacion(char* motivo) {
-    
-    size_t size_string = strlen(motivo) + 1;
-    //creamos un stream intermedio que guarde el codigo de operacion y el mensaje
-    void* stream = malloc(sizeof(size_t) + size_string);
-    
-    //copiamos el codigo de operacion en el stream y despues nos corremos y copiamos el mensaje (payload)
-    memcpy(stream, &size_string, sizeof(size_t));
-    memcpy(stream+sizeof(size_t), motivo, size_string);
-    
-    // Aca retorna un stream con el codigo de operación al principio y concatendo a esto está nuestro dato (un int en este caso).
-    return stream;
-}
+void* serializar_string(size_t* size, char* string) {
+    size_t size_string = strlen(string) + 1;
 
-void deserializar_finalizacion(void* stream, char* motivo, size_t* desplazamiento) {
-    size_t tamanio;
-    copiar_stream_en_variable_y_desplazar(tamanio, stream, sizeof(size_t), desplazamiento);
-    copiar_stream_en_variable_y_desplazar(motivo, stream, tamanio, desplazamiento);         
+    *size = size_string + sizeof(size_t);
+    
+    void* paquete = malloc(*size);
+
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &size_string, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, string, size_string, &desplazamiento);
+    
+    return paquete;
 }
 
 
 
+void deserializar_string(void* stream, size_t stream_size, char* string, size_t* desplazamiento) {
+    copiar_stream_en_variable_y_desplazar(string, stream, stream_size, desplazamiento);
+}
 
-
-
+// recv del size_t
+// recv de algo del tamaño de lo de arriba
 
 
 
@@ -216,7 +214,6 @@ void* serializar_numero(int numero) {
 
 
 void deserializar_numero(void* stream, int* numero) {
-    
     //aca estamos copiando el stream en la variable numero -> se recibe el mensaje
     memcpy(numero, stream, sizeof(int));                
 }

@@ -57,10 +57,11 @@ void matar_proceso(char* motivo) {
     free(proceso_en_running); // lo mata
 
     // Avisarle a consola que finalizó el proceso.
-    send_finalizacion(socket_consola, motivo);
+    send_string(socket_consola, motivo);
 
     
     sem_post(&maximo_grado_de_multiprogramacion);
+    sem_post(&cpu_libre);
 }
 
 
@@ -218,6 +219,7 @@ void volver_a_encolar_en_ready(t_pcb* proceso) {
 
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
+    sem_post(&cpu_libre);
 }
 
 

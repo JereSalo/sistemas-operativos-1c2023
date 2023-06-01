@@ -198,6 +198,7 @@ void procesar_consola(void* void_cliente_socket) {
                 sem_post(&cant_procesos_new);   
 
                 // Enviar confirmacion de recepcion a consola
+                send_string(cliente_socket, "Instrucciones han llegado exitosamente !!!! :D");
                 
                 break;
             }
@@ -303,7 +304,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             volver_a_encolar_en_ready(proceso_en_running);
             
-            sem_post(&cpu_libre);
             break;
         }
         case EXIT:
@@ -311,8 +311,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
-            matar_proceso("SUCCESS");
-            sem_post(&cpu_libre);    
+            matar_proceso("SUCCESS");  
             break;
         }
         case WAIT:
@@ -331,7 +330,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible < 0)
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
-                    queue_push(recurso->cola_bloqueados, proceso_en_running);       //mutexito???
+                    queue_push(recurso->cola_bloqueados, proceso_en_running);      
                     sem_post(&cpu_libre);
                 }
                 else{
@@ -355,11 +354,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             t_recurso* recurso = recurso_en_lista(recurso_solicitado);
             
-            
-            //log_info(logger, "EJECUTE RECURSO EN LISTA \n");
-            
-            //printf("FALOPA2");  // NO USEN PRINTF PARA DEBUGGEAR PORQUE A VECES NO ANDAN 
-
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible++;

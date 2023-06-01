@@ -102,7 +102,7 @@ void procesar_consola(void* cliente_socket);
 void procesar_cpu(void* void_cliente_socket);
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
-void matar_proceso();
+void matar_proceso(char* motivo); // Prototipo de la función pero no está definida en kernel_utils
 void volver_a_encolar_en_ready(t_pcb* proceso);
 
 void inicializar_recursos();

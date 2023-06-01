@@ -27,6 +27,9 @@ int main(int argc, char** argv){
     t_list* instrucciones = generar_lista_instrucciones(path_instrucciones);
     
     send_instrucciones(server_kernel, instrucciones);
+
+    // Confirmacion de recepcion
+    // Esperar mensaje que indique finalizacion del proceso.
     
     list_destroy_and_destroy_elements(instrucciones,free);
     cerrar_programa(logger,config);

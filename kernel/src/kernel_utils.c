@@ -308,7 +308,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
-            matar_proceso();
+            matar_proceso("SUCCESS");
             sem_post(&cpu_libre);    
             break;
         }
@@ -338,7 +338,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             }
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
-                matar_proceso();
+                matar_proceso("FILE_NOT_FOUND");
             }
             break;
         }
@@ -371,7 +371,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             } 
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
-                matar_proceso();
+                matar_proceso("FILE_NOT_FOUND");
             }
             break;
         }

@@ -46,12 +46,15 @@ void planificador_largo_plazo() {
     }
 }
 
-void matar_proceso() {
-    log_warning(logger, "Finaliza el proceso %d - Motivo: SUCCESS \n", proceso_en_running->pid);       //log obligatorio 
+void matar_proceso(char* motivo) {
+    // Aca no necesariamente el motivo es success...
+    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
     
     list_destroy_and_destroy_elements(proceso_en_running->instrucciones, free);
     free(proceso_en_running->registros_cpu);
     free(proceso_en_running); // lo mata
+
+    // Avisarle a consola que finalizó el proceso.
 
     
     sem_post(&maximo_grado_de_multiprogramacion);

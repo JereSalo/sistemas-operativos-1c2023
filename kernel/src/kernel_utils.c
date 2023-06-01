@@ -335,7 +335,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     sem_post(&cpu_libre);
                 }
                 else{
-                    printf("Voy a volver a running\n");
+                    log_info(logger, "Voy a volver a running \n");
                     volver_a_running();
                 }
             }

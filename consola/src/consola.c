@@ -17,7 +17,7 @@ int main(int argc, char** argv){
     int conexion = conectar_con(KERNEL, config, logger);
     
     
-    char* path_instrucciones = strdup("ejemplo3.txt");
+    char* path_instrucciones = strdup("ejemplo.txt");
 
     t_list* instrucciones = generar_lista_instrucciones(path_instrucciones);    
 

@@ -109,7 +109,7 @@ void planificador_corto_plazo(int fd) {
 }
 
 void volver_a_running() {
-    
+        
     t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
 
     cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);

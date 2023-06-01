@@ -38,6 +38,7 @@ typedef struct {
     double tiempo_llegada_ready;        // Para HRRN
     double tasa_de_respuesta;           // Para HRRNcito
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
+    int socket_consola;
 } t_pcb;
 
 
@@ -92,7 +93,7 @@ void inicializar_semaforos();
 void inicializar_colas();
 
 t_pcb* inicializar_pcb(int cliente_socket);
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones);
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket);
 
 void esperar_clientes_kernel(int server_socket);
 
@@ -106,7 +107,6 @@ void matar_proceso(char* motivo); // Prototipo de la función pero no está defi
 void volver_a_encolar_en_ready(t_pcb* proceso);
 
 void inicializar_recursos();
-void falopa1();
 
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 

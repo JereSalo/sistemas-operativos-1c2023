@@ -24,6 +24,9 @@ void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desaloj
 void* serializar_numero(int numero);
 void deserializar_numero(void* stream, int* numero);
 
+void deserializar_string(void* stream, size_t stream_size, char* string, size_t* desplazamiento);
+void* serializar_string(size_t* size, char* string);
+
 
 
 #endif

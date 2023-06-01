@@ -200,3 +200,46 @@ bool recv_desalojo(int fd, int* motivo_desalojo, t_list* lista_parametros) {
     free(stream);
     return true;
 }
+
+// ------------------------------ ENVIO Y RECEPCION STRING ------------------------------ //
+
+bool send_string(int fd, char* string){
+    size_t size = 0;
+    void* paquete = serializar_string(&size, string);
+    
+    // Mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send FINALIZACION \n");
+        free(paquete);
+        return false;
+    }
+    
+    free(paquete);
+    return true;
+}
+
+bool recv_string(int fd, char* string){
+    
+    size_t size_payload;
+
+    
+    if(recv(fd, &size_payload, sizeof(size_t), 0) != sizeof(size_t)) { 
+        return false;
+    }
+
+    void* stream = malloc(size_payload);
+
+    if (recv(fd, stream, size_payload, 0) != size_payload){
+        printf("Fallo al recibir todo el payload\n");
+        free(stream);
+        return false;
+    }
+
+    size_t desplazamiento = 0;
+    // deserializamos para guardar en la variable número el stream que recibimos.
+    deserializar_string(stream, size_payload, string, &desplazamiento);
+    // void deserializar_string(void* stream, size_t stream_size, char* string, size_t* desplazamiento)
+    free(stream);
+    return true;
+}
+

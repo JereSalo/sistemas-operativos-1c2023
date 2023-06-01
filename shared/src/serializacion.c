@@ -159,15 +159,31 @@ void deserializar_desalojo(void* stream, size_t stream_size, int* motivo_desaloj
 
 
 
+// Serializar finalizacion
+
+void* serializar_string(size_t* size, char* string) {
+    size_t size_string = strlen(string) + 1;
+
+    *size = size_string + sizeof(size_t);
+    
+    void* paquete = malloc(*size);
+
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &size_string, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, string, size_string, &desplazamiento);
+    
+    return paquete;
+}
 
 
 
+void deserializar_string(void* stream, size_t stream_size, char* string, size_t* desplazamiento) {
+    copiar_stream_en_variable_y_desplazar(string, stream, stream_size, desplazamiento);
+}
 
-
-
-
-
-
+// recv del size_t
+// recv de algo del tamaño de lo de arriba
 
 
 
@@ -198,7 +214,6 @@ void* serializar_numero(int numero) {
 
 
 void deserializar_numero(void* stream, int* numero) {
-    
     //aca estamos copiando el stream en la variable numero -> se recibe el mensaje
     memcpy(numero, stream, sizeof(int));                
 }

@@ -149,13 +149,13 @@ t_pcb* inicializar_pcb(int cliente_socket) {
     }
 
     // Creamos el PCB
-    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas);
+    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_socket);
     pid_counter++;
    
     return pcb;
 }
 
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->pc = 0;
@@ -166,6 +166,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
+    pcb->socket_consola = cliente_socket;
 
     return pcb;
 }
@@ -195,6 +196,9 @@ void procesar_consola(void* void_cliente_socket) {
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
+
+                // Enviar confirmacion de recepcion a consola
+                send_string(cliente_socket, "Instrucciones han llegado exitosamente !!!! :D");
                 
                 break;
             }
@@ -300,7 +304,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             volver_a_encolar_en_ready(proceso_en_running);
             
-            sem_post(&cpu_libre);
             break;
         }
         case EXIT:
@@ -308,8 +311,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
-            matar_proceso("SUCCESS");
-            sem_post(&cpu_libre);    
+            matar_proceso("SUCCESS");  
             break;
         }
         case WAIT:
@@ -328,7 +330,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible < 0)
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
-                    queue_push(recurso->cola_bloqueados, proceso_en_running);       //mutexito???
+                    queue_push(recurso->cola_bloqueados, proceso_en_running);      
                     sem_post(&cpu_libre);
                 }
                 else{
@@ -352,11 +354,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             t_recurso* recurso = recurso_en_lista(recurso_solicitado);
             
-            
-            //log_info(logger, "EJECUTE RECURSO EN LISTA \n");
-            
-            //printf("FALOPA2");  // NO USEN PRINTF PARA DEBUGGEAR PORQUE A VECES NO ANDAN 
-
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible++;

@@ -17,4 +17,7 @@ bool recv_contexto(int fd, t_contexto_ejecucion* contexto);
 bool send_desalojo(int fd, int motivo_desalojo, t_list* lista_parametros);
 bool recv_desalojo(int fd, int* motivo_desalojo, t_list* lista_parametros);
 
+bool send_string(int fd, char* string);
+bool recv_string(int fd, char* string);
+
 #endif

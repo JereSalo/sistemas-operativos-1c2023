@@ -341,6 +341,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             }
             else {
                 log_info(logger, "NO ENCONTRE EL RECURSITO");
+                matar_proceso();
             }
             break;
         }
@@ -376,7 +377,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
              } 
              else {
                  log_info(logger, "NO ENCONTRE EL RECURSITO");
-                 //aca hay que matar al proceso
+                 matar_proceso();
              }
             break;
         }  

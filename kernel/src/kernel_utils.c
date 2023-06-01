@@ -337,7 +337,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 }
             }
             else {
-                log_info(logger, "NO ENCONTRE EL RECURSITO");
+                log_error(logger, "NO ENCONTRE EL RECURSITO");
                 matar_proceso();
             }
             break;
@@ -370,7 +370,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 volver_a_running();        //devuelve a running el proceso que peticiono el signal
             } 
             else {
-                log_info(logger, "NO ENCONTRE EL RECURSITO");
+                log_error(logger, "NO ENCONTRE EL RECURSITO");
                 matar_proceso();
             }
             break;

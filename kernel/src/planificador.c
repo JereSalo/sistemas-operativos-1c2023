@@ -103,7 +103,6 @@ void planificador_corto_plazo(int fd) {
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
  
-        
         free(contexto_de_ejecucion);
     }  
 }
@@ -117,7 +116,8 @@ void volver_a_running() {
 
     send_contexto(cliente_socket_cpu, contexto_de_ejecucion);
 
-    log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
+    // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
+    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 
     free(contexto_de_ejecucion);
 }

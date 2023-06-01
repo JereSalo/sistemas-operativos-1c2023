@@ -100,8 +100,6 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         {
             list_add(lista_parametros, instruccion_decodificada[1]);
 
-            //mostrar_lista(lista_parametros);
-
             desalojado = 1;
             
             break;   

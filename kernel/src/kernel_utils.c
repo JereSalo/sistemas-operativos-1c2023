@@ -293,11 +293,10 @@ void procesar_cpu(void* void_cliente_socket) {
 }
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros) {
-   
     switch((int)motivo_desalojo) {
         case YIELD:
         {
-            log_info(logger, "Motivo desalojo es YIELD \n");  
+            log_info(logger, "Motivo desalojo es YIELD \n");
 
             volver_a_encolar_en_ready(proceso_en_running);
             
@@ -316,10 +315,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         case WAIT:
         {
             log_info(logger, "Motivo desalojo es WAIT \n");
-
-            // mostrar_lista(lista_parametros);
             
-            char* recurso_solicitado = (char*)list_get(lista_parametros, 0);  
+            char* recurso_solicitado = (char*)list_get(lista_parametros, 0);
 
             log_info(logger, "RECURSO SOLICITADO ES %s\n", recurso_solicitado);
 
@@ -361,24 +358,21 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             //printf("FALOPA2");  // NO USEN PRINTF PARA DEBUGGEAR PORQUE A VECES NO ANDAN 
 
 
-             if(recurso != NULL) {
-                 recurso->cantidad_disponible++;
-                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
+            if(recurso != NULL) {
+                recurso->cantidad_disponible++;
+                log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
-                 if(recurso->cantidad_disponible <= 0){
-                     t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
-                     printf("voy a volver a ready \n");    //prueba
-                     volver_a_encolar_en_ready(proceso);
-                     volver_a_running();        //devuelve a running el proceso que peticiono el signal
-                 }
-                 else {
-                    volver_a_running();        //devuelve a running el proceso que peticiono el signalS
-                 }
-             } 
-             else {
-                 log_info(logger, "NO ENCONTRE EL RECURSITO");
-                 matar_proceso();
-             }
+                if(recurso->cantidad_disponible <= 0){
+                   log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
+                   t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
+                   volver_a_encolar_en_ready(proceso);
+                }
+                volver_a_running();        //devuelve a running el proceso que peticiono el signal
+            } 
+            else {
+                log_info(logger, "NO ENCONTRE EL RECURSITO");
+                matar_proceso();
+            }
             break;
         }  
     }  

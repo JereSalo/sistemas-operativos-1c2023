@@ -1,7 +1,9 @@
 #include "consola_utils.h"
 
 
-sem_t sem_procesar_consola;
+t_log* logger;
+t_config* config;
+int server_kernel;
 
 /* ---------------------------------- PARSER ---------------------------------- */
 
@@ -11,7 +13,8 @@ t_list* generar_lista_instrucciones(char* path_instrucciones) {
     FILE* archivo_instrucciones = fopen(path_instrucciones, "r");
     
     if(archivo_instrucciones == NULL) {
-        printf("No se pudo abrir archivo de instrucciones ;)\n"); // Deberia ser un log, me gustaria crear un log aparte !
+        log_error(logger, "No se pudo abrir el archivo de instrucciones :(");
+        exit(2);
     }
     
     t_list* instrucciones = list_create();
@@ -20,12 +23,12 @@ t_list* generar_lista_instrucciones(char* path_instrucciones) {
     char* token;
 
     while(fgets(linea,sizeof linea,archivo_instrucciones)!= NULL){
-        token = strtok(linea, "\n"); // Para sacar el \n de la linea
-        list_add(instrucciones, strdup(token));
+        if(!(linea[0] == 10 || linea[0] == 32)){ // Si empieza con \n o espacio no quiero que se guarde el token
+            token = strtok(linea, "\n"); // Para sacar el \n de la linea
+            list_add(instrucciones, strdup(token));
+            log_info(logger, "Instruccion '%s' agregada a la lista de instrucciones\n", token);
+        }
     }
-
-
-    //mostrar_lista(instrucciones); // Esto es para ver si ta todo bien :)
 
     fclose(archivo_instrucciones);
 

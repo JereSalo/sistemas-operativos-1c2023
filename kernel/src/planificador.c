@@ -19,6 +19,9 @@ void planificador_largo_plazo() {
         proceso = queue_pop(procesos_en_new);
         pthread_mutex_unlock(&mutex_new);
 
+        // Asignamos el tiempo de llegada a ready -> en este instante se manda a ready (Importante para HRRN)
+        proceso->tiempo_llegada_ready = time(NULL);
+
         // Agregamos el proceso obtenido a READY
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
@@ -76,11 +79,35 @@ void planificador_corto_plazo(int fd) {
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
         sem_wait(&cpu_libre);
         
-        // ESTO ES POR FIFO, MAS ADELANTE ACA TAMBIEN VA A ESTAR EL HRRN
-        pthread_mutex_lock(&mutex_ready);
-        proceso_en_running = list_remove(procesos_en_ready, 0);
-        list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
-        pthread_mutex_unlock(&mutex_ready);
+        
+        // ------------ FIFITO ----------- //
+        //IF FIFO 
+        //if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "FIFO") == 0){
+            pthread_mutex_lock(&mutex_ready);
+            proceso_en_running = list_remove(procesos_en_ready, 0);
+            list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
+            pthread_mutex_unlock(&mutex_ready);
+        //}
+
+        // ------------ HRRNCITO ----------- //
+        //ELSE IF HRRN
+        //else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
+        //     double tiempo_actual = time(NULL); //dubul
+        
+        //     calcular_tasa_de_respuesta(tiempo_actual);
+        //     t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
+        //     pthread_mutex_lock(&mutex_ready);
+        //     proceso_en_running = list_remove_element(procesos_en_ready, proceso_siguiente_a_running);
+        //     list_remove_element(lista_pids, proceso_siguiente_a_running); 
+        //     pthread_mutex_unlock(&mutex_ready);
+        // }
+        // else{
+        //     log_error(logger, "ALGORITMO DE PLANIFICACION INCORRECTO");
+        // }
+
+
+
+
 
         //pthread_mutex_lock(&mutex_pids);
         //pthread_mutex_unlock(&mutex_pids);
@@ -106,6 +133,45 @@ void planificador_corto_plazo(int fd) {
         free(contexto_de_ejecucion);
     }  
 }
+
+// void calcular_tasa_de_respuesta(double tiempo_actual) {
+    
+//     t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
+
+//     while(list_iterator_has_next(lista_it)) {
+//         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+//         float estimado_rafaga = config_kernel->HRRN_ALFA * TE + (1 - config_kernel->HRRN_ALFA) + config_kernel->ESTIMACION_INICIAL;  //Falta implementar TE
+//         double tiempo_esperando_en_ready = tiempo_actual - proceso->tiempo_llegada_ready;
+//         proceso->tasa_de_respuesta = (tiempo_esperando_en_ready + estimado_rafaga) / estimado_rafaga;
+
+//         // TASITA DE RESPUESTA = (tiempo esperando en ready + estimado rafaga) / estimado rafaga
+//         // ESTIMACION_SIGUIENTE = HRRN_ALFA * TE (tiempo ejecucion de la rafaga actual) + (1 - HRRN_ALFA) * ESTIMACION_INICIAL
+//     }
+
+//     list_iterator_destroy(lista_it);
+// }
+
+
+t_pcb* proceso_con_mayor_tasa_de_respuesta() {
+
+    t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
+
+    double mayor_tasa = 0;
+    t_pcb* proceso_tasa;  //No sabemos si hay que pedir memoria
+
+    while(list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+
+        if(proceso->tasa_de_respuesta > mayor_tasa) {
+            mayor_tasa = proceso->tasa_de_respuesta;
+            proceso_tasa = proceso;
+        }
+    }
+    list_iterator_destroy(lista_it);
+    return proceso_tasa;
+}
+
 
 void volver_a_running() {
         

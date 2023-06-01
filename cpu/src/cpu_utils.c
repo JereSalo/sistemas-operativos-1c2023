@@ -39,10 +39,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
-
-        //log_info(logger, "Valor de desalojado %d", desalojado);
-        
+        log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion); // Este log no se si está bien aca porque en realidad está finalizada del lado del CPU pero no del lado del kernel.
 
         contexto->pc++;
     }
@@ -95,10 +92,11 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             desalojado = 1;
             break;        
         }
+        case IO:
         case WAIT:
         case SIGNAL:
         {
-            list_add(lista_parametros, instruccion_decodificada[1]);
+            list_add(lista_parametros, instruccion_decodificada[1]);   
 
             desalojado = 1;
             

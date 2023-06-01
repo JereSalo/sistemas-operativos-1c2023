@@ -374,8 +374,42 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 matar_proceso();
             }
             break;
-        }  
+        }
+        case IO:
+        {
+            // Proceso se bloquea una cantidad de tiempo, pero no deberia bloquear al resto.
+            args_io* argumentos_io = malloc(sizeof(argumentos_io));
+            
+            argumentos_io->proceso = proceso_en_running;
+            argumentos_io->tiempo = atoi((char*)list_get(lista_parametros, 0));
+
+            // printf("Tiempo IO: %d", argumentos_io->tiempo);
+
+            pthread_t hilo_io;
+	        pthread_create(&hilo_io, NULL, (void*)bloquear_proceso, (void*) argumentos_io);
+            // args_io es struct con proceso y tiempo
+	        pthread_detach(hilo_io);
+
+            sem_post(&cpu_libre);
+
+            break;
+        }
     }  
+}
+
+
+
+void bloquear_proceso(void* argumentos_io){
+    int tiempo = ((args_io*)argumentos_io)->tiempo;
+    t_pcb* proceso = ((args_io*)argumentos_io)->proceso;
+
+    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
+
+    sleep(tiempo);
+
+    log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
+
+    volver_a_encolar_en_ready(proceso);
 }
 
 

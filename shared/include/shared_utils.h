@@ -58,7 +58,7 @@ typedef enum {
     SET,
     MOV_IN,
     MOV_OUT,
-    I_O,
+    IO,
     F_OPEN,
     F_CLOSE,
     F_SEEK,

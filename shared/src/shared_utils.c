@@ -136,7 +136,7 @@ void inicializar_diccionarios() {
     dictionary_put(diccionario_instrucciones, "SET", (void*) (intptr_t) SET); 
     dictionary_put(diccionario_instrucciones, "MOV_IN", (void*) (intptr_t) MOV_IN);
     dictionary_put(diccionario_instrucciones, "MOV_OUT", (void*) (intptr_t) MOV_OUT);
-    dictionary_put(diccionario_instrucciones, "I_O", (void*) (intptr_t) I_O);
+    dictionary_put(diccionario_instrucciones, "IO", (void*) (intptr_t) IO);
     dictionary_put(diccionario_instrucciones, "F_OPEN", (void*) (intptr_t) F_OPEN);
     dictionary_put(diccionario_instrucciones, "F_CLOSE", (void*) (intptr_t) F_CLOSE);
     dictionary_put(diccionario_instrucciones, "F_SEEK", (void*) (intptr_t) F_SEEK);

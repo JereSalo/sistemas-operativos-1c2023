@@ -48,6 +48,13 @@ typedef struct {
     t_queue* cola_bloqueados; 
 } t_recurso;
 
+typedef struct{
+    t_pcb* proceso;
+    int tiempo;
+}args_io;
+
+void bloquear_proceso(void* argumentos_io);
+
 
 // VARIABLES PARA PCB
 

@@ -50,11 +50,14 @@ void matar_proceso(char* motivo) {
     // Aca no necesariamente el motivo es success...
     log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
     
+    int socket_consola = proceso_en_running->socket_consola;
+
     list_destroy_and_destroy_elements(proceso_en_running->instrucciones, free);
     free(proceso_en_running->registros_cpu);
     free(proceso_en_running); // lo mata
 
     // Avisarle a consola que finalizó el proceso.
+    send_finalizacion(socket_consola, motivo);
 
     
     sem_post(&maximo_grado_de_multiprogramacion);

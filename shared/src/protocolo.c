@@ -200,3 +200,38 @@ bool recv_desalojo(int fd, int* motivo_desalojo, t_list* lista_parametros) {
     free(stream);
     return true;
 }
+
+
+bool send_finalizacion(int fd, char* motivo){
+    size_t size = 0;
+    void* paquete = serializar_finalizacion(&size, motivo);
+    
+    // Mandamos los datos copiados en ese stream al destinatario
+    if(send(fd, paquete, size, 0) != size) {     //send retorna el tamanio que se envio
+        printf("Hubo un error con el send FINALIZACION \n");
+        free(paquete);
+        return false;
+    }
+    
+    free(paquete);
+    return true;
+}
+
+bool recv_finalizacion(int fd, char* motivo){
+    //calculamos el tamanio de SOLO el payload
+    size_t size = sizeof(size_t);
+
+    //creamos un stream intermedio para guardar el mensaje que vamos a recibir
+    void* stream = malloc(size);
+
+    // en recv se modifica la variable stream, guardando ahi lo recibido.
+    if(recv(fd, stream, size, 0) != size) { 
+        free(stream);
+        return false;
+    }
+
+    // deserializamos para guardar en la variable número el stream que recibimos.
+    deserializar_numero(stream, numero);
+    free(stream);
+    return true;
+}

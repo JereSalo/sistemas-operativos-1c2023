@@ -149,13 +149,13 @@ t_pcb* inicializar_pcb(int cliente_socket) {
     }
 
     // Creamos el PCB
-    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas);
+    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_socket);
     pid_counter++;
    
     return pcb;
 }
 
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->pc = 0;
@@ -166,6 +166,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones) {
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
+    pcb->socket_consola = cliente_socket;
 
     return pcb;
 }
@@ -195,6 +196,8 @@ void procesar_consola(void* void_cliente_socket) {
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
+
+                // Enviar confirmacion de recepcion a consola
                 
                 break;
             }

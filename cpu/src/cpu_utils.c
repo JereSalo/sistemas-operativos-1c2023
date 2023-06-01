@@ -39,7 +39,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion); // Este log no se si está bien aca porque en realidad está finalizada del lado del CPU pero no del lado del kernel.
+        if (!desalojado) log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
 
         contexto->pc++;
     }
@@ -48,15 +48,9 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
     if(desalojado) {               // Caso instrucción con desalojo
         desalojado = 0;
 
-        log_info(logger, "Estoy por enviar el contexto a KERNEL");
-        
-        //cliente socket es kernel
+        log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
+
         send_contexto(cliente_socket, contexto);
-     
-        log_info(logger, "Estoy por enviar info del desalojo a KERNEL");
-
-        // mostrar_lista(lista_parametros);
-
         send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
     }
 }

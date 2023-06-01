@@ -53,7 +53,7 @@ typedef struct{
     int tiempo;
 }args_io;
 
-void bloquear_proceso(void* argumentos_io);
+void bloquear_proceso(args_io* argumentos_io);
 
 
 // VARIABLES PARA PCB

@@ -216,8 +216,9 @@ void procesar_consola(void* void_cliente_socket) {
 
 void procesar_cpu(void* void_cliente_socket) {
     
-    cliente_socket_cpu = (intptr_t) void_cliente_socket;
     
+    //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA
+    cliente_socket_cpu = (intptr_t) void_cliente_socket;
     
     
     while(1) {
@@ -345,27 +346,38 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case SIGNAL:
         {
-            // log_info(logger, "Motivo desalojo es SIGNAL \n");
-            // // NO ESTA PASANDO DE ACA !!!!
-            // char* recurso_solicitado = (char*)list_get(lista_parametros, 0);
-            // printf("FALOPA");  // prueba
-            // t_recurso* recurso = recurso_en_lista(recurso_solicitado);
-
-            // if(recurso != NULL) {
-            //     recurso->cantidad_disponible++;
-            //     printf("Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
-            //     if(recurso->cantidad_disponible <= 0){
-            //         t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
-            //         printf("voy a volver a encolar en ready");   // prueba
-            //         volver_a_encolar_en_ready(proceso);
-            //     }
-            // } 
-            // else {
-            //     log_info(logger, "NO ENCONTRE EL RECURSITO");
-            // }
-
+            log_info(logger, "Motivo desalojo es SIGNAL \n");
             
-            // sem_post(&cpu_libre);
+            char* recurso_solicitado = (char*)list_get(lista_parametros, 0);
+            
+            log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
+            
+            t_recurso* recurso = recurso_en_lista(recurso_solicitado);
+            
+            
+            //log_info(logger, "EJECUTE RECURSO EN LISTA \n");
+            
+            //printf("FALOPA2");  // NO USEN PRINTF PARA DEBUGGEAR PORQUE A VECES NO ANDAN 
+
+
+             if(recurso != NULL) {
+                 recurso->cantidad_disponible++;
+                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
+                 
+                 if(recurso->cantidad_disponible <= 0){
+                     t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
+                     printf("voy a volver a ready \n");    //prueba
+                     volver_a_encolar_en_ready(proceso);
+                     volver_a_running();        //devuelve a running el proceso que peticiono el signal
+                 }
+                 else {
+                    volver_a_running();        //devuelve a running el proceso que peticiono el signalS
+                 }
+             } 
+             else {
+                 log_info(logger, "NO ENCONTRE EL RECURSITO");
+                 //aca hay que matar al proceso
+             }
             break;
         }  
     }  

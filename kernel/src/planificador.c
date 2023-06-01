@@ -140,6 +140,8 @@ void volver_a_encolar_en_ready(t_pcb* proceso) {
     pthread_mutex_unlock(&mutex_ready);
 
 
+    log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));    
+
     //mostrar_lista(lista_pids);
 
     // Avisamos que agregamos un nuevo proceso a READY

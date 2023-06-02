@@ -88,52 +88,38 @@ void planificador_corto_plazo(int fd) {
         
         
         // ------------ FIFITO ----------- //
-        //IF FIFO 
-        //if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "FIFO") == 0){
+
+        if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "FIFO") == 0){
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = list_remove(procesos_en_ready, 0);
             list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
             pthread_mutex_unlock(&mutex_ready);
-        //}
+        }
 
         // ------------ HRRNCITO ----------- //
-        //ELSE IF HRRN
-        //else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-        //     double tiempo_actual = time(NULL); //dubul
+
+        else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
+            double tiempo_actual = time(NULL); 
         
-        //     calcular_tasa_de_respuesta(tiempo_actual);
-        //     t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
-        //     pthread_mutex_lock(&mutex_ready);
-        //     proceso_en_running = list_remove_element(procesos_en_ready, proceso_siguiente_a_running);
-        //     list_remove_element(lista_pids, proceso_siguiente_a_running); 
-        //     pthread_mutex_unlock(&mutex_ready);
-        // }
-        // else{
-        //     log_error(logger, "ALGORITMO DE PLANIFICACION INCORRECTO");
-        // }
+            calcular_tasa_de_respuesta(tiempo_actual);
+            t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
+            pthread_mutex_lock(&mutex_ready);
+            proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
+            list_remove_element(lista_pids, proceso_siguiente_a_running); 
+            pthread_mutex_unlock(&mutex_ready);
+        }
+        else{
+            log_error(logger, "ALGORITMO DE PLANIFICACION INCORRECTO");
+        }
 
-
-
-
-
-        //pthread_mutex_lock(&mutex_pids);
-        //pthread_mutex_unlock(&mutex_pids);
-        
-
-        // Ahora lo mandamos a ejecutar
-        
-        // Lo guardamos en una variable auxiliar
-        //pthread_mutex_lock(&mutex_running);
-        //proceso_en_running = proceso;
-        //pthread_mutex_unlock(&mutex_running);
 
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
 
         cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
         
+        proceso_en_running->tiempo_llegada_running = time(NULL); // aca el proceso empieza a ejecutar
         send_contexto(fd, contexto_de_ejecucion);
-
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
  
@@ -141,23 +127,25 @@ void planificador_corto_plazo(int fd) {
     }  
 }
 
-// void calcular_tasa_de_respuesta(double tiempo_actual) {
+void calcular_tasa_de_respuesta(double tiempo_actual) {
     
-//     t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
+    t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
 
-//     while(list_iterator_has_next(lista_it)) {
-//         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+    while(list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
         
-//         float estimado_rafaga = config_kernel->HRRN_ALFA * TE + (1 - config_kernel->HRRN_ALFA) + config_kernel->ESTIMACION_INICIAL;  //Falta implementar TE
-//         double tiempo_esperando_en_ready = tiempo_actual - proceso->tiempo_llegada_ready;
-//         proceso->tasa_de_respuesta = (tiempo_esperando_en_ready + estimado_rafaga) / estimado_rafaga;
+        double tiempo_rafaga_actual = proceso->tiempo_salida_running - proceso->tiempo_llegada_running;
+        double tiempo_esperando_en_ready = tiempo_actual - proceso->tiempo_llegada_ready;
+        proceso->estimacion_prox_rafaga = config_kernel->HRRN_ALFA * tiempo_rafaga_actual + (1 - config_kernel->HRRN_ALFA) + proceso->estimacion_prox_rafaga;
+        proceso->tasa_de_respuesta = 1 + tiempo_esperando_en_ready / proceso->estimacion_prox_rafaga;
 
-//         // TASITA DE RESPUESTA = (tiempo esperando en ready + estimado rafaga) / estimado rafaga
-//         // ESTIMACION_SIGUIENTE = HRRN_ALFA * TE (tiempo ejecucion de la rafaga actual) + (1 - HRRN_ALFA) * ESTIMACION_INICIAL
-//     }
+        // TASITA DE RESPUESTA = (tiempo esperando en ready + estimado rafaga) / estimado rafaga
+        // ESTIMACION_SIGUIENTE = HRRN_ALFA * TE (tiempo ejecucion de la rafaga actual) + (1 - HRRN_ALFA) * ESTIMACION_INICIAL
+        // TE = TRUN FINAL - TRUN INICIAL
+    }
 
-//     list_iterator_destroy(lista_it);
-// }
+    list_iterator_destroy(lista_it);
+}
 
 
 t_pcb* proceso_con_mayor_tasa_de_respuesta() {
@@ -165,7 +153,7 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() {
     t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
 
     double mayor_tasa = 0;
-    t_pcb* proceso_tasa;  //No sabemos si hay que pedir memoria
+    t_pcb* proceso_tasa = malloc(sizeof(t_pcb));  //No sabemos si hay que pedir memoria
 
     while(list_iterator_has_next(lista_it)) {
         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
@@ -198,20 +186,22 @@ void volver_a_running() {
 
 
 
-void volver_a_encolar_en_ready(t_pcb* proceso) {
+void volver_a_encolar_en_ready (t_pcb* proceso) {
     // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
     // Como todavia no hicimos HRRN lo hago por FIFO
 
     // Ya tenemos el PCB con el contexto modificado (case anterior)
 
     // Agregamos el proceso obtenido a READY
+    
+    proceso->tiempo_llegada_ready = time(NULL);
     pthread_mutex_lock(&mutex_ready);
     list_add(procesos_en_ready, proceso);
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
     list_add(lista_pids, string_itoa(proceso->pid));
     pthread_mutex_unlock(&mutex_ready);
-
+    
 
     log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));    
 
@@ -220,6 +210,7 @@ void volver_a_encolar_en_ready(t_pcb* proceso) {
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
     sem_post(&cpu_libre);
+    proceso_en_running->tiempo_salida_running = time(NULL);
 }
 
 
@@ -229,3 +220,5 @@ void cargar_contexto_de_ejecucion(t_pcb* pcb, t_contexto_ejecucion* contexto) {
     contexto->registros_cpu = pcb->registros_cpu;
     contexto->instrucciones = pcb->instrucciones;
 }
+
+

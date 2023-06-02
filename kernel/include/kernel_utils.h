@@ -36,7 +36,9 @@ typedef struct {
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
     double estimacion_prox_rafaga;      // Para HRRN
     double tiempo_llegada_ready;        // Para HRRN
-    double tasa_de_respuesta;           // Para HRRNcito
+    double tiempo_llegada_running;      // Para HRRN
+    double tiempo_salida_running;       // Para HRRN
+    double tasa_de_respuesta;           // Para HRRN
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
     int socket_consola;
 } t_pcb;
@@ -111,5 +113,7 @@ void inicializar_recursos();
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 
 void volver_a_running();
+
+t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 
 #endif

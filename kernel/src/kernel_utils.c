@@ -332,6 +332,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
                     queue_push(recurso->cola_bloqueados, proceso_en_running);      
                     sem_post(&cpu_libre);
+                    proceso_en_running->tiempo_salida_running = time(NULL);
                 }
                 else{
                     log_info(logger, "Voy a volver a running XD \n");
@@ -385,7 +386,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 	        pthread_detach(hilo_io);
 
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
-
+            proceso_en_running->tiempo_salida_running = time(NULL);
             break;
         }
     }  
@@ -416,6 +417,25 @@ t_recurso* recurso_en_lista(char* recurso_solicitado) {
         if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
             list_iterator_destroy(lista_it);
             return recurso;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+// si lo encuentra, lo saca de la lista y lo devuelve
+    while (list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+        if (proceso->pid == proceso_a_buscar->pid) {
+            list_iterator_destroy(lista_it);
+            list_remove_element(lista, proceso);
+           
+            return proceso;
         }
     }
     

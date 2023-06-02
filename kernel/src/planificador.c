@@ -25,16 +25,16 @@ void planificador_largo_plazo() {
         // Agregamos el proceso obtenido a READY
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
-        list_add(lista_pids, string_itoa(proceso->pid));
+        list_add(lista_pids, proceso->pid);
         pthread_mutex_unlock(&mutex_ready);
         // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
         
         //pthread_mutex_lock(&mutex_pids);
         //pthread_mutex_unlock(&mutex_pids);
                 
-        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", *proceso->pid); //log obligatorio
         
-        log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));       //log obligatorio
+        log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_pids_a_string(lista_pids, pids));       //log obligatorio
 
 
         //muestro la lista de pids para debuggear porque hay un problema
@@ -48,7 +48,7 @@ void planificador_largo_plazo() {
 
 void matar_proceso(char* motivo) {
     // Aca no necesariamente el motivo es success...
-    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
+    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", *proceso_en_running->pid, motivo);       //log obligatorio 
     
     int socket_consola = proceso_en_running->socket_consola;
 
@@ -102,22 +102,11 @@ void planificador_corto_plazo(int fd) {
             double tiempo_actual = time(NULL); 
             calcular_tasa_de_respuesta(tiempo_actual);
             t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
-            log_info(logger, "Proceso siguiente a running PID: %d", proceso_siguiente_a_running->pid); // DEBUG
+            // log_info(logger, "Proceso siguiente a running PID: %d", *proceso_siguiente_a_running->pid); // DEBUG
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-            log_info(logger, "Proceso en running PID: %d", proceso_en_running->pid); // DEBUG
-         
-            // Lista de pids debería ser una t_list de int*, no de char*
-            // Hay que cambiar:
-            // Lista de PIDS
-            // Estructura de PCB
-            // Estructura de Contexto
-            // Todas las referencias a PID que se usan para imprimir valor hay que ponerle un *
-            
-
-
-            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", proceso_en_running->pid);}
-
+            // log_info(logger, "Proceso en running PID: %d", *proceso_en_running->pid); // DEBUG
+            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", *proceso_en_running->pid);}
             pthread_mutex_unlock(&mutex_ready);
         }
         else{
@@ -133,7 +122,7 @@ void planificador_corto_plazo(int fd) {
         proceso_en_running->tiempo_llegada_running = time(NULL); // aca el proceso empieza a ejecutar
         send_contexto(fd, contexto_de_ejecucion);
         
-        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", *proceso_en_running->pid); //log obligatorio
  
         free(contexto_de_ejecucion);
     }  
@@ -190,7 +179,7 @@ void volver_a_running() {
     send_contexto(cliente_socket_cpu, contexto_de_ejecucion);
 
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
-    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
+    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", *proceso_en_running->pid);
 
     free(contexto_de_ejecucion);
 }
@@ -211,11 +200,11 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
     list_add(procesos_en_ready, proceso);
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-    list_add(lista_pids, string_itoa(proceso->pid));
+    list_add(lista_pids, proceso->pid);
     pthread_mutex_unlock(&mutex_ready);
     
 
-    log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_a_string(lista_pids, pids));    
+    log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_pids_a_string(lista_pids, pids));    
 
     //mostrar_lista(lista_pids);
 

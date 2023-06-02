@@ -134,7 +134,7 @@ t_pcb* inicializar_pcb(int cliente_socket) {
 
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
-    pcb->pid = pid;
+    pcb->pid = malloc(sizeof(int)); *pcb->pid = pid;
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
@@ -169,7 +169,7 @@ void procesar_consola(void* void_cliente_socket) {
                 queue_push(procesos_en_new, pcb);
                 pthread_mutex_unlock(&mutex_new);
 
-                log_warning(logger, "Se crea el proceso %d en NEW \n", pcb->pid); //log obligatorio
+                log_warning(logger, "Se crea el proceso %d en NEW \n", *pcb->pid); //log obligatorio
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
@@ -215,7 +215,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
                 recv_contexto(cliente_socket_cpu, contexto_recibido);
 
-                log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", contexto_recibido->pid);
+                log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", *contexto_recibido->pid);
 
                 
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
@@ -378,11 +378,11 @@ void bloquear_proceso(args_io* argumentos_io){
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
-    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
+    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", *proceso->pid, tiempo);
 
     sleep(tiempo);
 
-    log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
+    log_info(logger, "Proceso %d se ha desbloqueado", *proceso->pid);
 
     volver_a_encolar_en_ready(proceso);
 }
@@ -411,7 +411,7 @@ t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
     while (list_iterator_has_next(lista_it)) {
         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
         
-        if (proceso->pid == proceso_a_buscar->pid) {
+        if (*proceso->pid == *proceso_a_buscar->pid) {
             list_iterator_destroy(lista_it);
             list_remove_element(lista, proceso);
            

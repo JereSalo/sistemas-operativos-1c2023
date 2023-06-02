@@ -39,7 +39,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        if (!desalojado) log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
+        if (!desalojado) log_info(logger, "PID: %d - Instruccion %s finalizada \n", *contexto->pid, instruccion);
 
         contexto->pc++;
     }
@@ -48,7 +48,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
     if(desalojado) {               // Caso instrucción con desalojo
         desalojado = 0;
 
-        log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
+        log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", *contexto->pid, instruccion);
 
         send_contexto(cliente_socket, contexto);
         send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
@@ -59,7 +59,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
     char* nemonico_instruccion = instruccion_decodificada[0];  //PELADO BOTON QUE TE CREES DE LA RAE GIL, nemonico: palabra que sustituye a un codigo de operacion. pertenece a la memoria.
 
-    log_warning(logger, "PID: %d - Ejecutando %s", contexto->pid, nemonico_instruccion); //logger obligatorio
+    log_warning(logger, "PID: %d - Ejecutando %s", *contexto->pid, nemonico_instruccion); //logger obligatorio
 
     int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, nemonico_instruccion);
 
@@ -119,7 +119,7 @@ void procesar_conexion_cpu(int cliente_socket) {
                     break;
                 }
 
-                log_info(logger, "Recibi el Contexto del Proceso %d",contexto->pid);
+                log_info(logger, "Recibi el Contexto del Proceso %d",*contexto->pid);
 
                 ejecutar_proceso(contexto, cliente_socket); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
 

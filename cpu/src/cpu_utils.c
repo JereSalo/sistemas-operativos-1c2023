@@ -3,6 +3,7 @@
 t_log* logger;
 t_cpu_config config_cpu;
 t_list* lista_parametros;
+int cliente_kernel;
 
 
 int desalojado = 0;
@@ -21,10 +22,7 @@ void cargar_config_cpu(t_config* config) {
 }
 
 
-
-
-
-void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
+void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     char* instruccion;
     char** instruccion_decodificada;
 
@@ -50,8 +48,8 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket) {
 
         log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", *contexto->pid, instruccion);
 
-        send_contexto(cliente_socket, contexto);
-        send_desalojo(cliente_socket, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
+        send_contexto(cliente_kernel, contexto);
+        send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
     }
 }
 
@@ -103,10 +101,10 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 }
 
 
-void procesar_conexion_cpu(int cliente_socket) {
+void procesar_kernel() {
     while(1) {
         // Aca pensaba que había que usar semáforos pero no, el recv se encarga de recibir solo cuando el otro hace un send, sino se queda clavado.
-        op_code cod_op = recibir_operacion(cliente_socket);
+        op_code cod_op = recibir_operacion(cliente_kernel);
         
         switch((int)cod_op) {
             case CONTEXTO_EJECUCION:
@@ -114,14 +112,14 @@ void procesar_conexion_cpu(int cliente_socket) {
                 log_info(logger, "El cop que me llegó es Contexto Ejecucion");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
                 
-                if(!recv_contexto(cliente_socket, contexto)) {
+                if(!recv_contexto(cliente_kernel, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");
                     break;
                 }
 
                 log_info(logger, "Recibi el Contexto del Proceso %d",*contexto->pid);
 
-                ejecutar_proceso(contexto, cliente_socket); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
+                ejecutar_proceso(contexto); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
 
                 break;
             }

@@ -70,19 +70,11 @@ void matar_proceso(char* motivo) {
 // Pasaje de READY -> RUNNING
 void planificador_corto_plazo(int fd) {
     while(1){
-        //t_pcb* proceso;
         t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
-
-        // int valor;
-
-        // Sacamos un proceso de ready y lo mandamos a ejecutar
         
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
         
-        // sem_getvalue(&cpu_libre, &valor);
-        // printf("LA CPU TIENE %d PROCESOS\n", valor);
-
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
         sem_wait(&cpu_libre);
         
@@ -176,7 +168,7 @@ void volver_a_running() {
     cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
 
 
-    send_contexto(cliente_socket_cpu, contexto_de_ejecucion);
+    send_contexto(server_cpu, contexto_de_ejecucion);
 
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
     log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", *proceso_en_running->pid);

@@ -84,7 +84,7 @@ extern sem_t cant_procesos_ready;
 
 extern sem_t cpu_libre;
 
-extern int cliente_socket_cpu;
+extern int server_cpu;
 
 
 // FUNCIONES EN KERNEL_UTILS.C
@@ -94,15 +94,15 @@ void cargar_config_kernel(t_config* config);
 void inicializar_semaforos();
 void inicializar_colas();
 
-t_pcb* inicializar_pcb(int cliente_socket);
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket);
+t_pcb* inicializar_pcb(int cliente_consola);
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola);
 
 void esperar_clientes_kernel(int server_socket);
 
 void inicializar_registros(t_registros_cpu* registros);
 
-void procesar_consola(void* cliente_socket);
-void procesar_cpu(void* void_cliente_socket);
+void procesar_consola(void* void_cliente_consola);
+void procesar_cpu(void* void_server_cpu);
 
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
 void matar_proceso(char* motivo); // Prototipo de la función pero no está definida en kernel_utils

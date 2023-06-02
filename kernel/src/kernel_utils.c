@@ -24,7 +24,7 @@ pthread_mutex_t mutex_pids;
 
 t_list* lista_pids;
 
-int cliente_socket_cpu;
+int server_cpu;
 
 
 void cargar_config_kernel(t_config* config) {
@@ -116,23 +116,23 @@ void inicializar_recursos() {
 }
 
 
-t_pcb* inicializar_pcb(int cliente_socket) {
+t_pcb* inicializar_pcb(int cliente_consola) {
     
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
 
-    if(!recv_instrucciones(cliente_socket, instrucciones_recibidas)){
+    if(!recv_instrucciones(cliente_consola, instrucciones_recibidas)){
         log_error(logger, "Fallo recibiendo INSTRUCCIONES \n");
     }
 
     // Creamos el PCB
-    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_socket);
+    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_consola);
     pid_counter++;
    
     return pcb;
 }
 
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
     pcb->pid = malloc(sizeof(int)); *pcb->pid = pid;
     pcb->pc = 0;
@@ -143,17 +143,17 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
-    pcb->socket_consola = cliente_socket;
+    pcb->socket_consola = cliente_consola;
 
     return pcb;
 }
 
-void procesar_consola(void* void_cliente_socket) {
+void procesar_consola(void* void_cliente_consola) {
     
-    int cliente_socket = (intptr_t) void_cliente_socket;
+    int cliente_consola = (intptr_t) void_cliente_consola;
     
     while(1) {
-        op_code cod_op = recibir_operacion(cliente_socket);
+        op_code cod_op = recibir_operacion(cliente_consola);
         t_pcb* pcb;
 
         switch((int)cod_op) {
@@ -162,7 +162,7 @@ void procesar_consola(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
-                pcb = inicializar_pcb(cliente_socket);
+                pcb = inicializar_pcb(cliente_consola);
                 
                 // Agregamos el proceso creado a NEW
                 pthread_mutex_lock(&mutex_new);
@@ -175,7 +175,7 @@ void procesar_consola(void* void_cliente_socket) {
                 sem_post(&cant_procesos_new);   
 
                 // Enviar confirmacion de recepcion a consola
-                SEND_INT(cliente_socket, 1);
+                SEND_INT(cliente_consola, 1);
                 
                 break;
             }
@@ -195,15 +195,12 @@ void procesar_consola(void* void_cliente_socket) {
 
 
 
-void procesar_cpu(void* void_cliente_socket) {
-    
-    
+void procesar_cpu(void* void_server_cpu) {
     //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA
-    cliente_socket_cpu = (intptr_t) void_cliente_socket;
-    
+    server_cpu = (intptr_t) void_server_cpu;
     
     while(1) {
-        op_code cod_op = recibir_operacion(cliente_socket_cpu);
+        op_code cod_op = recibir_operacion(server_cpu);
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         
@@ -213,7 +210,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
 
                 t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-                recv_contexto(cliente_socket_cpu, contexto_recibido);
+                recv_contexto(server_cpu, contexto_recibido);
 
                 log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", *contexto_recibido->pid);
 
@@ -237,7 +234,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
-                recv_desalojo(cliente_socket_cpu, &motivo_desalojo, lista_parametros_recibida);
+                recv_desalojo(server_cpu, &motivo_desalojo, lista_parametros_recibida);
 
                 // mostrar_lista(lista_parametros_recibida);
 

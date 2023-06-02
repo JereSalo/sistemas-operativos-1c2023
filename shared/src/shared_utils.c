@@ -36,6 +36,22 @@ char* lista_a_string(t_list* lista, char string[]) {
 
 }
 
+char* lista_pids_a_string(t_list* lista, char string[]) {
+    
+    string[0] = '\0';
+
+    t_list_iterator* lista_it = list_iterator_create(lista);
+    for(int i = 0; list_iterator_has_next(lista_it); i++) {
+       strcat(string, string_itoa(*((int*)list_iterator_next(lista_it))));
+       if(list_size(lista) > 1 && list_iterator_has_next(lista_it))
+        strcat(string, ", ");
+    }
+    list_iterator_destroy(lista_it);
+
+    return string;
+
+}
+
 
 
 void mostrar_lista(t_list* lista) {

@@ -24,7 +24,7 @@ pthread_mutex_t mutex_pids;
 
 t_list* lista_pids;
 
-int cliente_socket_cpu;
+int server_cpu;
 
 
 void cargar_config_kernel(t_config* config) {
@@ -116,48 +116,25 @@ void inicializar_recursos() {
 }
 
 
-
-// TESTING
-void falopa1() {
-    //int i = 0;
-
-    /*while(recursos[i] != NULL) {
-       t_recurso* dd = list_get(recursos, i);
-       printf("DISPOSITIVO: %s", dd->dispositivo);
-       printf("CANTIDAD: %d", dd->cantidad_disponible);
-       
-       i++;
-    }*/
-
-    t_recurso* dd = list_remove(recursos, 1);
-    printf("DISPOSITIVO: %s \n", dd->dispositivo);
-    printf("CANTIDAD: %d \n", dd->cantidad_disponible);
-
-
-
-}
-
-
-
-t_pcb* inicializar_pcb(int cliente_socket) {
+t_pcb* inicializar_pcb(int cliente_consola) {
     
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
 
-    if(!recv_instrucciones(cliente_socket, instrucciones_recibidas)){
+    if(!recv_instrucciones(cliente_consola, instrucciones_recibidas)){
         log_error(logger, "Fallo recibiendo INSTRUCCIONES \n");
     }
 
     // Creamos el PCB
-    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_socket);
+    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_consola);
     pid_counter++;
    
     return pcb;
 }
 
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
-    pcb->pid = pid;
+    pcb->pid = malloc(sizeof(int)); *pcb->pid = pid;
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
@@ -166,17 +143,17 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_socket) {
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
-    pcb->socket_consola = cliente_socket;
+    pcb->socket_consola = cliente_consola;
 
     return pcb;
 }
 
-void procesar_consola(void* void_cliente_socket) {
+void procesar_consola(void* void_cliente_consola) {
     
-    int cliente_socket = (intptr_t) void_cliente_socket;
+    int cliente_consola = (intptr_t) void_cliente_consola;
     
     while(1) {
-        op_code cod_op = recibir_operacion(cliente_socket);
+        op_code cod_op = recibir_operacion(cliente_consola);
         t_pcb* pcb;
 
         switch((int)cod_op) {
@@ -185,20 +162,20 @@ void procesar_consola(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
-                pcb = inicializar_pcb(cliente_socket);
+                pcb = inicializar_pcb(cliente_consola);
                 
                 // Agregamos el proceso creado a NEW
                 pthread_mutex_lock(&mutex_new);
                 queue_push(procesos_en_new, pcb);
                 pthread_mutex_unlock(&mutex_new);
 
-                log_warning(logger, "Se crea el proceso %d en NEW \n", pcb->pid); //log obligatorio
+                log_warning(logger, "Se crea el proceso %d en NEW \n", *pcb->pid); //log obligatorio
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   
 
                 // Enviar confirmacion de recepcion a consola
-                send_string(cliente_socket, "Instrucciones han llegado exitosamente !!!! :D");
+                SEND_INT(cliente_consola, 1);
                 
                 break;
             }
@@ -218,15 +195,12 @@ void procesar_consola(void* void_cliente_socket) {
 
 
 
-void procesar_cpu(void* void_cliente_socket) {
-    
-    
+void procesar_cpu(void* void_server_cpu) {
     //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA
-    cliente_socket_cpu = (intptr_t) void_cliente_socket;
-    
+    server_cpu = (intptr_t) void_server_cpu;
     
     while(1) {
-        op_code cod_op = recibir_operacion(cliente_socket_cpu);
+        op_code cod_op = recibir_operacion(server_cpu);
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
         
@@ -236,9 +210,9 @@ void procesar_cpu(void* void_cliente_socket) {
                 log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
 
                 t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-                recv_contexto(cliente_socket_cpu, contexto_recibido);
+                recv_contexto(server_cpu, contexto_recibido);
 
-                log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", contexto_recibido->pid);
+                log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", *contexto_recibido->pid);
 
                 
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
@@ -260,7 +234,7 @@ void procesar_cpu(void* void_cliente_socket) {
                 
                 log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
-                recv_desalojo(cliente_socket_cpu, &motivo_desalojo, lista_parametros_recibida);
+                recv_desalojo(server_cpu, &motivo_desalojo, lista_parametros_recibida);
 
                 // mostrar_lista(lista_parametros_recibida);
 
@@ -303,7 +277,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_info(logger, "Motivo desalojo es YIELD \n");
 
             volver_a_encolar_en_ready(proceso_en_running);
-            
+
+            sem_post(&cpu_libre);
             break;
         }
         case EXIT:
@@ -311,7 +286,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
-            matar_proceso("SUCCESS");  
+            matar_proceso("SUCCESS");
+            sem_post(&cpu_libre);
             break;
         }
         case WAIT:
@@ -331,12 +307,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
                     queue_push(recurso->cola_bloqueados, proceso_en_running);      
-                    sem_post(&cpu_libre);
+                    proceso_en_running->tiempo_salida_running = time(NULL);
                 }
                 else{
                     log_info(logger, "Voy a volver a running XD \n");
                     volver_a_running();
                 }
+                sem_post(&cpu_libre);
             }
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
@@ -370,6 +347,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
                 matar_proceso("FILE_NOT_FOUND");
             }
+            sem_post(&cpu_libre);
             break;
         }
         case IO:
@@ -385,7 +363,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 	        pthread_detach(hilo_io);
 
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
-
+            proceso_en_running->tiempo_salida_running = time(NULL);
             break;
         }
     }  
@@ -397,11 +375,11 @@ void bloquear_proceso(args_io* argumentos_io){
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
-    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
+    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", *proceso->pid, tiempo);
 
     sleep(tiempo);
 
-    log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
+    log_info(logger, "Proceso %d se ha desbloqueado", *proceso->pid);
 
     volver_a_encolar_en_ready(proceso);
 }
@@ -416,6 +394,25 @@ t_recurso* recurso_en_lista(char* recurso_solicitado) {
         if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
             list_iterator_destroy(lista_it);
             return recurso;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+// si lo encuentra, lo saca de la lista y lo devuelve
+    while (list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+        if (*proceso->pid == *proceso_a_buscar->pid) {
+            list_iterator_destroy(lista_it);
+            list_remove_element(lista, proceso);
+           
+            return proceso;
         }
     }
     

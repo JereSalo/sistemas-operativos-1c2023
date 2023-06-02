@@ -48,7 +48,7 @@ typedef enum {
 } t_motivo_fin_proceso;
 
 typedef struct {
-    int pid;  
+    int* pid;  
     int pc; 
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;
@@ -90,5 +90,6 @@ void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t 
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
 void inicializar_diccionarios();
 char* lista_a_string(t_list* lista, char string[]);
+char* lista_pids_a_string(t_list* lista, char string[]);
 
 #endif

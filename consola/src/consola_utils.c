@@ -26,7 +26,7 @@ t_list* generar_lista_instrucciones(char* path_instrucciones) {
         if(!(linea[0] == 10 || linea[0] == 32)){ // Si empieza con \n o espacio no quiero que se guarde el token
             token = strtok(linea, "\n"); // Para sacar el \n de la linea
             list_add(instrucciones, strdup(token));
-            log_info(logger, "Instruccion '%s' agregada a la lista de instrucciones", token);
+            // log_info(logger, "Instruccion '%s' agregada a la lista de instrucciones", token);
         }
     }
 

@@ -16,17 +16,13 @@ typedef struct {
 
 extern t_cpu_config config_cpu;
 extern t_list* lista_parametros;
-
-
-
+extern int cliente_kernel;
 
 
 void cargar_config_cpu(t_config* config);
-void procesar_conexion_cpu(int);
-void ejecutar_proceso(t_contexto_ejecucion* contexto, int cliente_socket);
+void procesar_kernel();
+void ejecutar_proceso(t_contexto_ejecucion* contexto);
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto);
-// void parametros_instruccion(char** instruccion_decodificada, char *parametros);
-// void guardar_contexto(t_contexto_ejecucion* contexto);
 
 
 #endif

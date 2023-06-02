@@ -107,9 +107,16 @@ void planificador_corto_plazo(int fd) {
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
             log_info(logger, "Proceso en running PID: %d", proceso_en_running->pid); // DEBUG
          
+            // Lista de pids debería ser una t_list de int*, no de char*
+            // Hay que cambiar:
+            // Lista de PIDS
+            // Estructura de PCB
+            // Estructura de Contexto
+            // Todas las referencias a PID que se usan para imprimir valor hay que ponerle un *
             
-            int* elemento = (int*)list_get(lista_pids, 0);
-            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", proceso_en_running->pid); printf("Primer elemento lista pids %d", *elemento);}
+
+
+            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", proceso_en_running->pid);}
 
             pthread_mutex_unlock(&mutex_ready);
         }

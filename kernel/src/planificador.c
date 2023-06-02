@@ -100,12 +100,17 @@ void planificador_corto_plazo(int fd) {
 
         else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
             double tiempo_actual = time(NULL); 
-        
             calcular_tasa_de_respuesta(tiempo_actual);
             t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
+            log_info(logger, "Proceso siguiente a running PID: %d", proceso_siguiente_a_running->pid); // DEBUG
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-            list_remove_element(lista_pids, proceso_siguiente_a_running); 
+            log_info(logger, "Proceso en running PID: %d", proceso_en_running->pid); // DEBUG
+         
+            
+            int* elemento = (int*)list_get(lista_pids, 0);
+            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", proceso_en_running->pid); printf("Primer elemento lista pids %d", *elemento);}
+
             pthread_mutex_unlock(&mutex_ready);
         }
         else{
@@ -209,7 +214,7 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
 
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
-    sem_post(&cpu_libre);
+    
     proceso_en_running->tiempo_salida_running = time(NULL);
 }
 

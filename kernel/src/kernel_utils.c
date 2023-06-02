@@ -116,29 +116,6 @@ void inicializar_recursos() {
 }
 
 
-
-// TESTING
-void falopa1() {
-    //int i = 0;
-
-    /*while(recursos[i] != NULL) {
-       t_recurso* dd = list_get(recursos, i);
-       printf("DISPOSITIVO: %s", dd->dispositivo);
-       printf("CANTIDAD: %d", dd->cantidad_disponible);
-       
-       i++;
-    }*/
-
-    t_recurso* dd = list_remove(recursos, 1);
-    printf("DISPOSITIVO: %s \n", dd->dispositivo);
-    printf("CANTIDAD: %d \n", dd->cantidad_disponible);
-
-
-
-}
-
-
-
 t_pcb* inicializar_pcb(int cliente_socket) {
     
     // Recibimos las instrucciones
@@ -303,7 +280,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_info(logger, "Motivo desalojo es YIELD \n");
 
             volver_a_encolar_en_ready(proceso_en_running);
-            
+
+            sem_post(&cpu_libre);
             break;
         }
         case EXIT:
@@ -311,7 +289,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
-            matar_proceso("SUCCESS");  
+            matar_proceso("SUCCESS");
+            sem_post(&cpu_libre);
             break;
         }
         case WAIT:
@@ -331,13 +310,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
                     queue_push(recurso->cola_bloqueados, proceso_en_running);      
-                    sem_post(&cpu_libre);
                     proceso_en_running->tiempo_salida_running = time(NULL);
                 }
                 else{
                     log_info(logger, "Voy a volver a running XD \n");
                     volver_a_running();
                 }
+                sem_post(&cpu_libre);
             }
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
@@ -371,6 +350,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
                 matar_proceso("FILE_NOT_FOUND");
             }
+            sem_post(&cpu_libre);
             break;
         }
         case IO:

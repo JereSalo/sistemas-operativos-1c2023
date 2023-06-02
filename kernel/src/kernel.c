@@ -10,10 +10,6 @@ int main(int argc, char** argv){
   
 
     inicializar_recursos();
-
-    
-
-    falopa1();    
     
     
     //mostrar_lista(recursos);

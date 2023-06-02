@@ -175,7 +175,7 @@ void procesar_consola(void* void_cliente_socket) {
                 sem_post(&cant_procesos_new);   
 
                 // Enviar confirmacion de recepcion a consola
-                send_string(cliente_socket, "Instrucciones han llegado exitosamente !!!! :D");
+                SEND_INT(cliente_socket, 1);
                 
                 break;
             }

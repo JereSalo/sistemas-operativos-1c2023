@@ -28,5 +28,9 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 void* serializar_string(size_t* size, char* string);
 
 
+// MACROS
+#define SEND_INT(socket, value) send(socket, &(int){value}, sizeof(int), 0)
+#define RECV_INT(socket, value) recv(socket, &(value), sizeof(int), 0)
+
 
 #endif

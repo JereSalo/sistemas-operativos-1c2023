@@ -287,7 +287,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_info(logger, "Motivo desalojo es EXIT \n");         
             
             matar_proceso("SUCCESS");
-            sem_post(&cpu_libre);
+            //sem_post(&cpu_libre);
             break;
         }
         case WAIT:
@@ -306,18 +306,18 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible < 0)
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
-                    queue_push(recurso->cola_bloqueados, proceso_en_running);      
                     proceso_en_running->tiempo_salida_running = time(NULL);
+                    queue_push(recurso->cola_bloqueados, proceso_en_running);      
+                    sem_post(&cpu_libre);
                 }
                 else{
                     log_info(logger, "Voy a volver a running XD \n");
                     volver_a_running();
                 }
-                sem_post(&cpu_libre);
             }
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
-                matar_proceso("FILE_NOT_FOUND");
+                matar_proceso("RIPIO EL PROCESO PERRI, QDEP");
             }
             break;
         }
@@ -337,9 +337,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
                 if(recurso->cantidad_disponible <= 0){
-                   log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
-                   t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
-                   volver_a_encolar_en_ready(proceso);
+                    log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
+                    t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
+                    volver_a_encolar_en_ready(proceso);
+                    //sem_post(&cpu_libre);
                 }
                 volver_a_running();        //devuelve a running el proceso que peticiono el signal
             } 
@@ -347,7 +348,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
                 matar_proceso("FILE_NOT_FOUND");
             }
-            sem_post(&cpu_libre);
             break;
         }
         case IO:
@@ -372,6 +372,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
 
 void bloquear_proceso(args_io* argumentos_io){
+    //sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
+    
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 

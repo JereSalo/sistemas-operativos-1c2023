@@ -98,7 +98,9 @@ void planificador_corto_plazo(int fd) {
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
             // log_info(logger, "Proceso en running PID: %d", *proceso_en_running->pid); // DEBUG
-            if(!list_remove_element(lista_pids, proceso_en_running->pid)){log_error(logger, "No encontre proceso pid %d", *proceso_en_running->pid);}
+            if(!list_remove_element(lista_pids, proceso_en_running->pid)){
+                log_error(logger, "No encontre proceso pid %d", *proceso_en_running->pid);
+            }
             pthread_mutex_unlock(&mutex_ready);
         }
         else{

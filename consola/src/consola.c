@@ -12,8 +12,8 @@ int main(int argc, char** argv){
         path_instrucciones = "ejemplo.txt";
     }
     else if (argc==3) {
-        config = config_create(argv[1]);
-        path_instrucciones = argv[2];
+        config = config_create(argv[2]);
+        path_instrucciones = argv[1];
     }
     else{
         log_error(logger, "Cantidad de parametros incorrecta. Debería ser ./consola PATH_CONFIG PATH_INSTRUCCIONES\n"); 

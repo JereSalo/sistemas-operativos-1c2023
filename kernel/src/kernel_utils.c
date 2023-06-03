@@ -317,7 +317,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             }
             else {
                 log_error(logger, "NO ENCONTRE EL RECURSITO");
-                matar_proceso("RIPIO EL PROCESO PERRI, QDEP");
+                matar_proceso("FILE_NOT_FOUND");
             }
             break;
         }

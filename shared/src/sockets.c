@@ -78,6 +78,9 @@ int recibir_operacion(int socket_cliente)
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
 int preparar_servidor(int modulo, t_config *config, t_log *logger)
 {
+    
+    t_config* config_ips = config_create("../IP.config");
+    
     char *nombre_modulo;
     char *ip;
     char *puerto;
@@ -87,26 +90,28 @@ int preparar_servidor(int modulo, t_config *config, t_log *logger)
     switch (modulo)
     {
     case KERNEL:
-        ip = config_get_string_value(config, "IP_KERNEL");
+        ip = config_get_string_value(config_ips, "IP_KERNEL");
         nombre_modulo = "KERNEL";
         break;
     case CPU:
-        ip = config_get_string_value(config, "IP_CPU");
+        ip = config_get_string_value(config_ips, "IP_CPU");
         nombre_modulo = "CPU";
         break;
     case MEMORIA:
-        ip = config_get_string_value(config, "IP_MEMORIA");
+        ip = config_get_string_value(config_ips, "IP_MEMORIA");
         nombre_modulo = "MEMORIA";
         break;
     case FILESYSTEM:
-        ip = config_get_string_value(config, "IP_FILESYSTEM");
+        ip = config_get_string_value(config_ips, "IP_FILESYSTEM");
         nombre_modulo = "FILESYSTEM";
         break;
     }
 
+
     int server_fd = iniciar_servidor(ip, puerto, logger, nombre_modulo);
 
     log_info(logger, "Servidor listo para recibir al cliente \n");
+    config_destroy(config_ips);
 
     return server_fd;
 }

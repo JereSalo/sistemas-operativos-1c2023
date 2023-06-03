@@ -23,6 +23,10 @@
         "kernel_utils.h": "c",
         "queue.h": "c",
         "shared_utils.h": "c",
-        "socket.h": "c"
+        "socket.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }

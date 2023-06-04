@@ -75,43 +75,25 @@ int recibir_operacion(int socket_cliente)
     }
 }
 
+
+
+
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
-int preparar_servidor(int modulo, t_config *config, t_log *logger)
+int preparar_servidor(char* nombre_modulo, t_config *config, t_log *logger)
 {
+    bool local = true; // Podriamos crear un config aparte que sea solo para nosotros en el que pongamos este tipo de cosas, asi no tocamos codigo. Podriamos hacer uno para activar/desactivar los loggers por ejemplo.
+
+    char* ip;
+    if(local)
+        ip = obtener_ip_local();
+    else
+        ip = obtener_ip_red();
     
-    t_config* config_ips = config_create("../IP.config");
+    char *puerto = config_get_string_value(config, "PUERTO_ESCUCHA");;
     
-    char *nombre_modulo;
-    char *ip;
-    char *puerto;
-
-    puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
-
-    switch (modulo)
-    {
-    case KERNEL:
-        ip = config_get_string_value(config_ips, "IP_KERNEL");
-        nombre_modulo = "KERNEL";
-        break;
-    case CPU:
-        ip = config_get_string_value(config_ips, "IP_CPU");
-        nombre_modulo = "CPU";
-        break;
-    case MEMORIA:
-        ip = config_get_string_value(config_ips, "IP_MEMORIA");
-        nombre_modulo = "MEMORIA";
-        break;
-    case FILESYSTEM:
-        ip = config_get_string_value(config_ips, "IP_FILESYSTEM");
-        nombre_modulo = "FILESYSTEM";
-        break;
-    }
-
-
     int server_fd = iniciar_servidor(ip, puerto, logger, nombre_modulo);
 
     log_info(logger, "Servidor listo para recibir al cliente \n");
-    config_destroy(config_ips);
 
     return server_fd;
 }
@@ -216,4 +198,89 @@ int conectar_con(int modulo, t_config *config, t_log *logger)
     log_info(logger, "Conexión exitosa con el modulo %s \n", nombre_modulo); // No tengo idea para qué querría mostrar conexion pero bueno.
 
     return conexion;
+}
+
+
+// FUNCIONES PARA OBTENER IP LOCAL Y DE RED
+
+char* obtener_ip_red(){
+    int sockfd;
+    struct sockaddr_in servaddr;
+    
+    // Crear un socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        perror("socket");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Configurar la dirección del servidor
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(80);
+    if (inet_pton(AF_INET, "8.8.8.8", &(servaddr.sin_addr)) <= 0) {
+        perror("inet_pton");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Conectarse al servidor (se utiliza el servidor DNS de Google como ejemplo)
+    if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+        perror("connect");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Obtener la dirección local asociada al socket
+    struct sockaddr_in localaddr;
+    socklen_t addrlen = sizeof(localaddr);
+    if (getsockname(sockfd, (struct sockaddr*)&localaddr, &addrlen) < 0) {
+        perror("getsockname");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Convertir la dirección IP a un formato legible por humanos
+    char ip_address[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &(localaddr.sin_addr), ip_address, INET_ADDRSTRLEN) == NULL) {
+        perror("inet_ntop");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Cerrar el socket
+    close(sockfd);
+
+    return strdup(ip_address);
+}
+
+char* obtener_ip_local(){
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        perror("Error al crear el socket");
+    }
+
+    // Conectarse a una dirección de loopback y un puerto arbitrario
+    struct sockaddr_in loopback;
+    memset(&loopback, 0, sizeof(loopback));
+    loopback.sin_family = AF_INET;
+    loopback.sin_addr.s_addr = inet_addr("127.0.0.2");
+    loopback.sin_port = htons(12345);
+
+    if (connect(sock, (struct sockaddr*)&loopback, sizeof(loopback)) < 0) {
+        perror("Error al conectarse al socket de loopback");
+    }
+
+    // Obtener la dirección IP de la conexión establecida
+    struct sockaddr_in localAddr;
+    socklen_t addrLen = sizeof(localAddr);
+    if (getsockname(sock, (struct sockaddr*)&localAddr, &addrLen) < 0) {
+        perror("Error al obtener la dirección IP");
+        close(sock);
+    }
+
+    // Convertir la dirección IP de binario a una cadena legible
+    char ipStr[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(localAddr.sin_addr), ipStr, INET_ADDRSTRLEN);
+
+    // Cerrar el socket
+    close(sock);
+
+    return strdup(ipStr);
 }

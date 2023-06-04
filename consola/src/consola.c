@@ -43,5 +43,7 @@ int main(int argc, char** argv){
     
     list_destroy_and_destroy_elements(instrucciones,free);
     cerrar_programa(logger,config);
+
+    return EXIT_SUCCESS;
 }
 

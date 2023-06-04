@@ -69,7 +69,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
             
-            usleep(config_cpu.RETARDO_INSTRUCCION * 2000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
+            usleep(config_cpu.RETARDO_INSTRUCCION * 1000);      // usleep trabaja con µs, hacemos *1000 para que sean ms
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 

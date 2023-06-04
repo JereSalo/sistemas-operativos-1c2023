@@ -37,9 +37,13 @@ int main(int argc, char** argv){
     }
     
     // Esperar mensaje que indique finalizacion del proceso.
+    int pid;
+    RECV_INT(server_kernel, pid);
+
     char mensaje_finalizacion[50];
     recv_string(server_kernel, mensaje_finalizacion);
-    log_info(logger, "Proceso ha finalizado con motivo: %s", mensaje_finalizacion);
+    
+    log_info(logger, "Proceso %d ha finalizado con motivo: %s", pid, mensaje_finalizacion);
     
     list_destroy_and_destroy_elements(instrucciones,free);
     cerrar_programa(logger,config);

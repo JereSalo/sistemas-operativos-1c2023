@@ -42,15 +42,15 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         contexto->pc++;
     }
 
-    //ESTE IF PUEDE LLEGAR A ESTAR AL PEDITO -> Por ahora lo dejamos
-    if(desalojado) {               // Caso instrucción con desalojo
-        desalojado = 0;
+    // Si es desalojado =>
+    desalojado = 0;
 
-        log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
+    log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
 
-        send_contexto(cliente_kernel, contexto);
-        send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
-    }
+    send_contexto(cliente_kernel, contexto);
+    send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
+
+    list_destroy_and_destroy_elements(lista_parametros, free);
 }
 
 
@@ -109,15 +109,12 @@ void procesar_kernel() {
         switch((int)cod_op) {
             case CONTEXTO_EJECUCION:
             {
-                log_info(logger, "El cop que me llegó es Contexto Ejecucion");
                 t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
                 
                 if(!recv_contexto(cliente_kernel, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");
                     break;
                 }
-
-                log_info(logger, "Recibi el Contexto del Proceso %d",contexto->pid);
 
                 ejecutar_proceso(contexto); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
 

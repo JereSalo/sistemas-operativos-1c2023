@@ -3,7 +3,18 @@
 int main(int argc, char** argv){
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     // t_config *config = config_create("../tests/DEADLOCK/kernel.config"); //cambiar BASE por el nombre de la prueba segun corresponda. Hay que ordenar esto
-    t_config *config = config_create("kernel.config");
+    t_config *config;
+    if (argc==1){
+        config = config_create("kernel.config");
+    }
+    else if (argc==2) {
+        config = config_create(argv[1]); // Un ejemplo seria ./kernel "../tests/BASE/kernel.config"
+    }
+    else{
+        log_error(logger, "Cantidad de parametros incorrecta. Debería ser ./kernel PATH_CONFIG \n"); 
+        return EXIT_FAILURE;
+    }
+
     cargar_config_kernel(config);
   
 

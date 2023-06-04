@@ -3,7 +3,18 @@
 
 int main(int argc, char** argv){
     logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_INFO);
-    t_config *config = config_create("cpu.config");
+    t_config *config;
+
+    if (argc==1){
+        config = config_create("cpu.config");
+    }
+    else if (argc==2) {
+        config = config_create(argv[1]); // Un ejemplo seria ../tests/BASE/cpu.config
+    }
+    else{
+        log_error(logger, "Cantidad de parametros incorrecta. Debería ser ./cpu PATH_CONFIG \n"); 
+        return EXIT_FAILURE;
+    }
     inicializar_diccionarios();
 
     cargar_config_cpu(config);

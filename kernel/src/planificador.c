@@ -25,14 +25,15 @@ void planificador_largo_plazo() {
         // Agregamos el proceso obtenido a READY
         pthread_mutex_lock(&mutex_ready);
         list_add(procesos_en_ready, proceso);
-        list_add(lista_pids, proceso->pid);
+        int* pid = malloc(sizeof(int)); *pid = proceso->pid;
+        list_add(lista_pids, pid);
         pthread_mutex_unlock(&mutex_ready);
         // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
         
         //pthread_mutex_lock(&mutex_pids);
         //pthread_mutex_unlock(&mutex_pids);
                 
-        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", *proceso->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
         
         log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_pids_a_string(lista_pids, pids));       //log obligatorio
 
@@ -48,7 +49,7 @@ void planificador_largo_plazo() {
 
 void matar_proceso(char* motivo) {
     // Aca no necesariamente el motivo es success...
-    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", *proceso_en_running->pid, motivo);       //log obligatorio 
+    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
     
     int socket_consola = proceso_en_running->socket_consola;
 
@@ -91,16 +92,21 @@ void planificador_corto_plazo(int fd) {
         // ------------ HRRNCITO ----------- //
 
         else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-            double tiempo_actual = time(NULL); 
+            double tiempo_actual = time(NULL);
             calcular_tasa_de_respuesta(tiempo_actual);
             t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
-            // log_info(logger, "Proceso siguiente a running PID: %d", *proceso_siguiente_a_running->pid); // DEBUG
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-            // log_info(logger, "Proceso en running PID: %d", *proceso_en_running->pid); // DEBUG
-            if(!list_remove_element(lista_pids, proceso_en_running->pid)){
-                log_error(logger, "No encontre proceso pid %d", *proceso_en_running->pid);
+
+
+            int contenido = proceso_en_running->pid;
+            bool coincide_con_contenido(void* elemento){
+                return *(int*)elemento == contenido;
             }
+            // Recorrer la lista y por cada elemento ver si el contenido es igual a contenido, si es así hago un list_remove con el indice.
+	        list_remove_and_destroy_by_condition(lista_pids, coincide_con_contenido, free);
+
+            
             pthread_mutex_unlock(&mutex_ready);
         }
         else{
@@ -116,11 +122,15 @@ void planificador_corto_plazo(int fd) {
         proceso_en_running->tiempo_llegada_running = time(NULL); // aca el proceso empieza a ejecutar
         send_contexto(fd, contexto_de_ejecucion);
         
-        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", *proceso_en_running->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
  
         free(contexto_de_ejecucion);
     }  
 }
+
+
+
+
 
 void calcular_tasa_de_respuesta(double tiempo_actual) {
     
@@ -173,7 +183,7 @@ void volver_a_running() {
     send_contexto(server_cpu, contexto_de_ejecucion);
 
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
-    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", *proceso_en_running->pid);
+    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 
     free(contexto_de_ejecucion);
 }
@@ -194,7 +204,8 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
     list_add(procesos_en_ready, proceso);
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-    list_add(lista_pids, proceso->pid);
+    int* pid = malloc(sizeof(int)); *pid = proceso->pid;
+    list_add(lista_pids, pid);
     pthread_mutex_unlock(&mutex_ready);
     
 

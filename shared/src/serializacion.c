@@ -87,7 +87,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
     copiar_variable_en_stream_y_desplazar(paquete, &codigo_operacion, sizeof(op_code), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &size_payload, sizeof(size_t), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, contexto->pid, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento); //add
@@ -100,7 +100,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento) {
     size_t size_instrucciones;
 
-    copiar_stream_en_variable_y_desplazar(contexto->pid, stream, sizeof(int), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), desplazamiento);
 
     copiar_stream_en_variable_y_desplazar(&contexto->pc, stream, sizeof(int), desplazamiento);
 

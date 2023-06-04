@@ -95,16 +95,18 @@ void planificador_corto_plazo(int fd) {
             double tiempo_actual = time(NULL);
             calcular_tasa_de_respuesta(tiempo_actual);
             t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
-            // log_info(logger, "Proceso siguiente a running PID: %d", *proceso_siguiente_a_running->pid); // DEBUG
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-            // log_info(logger, "Proceso en running PID: %d", *proceso_en_running->pid); // DEBUG
-            //TODO: función que recorre la lista y cuando encuentra un elemento cuyo contenido es igual al pid entonces lo borra de la lista
-            /*
-            if(!list_remove_element(lista_pids, proceso_en_running->pid)){ // VER
-                log_error(logger, "No encontre proceso pid %d", proceso_en_running->pid);
+
+
+            int contenido = proceso_en_running->pid;
+            bool coincide_con_contenido(void* elemento){
+                return *(int*)elemento == contenido;
             }
-            */
+            // Recorrer la lista y por cada elemento ver si el contenido es igual a contenido, si es así hago un list_remove con el indice.
+	        list_remove_and_destroy_by_condition(lista_pids, coincide_con_contenido, free);
+
+            
             pthread_mutex_unlock(&mutex_ready);
         }
         else{
@@ -125,6 +127,10 @@ void planificador_corto_plazo(int fd) {
         free(contexto_de_ejecucion);
     }  
 }
+
+
+
+
 
 void calcular_tasa_de_respuesta(double tiempo_actual) {
     

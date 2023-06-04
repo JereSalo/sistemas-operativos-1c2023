@@ -29,7 +29,7 @@ extern t_kernel_config* config_kernel;
 
 
 typedef struct {
-    int* pid;                            // process id: identificador del proceso.
+    int pid;                            // process id: identificador del proceso.
     int pc;                             // program counter: número de la próxima instrucción a ejecutar.
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*

@@ -48,7 +48,7 @@ typedef enum {
 } t_motivo_fin_proceso;
 
 typedef struct {
-    int* pid;  
+    int pid;  
     int pc; 
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;

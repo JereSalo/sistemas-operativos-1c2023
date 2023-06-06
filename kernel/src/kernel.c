@@ -16,7 +16,10 @@ int main(int argc, char** argv){
     }
 
     cargar_config_kernel(config);
-  
+    
+    //Aca comienza a correr el clock global
+    temporal = temporal_create();
+
 
     inicializar_recursos();
     

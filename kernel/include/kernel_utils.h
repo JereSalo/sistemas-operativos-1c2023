@@ -6,6 +6,13 @@
 
 extern t_log* logger;
 
+
+
+extern t_temporal* temporal;
+extern double tiempo;
+
+
+
 typedef struct {
     
     char* IP_KERNEL;
@@ -113,6 +120,8 @@ void inicializar_recursos();
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 
 void volver_a_running();
+
+void estimar_proxima_rafaga(t_pcb* proceso);
 
 t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 void buscar_y_borrar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);

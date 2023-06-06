@@ -12,5 +12,6 @@ void calcular_tasa_de_respuesta(double tiempo_actual);
 t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
 
+
 #endif
 

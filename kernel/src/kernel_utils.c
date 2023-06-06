@@ -4,6 +4,12 @@ t_log* logger;
 t_kernel_config* config_kernel;
 int pid_counter = 1;
 
+
+//Para HRRN vamos a tener un clock global que se inicia cuando prendemos el kernel
+t_temporal* temporal;
+double tiempo;
+
+
 // Colas de los estados de los procesos
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
@@ -141,7 +147,14 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
     inicializar_registros(pcb->registros_cpu);
     pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
+    
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
+    pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
+    pcb->tiempo_salida_running = 0;
+    pcb->tiempo_llegada_running = 0;
+    pcb->tasa_de_respuesta = 0;
+    
+    
     pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
     pcb->socket_consola = cliente_consola;
@@ -277,6 +290,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             log_info(logger, "Motivo desalojo es YIELD \n");
 
+            proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
+            estimar_proxima_rafaga(proceso_en_running);
+
             volver_a_encolar_en_ready(proceso_en_running);
 
             sem_post(&cpu_libre);
@@ -307,7 +323,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible < 0)
                 {
                     printf("ME BLOQUEE AYUDAME LOCOOO\n");
-                    proceso_en_running->tiempo_salida_running = time(NULL);
+                    
+                    proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
+                    estimar_proxima_rafaga(proceso_en_running);
+
                     queue_push(recurso->cola_bloqueados, proceso_en_running);      
                     sem_post(&cpu_libre);
                 }
@@ -363,8 +382,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 	        pthread_create(&hilo_io, NULL, (void*)bloquear_proceso, (args_io*) argumentos_io);
 	        pthread_detach(hilo_io);
 
+            //proceso_en_running->tiempo_salida_running = time(NULL);
+            //estimar_proxima_rafaga(proceso_en_running);
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
-            proceso_en_running->tiempo_salida_running = time(NULL);
             break;
         }
     }  
@@ -374,6 +394,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
 void bloquear_proceso(args_io* argumentos_io){
     //sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
+    
+    //Lo calculamos aca porque el proceso que volvemos a encolar en ready no es proceso_en_running sino otro
+    
+    argumentos_io->proceso->tiempo_salida_running = (double)temporal_gettime(temporal);
+    estimar_proxima_rafaga(argumentos_io->proceso);
     
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;

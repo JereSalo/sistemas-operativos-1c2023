@@ -20,7 +20,7 @@ void planificador_largo_plazo() {
         pthread_mutex_unlock(&mutex_new);
 
         // Asignamos el tiempo de llegada a ready -> en este instante se manda a ready (Importante para HRRN)
-        proceso->tiempo_llegada_ready = time(NULL);
+        proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
 
         // Agregamos el proceso obtenido a READY
         pthread_mutex_lock(&mutex_ready);
@@ -95,9 +95,13 @@ void planificador_corto_plazo(int fd) {
         // ------------ HRRNCITO ----------- //
 
         else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-            double tiempo_actual = time(NULL);
+            
+            double tiempo_actual = (double)temporal_gettime(temporal);
+            
             calcular_tasa_de_respuesta(tiempo_actual);
+            
             t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
+            
             pthread_mutex_lock(&mutex_ready);
             proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
 
@@ -122,7 +126,7 @@ void planificador_corto_plazo(int fd) {
 
         cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
         
-        proceso_en_running->tiempo_llegada_running = time(NULL); // aca el proceso empieza a ejecutar
+        proceso_en_running->tiempo_llegada_running = (double)temporal_gettime(temporal); // aca el proceso empieza a ejecutar
         send_contexto(fd, contexto_de_ejecucion);
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
@@ -142,17 +146,29 @@ void calcular_tasa_de_respuesta(double tiempo_actual) {
     while(list_iterator_has_next(lista_it)) {
         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
         
-        double tiempo_rafaga_actual = proceso->tiempo_salida_running - proceso->tiempo_llegada_running;
         double tiempo_esperando_en_ready = tiempo_actual - proceso->tiempo_llegada_ready;
-        proceso->estimacion_prox_rafaga = config_kernel->HRRN_ALFA * tiempo_rafaga_actual + (1 - config_kernel->HRRN_ALFA) + proceso->estimacion_prox_rafaga;
-        proceso->tasa_de_respuesta = 1 + tiempo_esperando_en_ready / proceso->estimacion_prox_rafaga;
+        
+        proceso->tasa_de_respuesta = 1 + (tiempo_esperando_en_ready / proceso->estimacion_prox_rafaga);
 
-        // TASITA DE RESPUESTA = (tiempo esperando en ready + estimado rafaga) / estimado rafaga
-        // ESTIMACION_SIGUIENTE = HRRN_ALFA * TE (tiempo ejecucion de la rafaga actual) + (1 - HRRN_ALFA) * ESTIMACION_INICIAL
-        // TE = TRUN FINAL - TRUN INICIAL
+        log_info(logger, "EL TIEMPO ESPERANDO EN READY DEL PROCESO %d es %f \n",proceso->pid, tiempo_esperando_en_ready);
+        log_info(logger, "LA ESTIMACION DE RAFAGA DEL PROCESO %d es %f \n",proceso->pid, proceso->estimacion_prox_rafaga);
+        log_info(logger, "LA TASA DE RESPUESTA DEL PROCESO %d es %f \n \n",proceso->pid, proceso->tasa_de_respuesta);
+        
+
     }
 
     list_iterator_destroy(lista_it);
+}
+
+
+void estimar_proxima_rafaga(t_pcb* proceso) {
+
+    double alpha = config_kernel->HRRN_ALFA;
+    double tiempo_rafaga_actual = (proceso->tiempo_salida_running) - (proceso->tiempo_llegada_running);               
+    double estimacion_actual = proceso->estimacion_prox_rafaga;
+        
+    // ESTE CALCULO TENEMOS QUE HACERLO CUANDO UN PROCESO FINALIZA SU EJECUCION
+    proceso->estimacion_prox_rafaga = (alpha * tiempo_rafaga_actual) + ((1 - alpha) * estimacion_actual);
 }
 
 
@@ -202,7 +218,7 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
 
     // Agregamos el proceso obtenido a READY
     
-    proceso->tiempo_llegada_ready = time(NULL);
+    proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
     pthread_mutex_lock(&mutex_ready);
     list_add(procesos_en_ready, proceso);
     
@@ -219,7 +235,7 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
     
-    proceso_en_running->tiempo_salida_running = time(NULL);
+    //proceso_en_running->tiempo_salida_running = time(NULL);
 }
 
 

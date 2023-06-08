@@ -27,6 +27,8 @@
         "array": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "utility": "c"
+        "utility": "c",
+        "inicializar.h": "c",
+        "ejecutar.h": "c"
     }
 }

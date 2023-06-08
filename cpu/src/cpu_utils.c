@@ -25,6 +25,7 @@ void cargar_config_cpu(t_config* config) {
 void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     char* instruccion;
     char** instruccion_decodificada;
+    lista_parametros = list_create();
 
     while(!desalojado) {
         // Fetch: buscamos la proxima instruccion dada por el PC
@@ -33,13 +34,16 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         // Decode: interpretamos la instruccion (que intruccion es y que parametros lleva)
         instruccion_decodificada = string_split(instruccion, " "); // recordar que string_split hace que ult elemento sea NULL
         
-        lista_parametros = list_create();
+        //lista_parametros = list_create();
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
         if (!desalojado) log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
 
         contexto->pc++;
+        
+        //ACA HAY UN POSIBLE MEMORY LEAK -> SE ESTAN HACIENDO MUCHOS MALLOCS DE INSTRUCCIONES?
+        // HAY MEMORY LEAK ? SI. LO PODEMOS SOLUCIONAR ? NO. NOS DEPRIMIMOS ? SI. HAY QUE SEGUIR VIVIENDO ? NO QUEDA OTRA.
     }
 
     // Si es desalojado =>

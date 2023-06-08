@@ -141,6 +141,7 @@ void* serializar_desalojo(size_t* size, int motivo_desalojo, t_list* lista_param
     copiar_variable_en_stream_y_desplazar(paquete, &size_parametros, sizeof(size_t), &desplazamiento); 
     copiar_variable_en_stream_y_desplazar(paquete, stream_parametros, size_parametros, &desplazamiento);
 
+    free(stream_parametros);
     return paquete;
 
 }

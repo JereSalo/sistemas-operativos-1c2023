@@ -95,6 +95,8 @@ int preparar_servidor(char* nombre_modulo, t_config *config, t_log *logger)
 
     log_info(logger, "Servidor listo para recibir al cliente \n");
 
+    free(ip);
+
     return server_fd;
 }
 

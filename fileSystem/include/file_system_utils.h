@@ -19,7 +19,14 @@ extern t_config *config;
 extern t_filesystem_config config_filesystem;
 extern int cliente_kernel;
 extern int server_memoria;
+extern FILE* archivo_superbloque;
+extern FILE* archivo_bitmap;
+extern FILE* archivo_bloques;
 
 void cargar_config_filesystem(t_config* config);
+FILE* abrir_archivo_superbloque();
+FILE* abrir_archivo_bitmap();
+FILE* abrir_archivo_bloques();
+
 
 #endif

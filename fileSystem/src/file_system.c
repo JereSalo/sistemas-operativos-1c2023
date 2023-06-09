@@ -15,6 +15,14 @@ int main(int argc, char** argv){
     }
 
     cargar_config_filesystem(config);
+
+    // Ojo: El path del config es absoluto, si no tenes la carpeta 'fs' creada entonces el fopen() va a tirar error.
+    archivo_superbloque = abrir_archivo_superbloque();
+    archivo_bitmap = abrir_archivo_bitmap();
+    archivo_bloques = abrir_archivo_bloques();
+
+    if(archivo_superbloque == NULL || archivo_bitmap == NULL || archivo_bloques == NULL)
+        return EXIT_FAILURE;
     
     // CLIENTE -> Memoria
     server_memoria = conectar_con(MEMORIA, config, logger);

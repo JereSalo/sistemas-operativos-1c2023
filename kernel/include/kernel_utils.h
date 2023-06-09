@@ -62,8 +62,6 @@ typedef struct{
     int tiempo;
 }args_io;
 
-void bloquear_proceso(args_io* argumentos_io);
-
 
 // VARIABLES PARA PCB
 
@@ -96,34 +94,34 @@ extern int server_cpu;
 
 // FUNCIONES EN KERNEL_UTILS.C
 
-void cargar_config_kernel(t_config* config);
 
-void inicializar_semaforos();
-void inicializar_colas();
-
-t_pcb* inicializar_pcb(int cliente_consola);
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola);
-
-void esperar_clientes_kernel(int server_socket);
-
-void inicializar_registros(t_registros_cpu* registros);
-
-void procesar_consola(void* void_cliente_consola);
-void procesar_cpu(void* void_server_cpu);
-
-void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
-void matar_proceso(char* motivo); // Prototipo de la función pero no está definida en kernel_utils
-void volver_a_encolar_en_ready(t_pcb* proceso);
-
-void inicializar_recursos();
-
-t_recurso* recurso_en_lista(char* recurso_solicitado);
-
-void volver_a_running();
-
-void estimar_proxima_rafaga(t_pcb* proceso);
+void matar_proceso(char* motivo);
 
 t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 void buscar_y_borrar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
+t_recurso* recurso_en_lista(char* recurso_solicitado);
+void bloquear_proceso(args_io* argumentos_io);
+
+
+void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
+
+// HRRN
+void estimar_proxima_rafaga(t_pcb* proceso);
+void calcular_tasa_de_respuesta(double tiempo_actual);
+t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
+
+
+
+
+// Funciones de otros modulos
+
+
+void volver_a_encolar_en_ready(t_pcb* proceso);
+
+void inicializar_registros(t_registros_cpu* registros);
+
+
+
+
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef PROCESAR_CPU_H_
-#define PROCESAR_CPU_H_
+#ifndef PROCESAR_CPU_KERNEL_H_
+#define PROCESAR_CPU_KERNEL_H_
 
 #include "kernel_utils.h"
 

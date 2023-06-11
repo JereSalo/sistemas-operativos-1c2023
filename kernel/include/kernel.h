@@ -3,8 +3,8 @@
 
 #include "kernel_utils.h"
 #include "planificador.h"
-#include "procesar_consola.h"
-#include "procesar_cpu.h"
+#include "procesar_consola_kernel.h"
+#include "procesar_cpu_kernel.h"
 #include "inicializar.h"
 
 

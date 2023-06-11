@@ -1,4 +1,4 @@
-#include "procesar_cpu.h"
+#include "procesar_cpu_kernel.h"
 
 void procesar_cpu(void* void_server_cpu) {
     //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA

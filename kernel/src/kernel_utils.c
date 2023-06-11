@@ -60,7 +60,7 @@ void bloquear_proceso(args_io* argumentos_io){
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
-    free(argumentos_io);
+    //free(argumentos_io);
 
     log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
 
@@ -151,7 +151,7 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() {
     t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
 
     double mayor_tasa = 0;
-    t_pcb* proceso_tasa = malloc(sizeof(t_pcb));  //No sabemos si hay que pedir memoria
+    t_pcb* proceso_tasa;  //No sabemos si hay que pedir memoria
 
     while(list_iterator_has_next(lista_it)) {
         t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);

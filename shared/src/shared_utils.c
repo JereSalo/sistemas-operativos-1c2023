@@ -42,7 +42,9 @@ char* lista_pids_a_string(t_list* lista, char string[]) {
 
     t_list_iterator* lista_it = list_iterator_create(lista);
     for(int i = 0; list_iterator_has_next(lista_it); i++) {
-       strcat(string, string_itoa(*((int*)list_iterator_next(lista_it))));
+        char* tmp = string_itoa(*((int*)list_iterator_next(lista_it)));
+       strcat(string, tmp);
+       free(tmp);
        if(list_size(lista) > 1 && list_iterator_has_next(lista_it))
         strcat(string, ", ");
     }

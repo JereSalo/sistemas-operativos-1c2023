@@ -92,7 +92,7 @@ void volver_a_running() {
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
     log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 
-    // liberar_contexto(&contexto_de_ejecucion);
+    //liberar_contexto(&contexto_de_ejecucion);
 }
 
 

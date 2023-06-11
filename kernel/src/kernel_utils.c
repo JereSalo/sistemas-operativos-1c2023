@@ -61,6 +61,8 @@ void bloquear_proceso(args_io* argumentos_io){
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
+    free(argumentos_io);
+
     log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
 
     sleep(tiempo);
@@ -162,14 +164,6 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() {
     }
     list_iterator_destroy(lista_it);
     return proceso_tasa;
-}
-
-
-void cargar_contexto_de_ejecucion(t_pcb* pcb, t_contexto_ejecucion* contexto) {
-    contexto->pid = pcb->pid;
-    contexto->pc = pcb->pc;
-    contexto->registros_cpu = pcb->registros_cpu;
-    contexto->instrucciones = pcb->instrucciones;
 }
 
     

@@ -43,11 +43,8 @@ void procesar_cpu(void* void_server_cpu) {
 
                 // mostrar_lista(lista_parametros_recibida);
 
-
                 //log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
 
-
-                // Aca deberiamos hacer un switch nuevo para preguntar que se debe hacer segun el motivo que se recibio
                 manejar_proceso_desalojado(motivo_desalojo, lista_parametros_recibida);
 
                 
@@ -58,6 +55,7 @@ void procesar_cpu(void* void_server_cpu) {
                 // sem_post(&cpu_libre); // En algunos casos (Wait) puede que la cpu no se libere para otro proceso. Asi que esto aca creo que no va.
 
                 // sem_post(&maximo_grado_de_multiprogramacion); // ESTO NO VA
+                list_destroy_and_destroy_elements(lista_parametros_recibida, free);
 
                 break;
             }
@@ -179,6 +177,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             estimar_proxima_rafaga(proceso_en_running);
             
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
+            
             break;
         }
     }  

@@ -92,9 +92,6 @@ void buscar_y_borrar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 void bloquear_proceso(args_io* argumentos_io);
 
-
-void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
-
 // HRRN
 void estimar_proxima_rafaga(t_pcb* proceso);
 void calcular_tasa_de_respuesta();

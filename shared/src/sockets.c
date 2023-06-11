@@ -44,7 +44,7 @@ int esperar_cliente(int socket_servidor, t_log *logger, const char *name)
 {
 
     // Aceptamos un nuevo cliente
-    log_info(logger, "Esperando a un cliente\n");
+    log_debug(logger, "Esperando a un cliente\n");
     int socket_cliente = accept(socket_servidor, NULL, NULL);
 
     if (socket_cliente == -1)
@@ -53,7 +53,7 @@ int esperar_cliente(int socket_servidor, t_log *logger, const char *name)
         return -1;                                                               // Ya se que es lo mismo que dejar return socket_cliente porque vale -1 pero me parece mejor dejarlo claro de esta forma.
     }
 
-    log_info(logger, "Cliente conectado (a %s)\n", name);
+    log_debug(logger, "Cliente conectado (a %s)\n", name);
 
     return socket_cliente;
 }

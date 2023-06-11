@@ -12,7 +12,7 @@ void procesar_cpu(void* void_server_cpu) {
         switch((int)cod_op) {
             case CONTEXTO_EJECUCION:
             {
-                log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
+                // log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
 
                 t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
                 recv_contexto(server_cpu, contexto_recibido);
@@ -37,7 +37,7 @@ void procesar_cpu(void* void_server_cpu) {
                 int motivo_desalojo;
                 t_list* lista_parametros_recibida = list_create();
                 
-                log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
+                // log_info(logger, "Me llego el codigo de operacion PROCESO_DESALOJADO \n");
 
                 recv_desalojo(server_cpu, &motivo_desalojo, lista_parametros_recibida);
 
@@ -113,7 +113,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 recurso->cantidad_disponible--;
                 if(recurso->cantidad_disponible < 0)
                 {
-                    printf("ME BLOQUEE AYUDAME LOCOOO\n");
+                    log_info(logger, "Proceso %d bloqueado en cola de recurso %s", proceso_en_running->pid, recurso_solicitado);
                     
                     proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
                     estimar_proxima_rafaga(proceso_en_running);
@@ -127,7 +127,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 }
             }
             else {
-                log_error(logger, "NO ENCONTRE EL RECURSITO");
+                log_error(logger, "Recurso '%s' no encontrado", recurso_solicitado);
                 matar_proceso("FILE_NOT_FOUND");
             }
             break;
@@ -138,12 +138,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             char* recurso_solicitado = (char*)list_get(lista_parametros, 0);
             
-            log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
-            
             t_recurso* recurso = recurso_en_lista(recurso_solicitado);
             
 
             if(recurso != NULL) {
+                log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
                 recurso->cantidad_disponible++;
                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
@@ -156,7 +155,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 volver_a_running();        //devuelve a running el proceso que peticiono el signal
             } 
             else {
-                log_error(logger, "NO ENCONTRE EL RECURSITO");
+                log_error(logger, "Recurso '%s' no encontrado", recurso_solicitado);
                 matar_proceso("FILE_NOT_FOUND");
             }
             break;

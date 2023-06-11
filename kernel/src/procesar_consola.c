@@ -11,7 +11,7 @@ void procesar_consola(void* void_cliente_consola) {
         switch((int)cod_op) {
             case INSTRUCCIONES:
             {
-                log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
+                // log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
                 pcb = inicializar_pcb(cliente_consola);

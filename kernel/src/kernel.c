@@ -8,7 +8,7 @@ void sigint_handler(int signum) {
     string_array_destroy(config_kernel->RECURSOS);
     string_array_destroy(config_kernel->INSTANCIAS_RECURSOS);
     free(config_kernel);
-    list_destroy_and_destroy_elements(lista_pids, free);
+    list_destroy(lista_pids);
     
     exit(0);
 }
@@ -96,7 +96,7 @@ int main(int argc, char** argv){
 
     cerrar_programa(logger, config);
     free(config_kernel);
-    list_destroy_and_destroy_elements(lista_pids, free);
+    list_destroy(lista_pids);
 
     return 0;
 }

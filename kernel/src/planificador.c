@@ -54,11 +54,11 @@ void planificador_corto_plazo(int fd) {
                 
                 pthread_mutex_lock(&mutex_ready);
                 proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-
                 // Recorrer la lista y por cada elemento ver si el contenido es igual a contenido, si es así hago un list_remove con el indice.
-                list_remove_and_destroy_by_condition(lista_pids, coincide_con_pid, free);
-
+                list_remove_by_condition(lista_pids, coincide_con_pid);
                 pthread_mutex_unlock(&mutex_ready);
+
+                proceso_en_running->tiempo_llegada_running = (double)temporal_gettime(temporal); // aca el proceso empieza a ejecutar
                 break;
             }
             default:
@@ -74,7 +74,7 @@ void planificador_corto_plazo(int fd) {
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
         
-        proceso_en_running->tiempo_llegada_running = (double)temporal_gettime(temporal); // aca el proceso empieza a ejecutar
+        
         send_contexto(fd, contexto_de_ejecucion);
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
@@ -102,8 +102,8 @@ void mandar_a_ready(t_pcb* proceso) {
     list_add(procesos_en_ready, proceso);
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
-    int* pid = malloc(sizeof(int)); *pid = proceso->pid;
-    list_add(lista_pids, pid);
+    
+    list_add(lista_pids, &proceso->pid);
     pthread_mutex_unlock(&mutex_ready);
     
     char pids[100];

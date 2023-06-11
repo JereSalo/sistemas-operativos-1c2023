@@ -1,49 +1,22 @@
 #include "planificador.h"
 
-char pids[100];
-
 // ------------------------------ PLANIFICADOR DE LARGO PLAZO ------------------------------ //
 
 // Pasaje de NEW -> READY
 void planificador_largo_plazo() {
     while(1) {      
         t_pcb* proceso;
-        //char pids[100];     // esto es para mostrar la lista de pids en el logger
 
         // Preguntamos si hay procesos en NEW y por el maximo grado de multiprogramacion
         sem_wait(&cant_procesos_new);
-        sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso vaya a exit
+        sem_wait(&maximo_grado_de_multiprogramacion);       //esto se va a liberar cuando un proceso finalice
 
-        // Si esta todo OK obtenemos el proximo proceso a ser mandado a READY
         pthread_mutex_lock(&mutex_new);
         proceso = queue_pop(procesos_en_new);
         pthread_mutex_unlock(&mutex_new);
-
-        // Asignamos el tiempo de llegada a ready -> en este instante se manda a ready (Importante para HRRN)
-        proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
-
-        // Agregamos el proceso obtenido a READY
-        pthread_mutex_lock(&mutex_ready);
-        list_add(procesos_en_ready, proceso);
-        int* pid = malloc(sizeof(int)); *pid = proceso->pid;
-        list_add(lista_pids, pid);
-        pthread_mutex_unlock(&mutex_ready);
-        // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
         
-        //pthread_mutex_lock(&mutex_pids);
-        //pthread_mutex_unlock(&mutex_pids);
-                
+        mandar_a_ready(proceso);
         log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
-        
-        log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_pids_a_string(lista_pids, pids));       //log obligatorio
-
-
-        //muestro la lista de pids para debuggear porque hay un problema
-        //cuando deja de correr la cpu no se encolan bien las cosas a la cola de ready        
-        //mostrar_lista(lista_pids);
-
-        // Avisamos que agregamos un nuevo proceso a de READY
-        sem_post(&cant_procesos_ready);
     }
 }
 
@@ -56,46 +29,43 @@ void planificador_corto_plazo(int fd) {
         
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
-        
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
         sem_wait(&cpu_libre);
         
-        
-        // ------------ FIFITO ----------- //
-
-        if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "FIFO") == 0){
-            pthread_mutex_lock(&mutex_ready);
-            proceso_en_running = list_remove(procesos_en_ready, 0);
-            list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
-            pthread_mutex_unlock(&mutex_ready);
-        }
-
-        // ------------ HRRNCITO ----------- //
-
-        else if(strcmp(config_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-            
-            double tiempo_actual = (double)temporal_gettime(temporal);
-            
-            calcular_tasa_de_respuesta(tiempo_actual);
-            
-            t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
-            
-            pthread_mutex_lock(&mutex_ready);
-            proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
-
-
-            int contenido = proceso_en_running->pid;
-            bool coincide_con_contenido(void* elemento){
-                return *(int*)elemento == contenido;
+        // Sacamos elemento de lista de procesos en ready y de lista de pids. Guardamos proceso en proceso_en_running
+        switch(config_kernel->ALGORITMO_PLANIFICACION){
+            case FIFO:
+            {
+                pthread_mutex_lock(&mutex_ready);
+                proceso_en_running = list_remove(procesos_en_ready, 0);
+                list_remove(lista_pids, 0);     //removemos de la lista de pids al elemento que se saco
+                pthread_mutex_unlock(&mutex_ready);
+                break;
             }
-            // Recorrer la lista y por cada elemento ver si el contenido es igual a contenido, si es así hago un list_remove con el indice.
-	        list_remove_and_destroy_by_condition(lista_pids, coincide_con_contenido, free);
-
+            case HRRN:
+            {
+                calcular_tasa_de_respuesta(); // Lo calcula para todos los procesos y lo guarda en la variable tasa_de_respuesta del pcb de cada proceso.
             
-            pthread_mutex_unlock(&mutex_ready);
-        }
-        else{
-            log_error(logger, "ALGORITMO DE PLANIFICACION INCORRECTO");
+                t_pcb* proceso_siguiente_a_running = proceso_con_mayor_tasa_de_respuesta();
+
+                bool coincide_con_pid(void* elemento){  // Pongo esta funcion afuera del mutex para que la seccion critica sea chiquita.
+                    return *(int*)elemento == proceso_en_running->pid;
+                }
+                
+                pthread_mutex_lock(&mutex_ready);
+                proceso_en_running = buscar_y_sacar_proceso(procesos_en_ready, proceso_siguiente_a_running);
+
+                // Recorrer la lista y por cada elemento ver si el contenido es igual a contenido, si es así hago un list_remove con el indice.
+                list_remove_and_destroy_by_condition(lista_pids, coincide_con_pid, free);
+
+                pthread_mutex_unlock(&mutex_ready);
+                break;
+            }
+            default:
+            {
+                log_error(logger, "ALGORITMO DE PLANIFICACION INCORRECTO");
+                break;
+            }
         }
 
 
@@ -113,7 +83,6 @@ void planificador_corto_plazo(int fd) {
     }  
 }
 
-
 void volver_a_running() {
         
     t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
@@ -130,14 +99,7 @@ void volver_a_running() {
 }
 
 
-void volver_a_encolar_en_ready (t_pcb* proceso) {
-    // Aca debemos preguntar por el algoritmo y replanificar segun corresponda
-    // Como todavia no hicimos HRRN lo hago por FIFO
-
-    // Ya tenemos el PCB con el contexto modificado (case anterior)
-
-    // Agregamos el proceso obtenido a READY
-    
+void mandar_a_ready(t_pcb* proceso) {
     proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
     pthread_mutex_lock(&mutex_ready);
     list_add(procesos_en_ready, proceso);
@@ -147,15 +109,11 @@ void volver_a_encolar_en_ready (t_pcb* proceso) {
     list_add(lista_pids, pid);
     pthread_mutex_unlock(&mutex_ready);
     
-
-    log_warning(logger, "Cola Ready %s: [%s] \n", config_kernel->ALGORITMO_PLANIFICACION, lista_pids_a_string(lista_pids, pids));    
-
-    //mostrar_lista(lista_pids);
+    char pids[100];
+    log_warning(logger, "Cola Ready %s: [%s] \n", config_get_string_value(config, "ALGORITMO_PLANIFICACION"), lista_pids_a_string(lista_pids, pids));    
 
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
-    
-    //proceso_en_running->tiempo_salida_running = time(NULL);
 }
 
 

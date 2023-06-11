@@ -11,7 +11,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
 // Funciones usadas de otros modulos
 
-void volver_a_encolar_en_ready(t_pcb* proceso);
+void mandar_a_ready(t_pcb* proceso);
 void volver_a_running();
 
 

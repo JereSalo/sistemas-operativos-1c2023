@@ -50,6 +50,21 @@ typedef enum {
 } t_motivo_fin_proceso;
 
 typedef struct {
+    int pid;                            // process id: identificador del proceso.
+    int pc;                             // program counter: número de la próxima instrucción a ejecutar.
+    t_registros_cpu* registros_cpu;
+    t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
+	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
+    double estimacion_prox_rafaga;      // Para HRRN
+    double tiempo_llegada_ready;        // Para HRRN
+    double tiempo_llegada_running;      // Para HRRN
+    double tiempo_salida_running;       // Para HRRN
+    double tasa_de_respuesta;           // Para HRRN
+    t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
+    int socket_consola;
+} t_pcb;
+
+typedef struct {
     int pid;  
     int pc; 
     t_registros_cpu* registros_cpu;
@@ -93,5 +108,12 @@ void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros)
 void inicializar_diccionarios();
 char* lista_a_string(t_list* lista, char string[]);
 char* lista_pids_a_string(t_list* lista, char string[]);
+
+t_contexto_ejecucion* crear_contexto();
+void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen);
+t_contexto_ejecucion* cargar_contexto(t_pcb* proceso);
+void liberar_contexto(t_contexto_ejecucion* contexto);
+
+
 
 #endif

@@ -62,10 +62,6 @@ bool send_contexto(int fd, t_contexto_ejecucion* contexto) {
 
 
 bool recv_contexto(int fd, t_contexto_ejecucion* contexto){
-    contexto->instrucciones = list_create();
-    contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
-    
-
     // Recibimos el size del payload
     size_t size_contexto;
     

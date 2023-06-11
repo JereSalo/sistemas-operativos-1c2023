@@ -182,3 +182,50 @@ void inicializar_diccionarios() {
     dictionary_put(diccionario_registros_cpu, "RCX",  (void*) (intptr_t) RCX);
     dictionary_put(diccionario_registros_cpu, "RDX",  (void*) (intptr_t) RDX);
 }
+
+
+// Crear en memoria estructuras y devolver contexto virgen.
+t_contexto_ejecucion* crear_contexto(){
+    t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
+    contexto->instrucciones = list_create();
+    contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
+
+    return contexto;
+}
+
+void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen){
+    asignar_a_registro("AX", registros_origen->AX, registros_destino);
+    asignar_a_registro("BX", registros_origen->BX, registros_destino);
+    asignar_a_registro("CX", registros_origen->CX, registros_destino);
+    asignar_a_registro("DX", registros_origen->DX, registros_destino);
+
+    asignar_a_registro("EAX", registros_origen->EAX, registros_destino);
+    asignar_a_registro("EBX", registros_origen->EBX, registros_destino);
+    asignar_a_registro("ECX", registros_origen->ECX, registros_destino);
+    asignar_a_registro("EDX", registros_origen->EDX, registros_destino);
+    
+    asignar_a_registro("RAX", registros_origen->RAX, registros_destino);
+    asignar_a_registro("RBX", registros_origen->RBX, registros_destino);
+    asignar_a_registro("RCX", registros_origen->RCX, registros_destino);
+    asignar_a_registro("RDX", registros_origen->RDX, registros_destino);
+}
+
+
+// Dado un proceso se carga un contexto, primero crea el contexto. Siempre que se carga hay una creacion previa.
+t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
+    t_contexto_ejecucion* contexto = crear_contexto();
+
+    contexto->pid = proceso->pid;
+    contexto->pc = proceso->pc;
+    // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
+    registros_add_all(contexto->registros_cpu, proceso->registros_cpu); 
+    list_add_all(contexto->instrucciones, proceso->instrucciones);
+    
+    return contexto;
+}
+
+void liberar_contexto(t_contexto_ejecucion* contexto){
+    free(contexto->registros_cpu);
+    list_destroy_and_destroy_elements(contexto->instrucciones, free);
+    free(contexto);
+}

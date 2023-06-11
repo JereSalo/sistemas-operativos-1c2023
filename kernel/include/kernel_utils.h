@@ -42,22 +42,6 @@ extern t_kernel_config* config_kernel;
 
 
 typedef struct {
-    int pid;                            // process id: identificador del proceso.
-    int pc;                             // program counter: número de la próxima instrucción a ejecutar.
-    t_registros_cpu* registros_cpu;
-    t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
-	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
-    double estimacion_prox_rafaga;      // Para HRRN
-    double tiempo_llegada_ready;        // Para HRRN
-    double tiempo_llegada_running;      // Para HRRN
-    double tiempo_salida_running;       // Para HRRN
-    double tasa_de_respuesta;           // Para HRRN
-    t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
-    int socket_consola;
-} t_pcb;
-
-
-typedef struct {
     char* dispositivo;
     int cantidad_disponible;
     t_queue* cola_bloqueados; 

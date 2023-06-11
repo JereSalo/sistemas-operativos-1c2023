@@ -206,7 +206,7 @@ t_contexto_ejecucion* crear_contexto(){
     return contexto;
 }
 
-void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen){
+void registros_copypaste(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen){
     asignar_a_registro("AX", registros_origen->AX, registros_destino);
     asignar_a_registro("BX", registros_origen->BX, registros_destino);
     asignar_a_registro("CX", registros_origen->CX, registros_destino);
@@ -223,12 +223,15 @@ void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* regi
     asignar_a_registro("RDX", registros_origen->RDX, registros_destino);
 }
 
-
-void list_add_all_2(t_list* lista_objetivo, t_list* lista_origen) {
+// Jere podrías haber usado list_add_all de las commons !!
+// NO
+// Yo queria duplicar los elementos, no queria hacer que ambas listas apunten a los mismos elementos.
+// Mas que nada porque para mi el contexto de ejecucion no deberia apuntar a campos de un proceso, sino que deberia tener su propia estructura.
+void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
     t_list_iterator* lista_it = list_iterator_create(lista_origen);
 
     while (list_iterator_has_next(lista_it)) {
-        char* instruccion = (char*)list_iterator_next(lista_it);
+        char* instruccion = strdup((char*)list_iterator_next(lista_it));
         list_add(lista_objetivo, instruccion);
     }
     
@@ -242,8 +245,8 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
     contexto->pid = proceso->pid;
     contexto->pc = proceso->pc;
     // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
-    registros_add_all(contexto->registros_cpu, proceso->registros_cpu); 
-    list_add_all_2(contexto->instrucciones, proceso->instrucciones);
+    registros_copypaste(contexto->registros_cpu, proceso->registros_cpu); 
+    lista_copypaste(contexto->instrucciones, proceso->instrucciones);
     
     return contexto;
 }

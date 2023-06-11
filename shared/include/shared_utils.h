@@ -110,9 +110,10 @@ char* lista_a_string(t_list* lista, char string[]);
 char* lista_pids_a_string(t_list* lista, char string[]);
 
 t_contexto_ejecucion* crear_contexto();
-void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen);
+void registros_copypaste(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen);
 t_contexto_ejecucion* cargar_contexto(t_pcb* proceso);
 void liberar_contexto(t_contexto_ejecucion* contexto);
 void liberar_proceso(t_pcb* proceso);
+void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 
 #endif

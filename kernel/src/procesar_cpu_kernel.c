@@ -26,7 +26,7 @@ void procesar_cpu(void* void_server_cpu) {
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
                 
                 proceso_en_running->pc = contexto_recibido->pc;
-                registros_add_all(proceso_en_running->registros_cpu, contexto_recibido->registros_cpu); 
+                registros_copypaste(proceso_en_running->registros_cpu, contexto_recibido->registros_cpu); 
 
                 liberar_contexto(contexto_recibido);
                 break;

@@ -79,12 +79,7 @@ void planificador_corto_plazo(int fd) {
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
     
-
-        // Aca me gustaria hacer liberar_contexto() pero hay un problema cuando quiero liberar los elementos de la lista de instrucciones
-        // No se por que no me permite hacer free de los elementos de la lista. Por eso solo hago list_destroy aca...
-        list_destroy(contexto_de_ejecucion->instrucciones);
-        free(contexto_de_ejecucion->registros_cpu);
-        free(contexto_de_ejecucion);
+        liberar_contexto(contexto_de_ejecucion);
     }  
 }
 
@@ -97,12 +92,7 @@ void volver_a_running() {
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
     log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 
-    
-    // Aca me gustaria hacer liberar_contexto() pero hay un problema cuando quiero liberar los elementos de la lista de instrucciones
-    // No se por que no me permite hacer free de los elementos de la lista. Por eso solo hago list_destroy aca...
-    list_destroy(contexto_de_ejecucion->instrucciones);
-    free(contexto_de_ejecucion->registros_cpu);
-    free(contexto_de_ejecucion);
+    liberar_contexto(contexto_de_ejecucion);
 }
 
 

@@ -14,22 +14,22 @@ void procesar_cpu(void* void_server_cpu) {
             {
                 // log_info(logger, "Me llego el codigo de operacion CONTEXTO_EJECUCION \n");
 
-                t_contexto_ejecucion* contexto_recibido = malloc(sizeof(t_contexto_ejecucion));
-                recv_contexto(server_cpu, contexto_recibido);
+                t_contexto_ejecucion* contexto_recibido = crear_contexto();
+                
+                if(!recv_contexto(server_cpu, contexto_recibido)) {
+                    log_error(logger, "Fallo recibiendo CONTEXTO");
+                    break;
+                }
 
                 log_warning(logger,"PID: %d - PROCESO DESALOJADO \n", contexto_recibido->pid);
 
-                
                 // Apenas recibimos el contexto lo reasignamos al PCB que se guardo antes de mandar el proceso a RUNNING
                 
                 proceso_en_running->pc = contexto_recibido->pc;
-                proceso_en_running->registros_cpu = contexto_recibido->registros_cpu;
+                registros_add_all(proceso_en_running->registros_cpu, contexto_recibido->registros_cpu); 
 
-                // free(contexto_recibido->registros_cpu); // ESTE NO VA PORQUE ESTOY LIBERANDO EL ESPACIO EN MEMORIA EN DONDE ESTAN LOS REGISTROS.
-                // list_destroy_and_destroy_elements(contexto_recibido->instrucciones, free);
-                // free(contexto_recibido);
+                liberar_contexto(&contexto_recibido);
                 break;
-                
             }
             
             case PROCESO_DESALOJADO:

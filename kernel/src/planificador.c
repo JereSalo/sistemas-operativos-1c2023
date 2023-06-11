@@ -25,7 +25,7 @@ void planificador_largo_plazo() {
 // Pasaje de READY -> RUNNING
 void planificador_corto_plazo(int fd) {
     while(1){
-        t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
+        
         
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
@@ -68,6 +68,8 @@ void planificador_corto_plazo(int fd) {
             }
         }
 
+        t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
+        
 
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES

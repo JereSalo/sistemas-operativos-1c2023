@@ -153,7 +153,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             // Proceso se bloquea una cantidad de tiempo, pero no deberia bloquear al resto.
             
-            args_io* argumentos_io = malloc(sizeof(argumentos_io));
+            args_io* argumentos_io = malloc(sizeof(args_io));
             
             argumentos_io->proceso = proceso_en_running;
             argumentos_io->tiempo = atoi((char*)list_get(lista_parametros, 0));

@@ -12,11 +12,8 @@ void* sumarSizeConLongitudString(void* a, void* b){
 }
 
 size_t tamanio_lista(t_list* lista){
-    
-    size_t* sumatoria = malloc(sizeof(size_t)); *sumatoria = 0;
-    list_fold(lista, sumatoria, sumarSizeConLongitudString); // Devuelve lo foldeado pero hice que modificara sumatoria y listo, que al principio es la seed.
-    size_t tamanio_lista = *sumatoria;
-    free(sumatoria);
+    size_t tamanio_lista = 0;
+    list_fold(lista, &tamanio_lista, sumarSizeConLongitudString); // Devuelve lo foldeado pero hice que modificara tamanio_lista y listo, que al principio es la seed.
     return tamanio_lista;
 }
 
@@ -227,6 +224,17 @@ void registros_add_all(t_registros_cpu* registros_destino, t_registros_cpu* regi
 }
 
 
+void list_add_all_2(t_list* lista_objetivo, t_list* lista_origen) {
+    t_list_iterator* lista_it = list_iterator_create(lista_origen);
+
+    while (list_iterator_has_next(lista_it)) {
+        char* instruccion = (char*)list_iterator_next(lista_it);
+        list_add(lista_objetivo, instruccion);
+    }
+    
+    list_iterator_destroy(lista_it);
+}
+
 // Dado un proceso se carga un contexto, primero crea el contexto. Siempre que se carga hay una creacion previa.
 t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
     t_contexto_ejecucion* contexto = crear_contexto();
@@ -235,7 +243,7 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
     contexto->pc = proceso->pc;
     // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
     registros_add_all(contexto->registros_cpu, proceso->registros_cpu); 
-    list_add_all(contexto->instrucciones, proceso->instrucciones);
+    list_add_all_2(contexto->instrucciones, proceso->instrucciones);
     
     return contexto;
 }
@@ -253,3 +261,5 @@ void liberar_proceso(t_pcb* proceso){
     list_destroy_and_destroy_elements(proceso->tabla_archivos_abiertos, free);
     free(proceso);
 }
+
+

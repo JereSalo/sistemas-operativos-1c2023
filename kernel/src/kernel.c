@@ -1,6 +1,22 @@
 #include "kernel.h"
 
+void sigint_handler(int signum) {
+    // Acciones a realizar al recibir la señal SIGINT
+    // Hay mas cosas para hacer pero estas son algunas por ahora
+    printf("Programa finalizado con SIGINT\n");
+    cerrar_programa(logger, config);
+    string_array_destroy(config_kernel->RECURSOS);
+    string_array_destroy(config_kernel->INSTANCIAS_RECURSOS);
+    free(config_kernel);
+    list_destroy_and_destroy_elements(lista_pids, free);
+    
+    exit(0);
+}
+
+
 int main(int argc, char** argv){
+    signal(SIGINT, sigint_handler);
+
     logger = log_create("kernel.log", "KERNEL", true, LOG_LEVEL_INFO);
     // t_config *config = config_create("../tests/DEADLOCK/kernel.config"); //cambiar BASE por el nombre de la prueba segun corresponda. Hay que ordenar esto
     if (argc==1){

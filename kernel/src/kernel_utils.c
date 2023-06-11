@@ -60,7 +60,7 @@ void bloquear_proceso(args_io* argumentos_io){
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
-    //free(argumentos_io);
+    free(argumentos_io);
 
     log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
 

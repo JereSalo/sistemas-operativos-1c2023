@@ -1,6 +1,7 @@
 #include "kernel_utils.h"
 
 t_log* logger;
+t_config* config;
 t_kernel_config* config_kernel;
 int pid_counter = 1;
 
@@ -57,11 +58,6 @@ void matar_proceso(char* motivo) {
 void bloquear_proceso(args_io* argumentos_io){
     //sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
     
-    //Lo calculamos aca porque el proceso que volvemos a encolar en ready no es proceso_en_running sino otro
-    
-    argumentos_io->proceso->tiempo_salida_running = (double)temporal_gettime(temporal);
-    estimar_proxima_rafaga(argumentos_io->proceso);
-    
     int tiempo = argumentos_io->tiempo;
     t_pcb* proceso = argumentos_io->proceso;
 
@@ -71,7 +67,7 @@ void bloquear_proceso(args_io* argumentos_io){
 
     log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
 
-    volver_a_encolar_en_ready(proceso);
+    mandar_a_ready(proceso);
 }
 
 
@@ -111,8 +107,10 @@ t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
 }
 
 
-void calcular_tasa_de_respuesta(double tiempo_actual) {
+void calcular_tasa_de_respuesta() {
     
+    double tiempo_actual = (double)temporal_gettime(temporal);
+
     t_list_iterator* lista_it = list_iterator_create(procesos_en_ready);
 
     while(list_iterator_has_next(lista_it)) {

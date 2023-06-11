@@ -5,12 +5,18 @@
 // Todos los archivos que esten en la carpeta kernel van a tener include de kernel_utils.h
 
 extern t_log* logger;
+extern t_config* config;
 
 
 
 extern t_temporal* temporal;
 extern double tiempo;
 
+
+typedef enum {
+    FIFO,
+    HRRN
+} t_algoritmo_planificacion;
 
 
 typedef struct {
@@ -23,7 +29,7 @@ typedef struct {
     char* IP_CPU;
     int PUERTO_CPU;
     int PUERTO_ESCUCHA;
-    char* ALGORITMO_PLANIFICACION;
+    t_algoritmo_planificacion ALGORITMO_PLANIFICACION;
     int ESTIMACION_INICIAL;
     double HRRN_ALFA;                   // Es double por el config_get_double_value
     int GRADO_MAX_MULTIPROGRAMACION;
@@ -107,7 +113,7 @@ void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
 
 // HRRN
 void estimar_proxima_rafaga(t_pcb* proceso);
-void calcular_tasa_de_respuesta(double tiempo_actual);
+void calcular_tasa_de_respuesta();
 t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
 
@@ -116,7 +122,7 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 // Funciones de otros modulos
 
 
-void volver_a_encolar_en_ready(t_pcb* proceso);
+void mandar_a_ready(t_pcb* proceso);
 
 void inicializar_registros(t_registros_cpu* registros);
 

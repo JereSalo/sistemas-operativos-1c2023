@@ -84,7 +84,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
             estimar_proxima_rafaga(proceso_en_running);
 
-            volver_a_encolar_en_ready(proceso_en_running);
+            mandar_a_ready(proceso_en_running);
 
             sem_post(&cpu_libre);
             break;
@@ -149,7 +149,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible <= 0){
                     log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
                     t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
-                    volver_a_encolar_en_ready(proceso);
+                    mandar_a_ready(proceso);
                     //sem_post(&cpu_libre);
                 }
                 volver_a_running();        //devuelve a running el proceso que peticiono el signal
@@ -163,17 +163,21 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         case IO:
         {
             // Proceso se bloquea una cantidad de tiempo, pero no deberia bloquear al resto.
+            
             args_io* argumentos_io = malloc(sizeof(argumentos_io));
             
             argumentos_io->proceso = proceso_en_running;
             argumentos_io->tiempo = atoi((char*)list_get(lista_parametros, 0));
 
+            
             pthread_t hilo_io;
 	        pthread_create(&hilo_io, NULL, (void*)bloquear_proceso, (args_io*) argumentos_io);
 	        pthread_detach(hilo_io);
 
-            //proceso_en_running->tiempo_salida_running = time(NULL);
-            //estimar_proxima_rafaga(proceso_en_running);
+            
+            proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
+            estimar_proxima_rafaga(proceso_en_running);
+            
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
             break;
         }

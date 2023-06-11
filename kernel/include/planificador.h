@@ -9,7 +9,7 @@ void planificador_largo_plazo();
 void planificador_corto_plazo(int);
 
 
-void volver_a_encolar_en_ready(t_pcb* proceso);
+void mandar_a_ready(t_pcb* proceso);
 void volver_a_running();
 
 #endif

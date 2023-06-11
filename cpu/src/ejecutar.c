@@ -36,7 +36,6 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
 
     list_destroy_and_destroy_elements(lista_parametros, free);
-    liberar_contexto(&contexto);
     string_array_destroy(instruccion_decodificada);
 }
 

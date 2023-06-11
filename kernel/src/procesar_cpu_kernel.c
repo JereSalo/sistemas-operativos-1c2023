@@ -28,7 +28,7 @@ void procesar_cpu(void* void_server_cpu) {
                 proceso_en_running->pc = contexto_recibido->pc;
                 registros_add_all(proceso_en_running->registros_cpu, contexto_recibido->registros_cpu); 
 
-                liberar_contexto(&contexto_recibido);
+                liberar_contexto(contexto_recibido);
                 break;
             }
             
@@ -43,18 +43,9 @@ void procesar_cpu(void* void_server_cpu) {
 
                 // mostrar_lista(lista_parametros_recibida);
 
-                //log_info(logger, "MOTIVO DE DESALOJO: %d \n", motivo_desalojo);
 
                 manejar_proceso_desalojado(motivo_desalojo, lista_parametros_recibida);
 
-                
-                // El semaforo debe ir al final del case debido a que la variable proceso_en_running debe ser la misma hasta 
-                // que vuelva a encolar en ready, en manejar_proceso_desalojado, una vez que hace esto ya puede liberarse la cpu con el semaforo
-                // Si el semaforo se pone antes, el planificador (que esta en otro hilo) va a pisar el proceso en running (variable global)
-                // Al toque roque al pique enrique
-                // sem_post(&cpu_libre); // En algunos casos (Wait) puede que la cpu no se libere para otro proceso. Asi que esto aca creo que no va.
-
-                // sem_post(&maximo_grado_de_multiprogramacion); // ESTO NO VA
                 list_destroy_and_destroy_elements(lista_parametros_recibida, free);
 
                 break;

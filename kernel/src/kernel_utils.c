@@ -41,9 +41,8 @@ void matar_proceso(char* motivo) {
     int socket_consola = proceso_en_running->socket_consola;
     int pid_finalizado = proceso_en_running->pid;
 
-    list_destroy_and_destroy_elements(proceso_en_running->instrucciones, free);
-    free(proceso_en_running->registros_cpu);
-    free(proceso_en_running); // lo mata
+    liberar_proceso(proceso_en_running);
+
 
     // Avisarle a consola que finalizó el proceso.
     SEND_INT(socket_consola, pid_finalizado);

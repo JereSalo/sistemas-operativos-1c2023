@@ -18,6 +18,8 @@ void procesar_kernel() {
 
                 ejecutar_proceso(contexto); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
 
+                liberar_contexto(contexto);
+
                 break;
             }
             case -1:

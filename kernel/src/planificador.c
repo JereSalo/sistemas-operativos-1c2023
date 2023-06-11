@@ -17,9 +17,6 @@ void planificador_largo_plazo() {
         
         mandar_a_ready(proceso);
         log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
-        
-        // Avisamos que agregamos un nuevo proceso a de READY
-        sem_post(&cant_procesos_ready);
     }
 }
 

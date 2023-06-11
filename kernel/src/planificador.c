@@ -68,36 +68,31 @@ void planificador_corto_plazo(int fd) {
             }
         }
 
-        t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
+        t_contexto_ejecucion* contexto_de_ejecucion = cargar_contexto(proceso_en_running);
         
 
         // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
         // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
-
-        cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
         
         proceso_en_running->tiempo_llegada_running = (double)temporal_gettime(temporal); // aca el proceso empieza a ejecutar
         send_contexto(fd, contexto_de_ejecucion);
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
  
-        free(contexto_de_ejecucion);
+        //liberar_contexto(&contexto_de_ejecucion);
     }  
 }
 
 void volver_a_running() {
         
-    t_contexto_ejecucion* contexto_de_ejecucion = malloc(sizeof(t_contexto_ejecucion));
-
-    cargar_contexto_de_ejecucion(proceso_en_running, contexto_de_ejecucion);
-
+    t_contexto_ejecucion* contexto_de_ejecucion = cargar_contexto(proceso_en_running);
 
     send_contexto(server_cpu, contexto_de_ejecucion);
 
     // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
     log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 
-    free(contexto_de_ejecucion);
+    // liberar_contexto(&contexto_de_ejecucion);
 }
 
 

@@ -17,7 +17,7 @@ void cargar_config_kernel(t_config* config) {
     config_kernel->PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
 
     // PLANIFICACION
-    config_kernel->ALGORITMO_PLANIFICACION = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
+    config_kernel->ALGORITMO_PLANIFICACION = obtener_algoritmo_planificacion(config_get_string_value(config, "ALGORITMO_PLANIFICACION"));
     config_kernel->ESTIMACION_INICIAL = config_get_int_value(config, "ESTIMACION_INICIAL");
     config_kernel->HRRN_ALFA = config_get_double_value(config, "HRRN_ALFA");
     config_kernel->GRADO_MAX_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MAX_MULTIPROGRAMACION");
@@ -27,6 +27,17 @@ void cargar_config_kernel(t_config* config) {
     config_kernel->INSTANCIAS_RECURSOS = config_get_array_value(config, "INSTANCIAS_RECURSOS");
     
     //log_info(logger, "Config cargada en config_kernel \n");
+}
+
+t_algoritmo_planificacion obtener_algoritmo_planificacion(char* string_algoritmo){
+    if(strcmp(string_algoritmo, "FIFO") == 0){
+        return FIFO;
+    }
+    if(strcmp(string_algoritmo, "HRRN") == 0){
+        return HRRN;
+    }
+    log_error(logger, "Hubo un error con el algoritmo de planificacion");
+    return -1;
 }
 
 void inicializar_semaforos() {
@@ -107,7 +118,6 @@ t_pcb* inicializar_pcb(int cliente_consola) {
 
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
-    // pcb->pid = malloc(sizeof(int)); *pcb->pid = pid;
     pcb->pid = pid;
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
@@ -121,8 +131,6 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     pcb->tiempo_llegada_running = 0;
     pcb->tasa_de_respuesta = 0;
     
-    
-    pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
     pcb->tabla_archivos_abiertos = list_create();
     pcb->socket_consola = cliente_consola;
 

@@ -1,5 +1,5 @@
-#ifndef PROCESAR_CPU_H_
-#define PROCESAR_CPU_H_
+#ifndef PROCESAR_CPU_KERNEL_H_
+#define PROCESAR_CPU_KERNEL_H_
 
 #include "kernel_utils.h"
 
@@ -11,7 +11,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
 // Funciones usadas de otros modulos
 
-void volver_a_encolar_en_ready(t_pcb* proceso);
+void mandar_a_ready(t_pcb* proceso);
 void volver_a_running();
 
 

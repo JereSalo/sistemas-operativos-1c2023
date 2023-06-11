@@ -1,5 +1,5 @@
-#ifndef PROCESAR_CONSOLA_H_
-#define PROCESAR_CONSOLA_H_
+#ifndef PROCESAR_CONSOLA_KERNEL_H_
+#define PROCESAR_CONSOLA_KERNEL_H_
 
 #include "kernel_utils.h"
 

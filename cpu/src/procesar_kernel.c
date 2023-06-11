@@ -8,7 +8,8 @@ void procesar_kernel() {
         switch((int)cod_op) {
             case CONTEXTO_EJECUCION:
             {
-                t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
+                t_contexto_ejecucion* contexto = crear_contexto();
+
                 
                 if(!recv_contexto(cliente_kernel, contexto)) {
                     log_error(logger, "Fallo recibiendo CONTEXTO");
@@ -16,6 +17,8 @@ void procesar_kernel() {
                 }
 
                 ejecutar_proceso(contexto); // Se encarga también del desalojo del proceso, no hace falta poner nada abajo de esto
+
+                liberar_contexto(contexto);
 
                 break;
             }

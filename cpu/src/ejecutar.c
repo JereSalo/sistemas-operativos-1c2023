@@ -19,12 +19,12 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
         
         ejecutar_instruccion(instruccion_decodificada, contexto);
 
-        if (!desalojado) log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
+        if (!desalojado) {
+            log_info(logger, "PID: %d - Instruccion %s finalizada \n", contexto->pid, instruccion);
+            string_array_destroy(instruccion_decodificada);
+        }
 
         contexto->pc++;
-        
-        //ACA HAY UN POSIBLE MEMORY LEAK -> SE ESTAN HACIENDO MUCHOS MALLOCS DE INSTRUCCIONES?
-        // HAY MEMORY LEAK ? SI. LO PODEMOS SOLUCIONAR ? NO. NOS DEPRIMIMOS ? SI. HAY QUE SEGUIR VIVIENDO ? NO QUEDA OTRA.
     }
 
     // Si es desalojado =>
@@ -36,6 +36,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
 
     list_destroy_and_destroy_elements(lista_parametros, free);
+    string_array_destroy(instruccion_decodificada);
 }
 
 
@@ -73,7 +74,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case WAIT:
         case SIGNAL:
         {
-            list_add(lista_parametros, instruccion_decodificada[1]);   
+            list_add(lista_parametros, strdup(instruccion_decodificada[1]));   
 
             desalojado = 1;
             

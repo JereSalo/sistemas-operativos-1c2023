@@ -12,11 +12,8 @@ void* sumarSizeConLongitudString(void* a, void* b){
 }
 
 size_t tamanio_lista(t_list* lista){
-    
-    size_t* sumatoria = malloc(sizeof(size_t)); *sumatoria = 0;
-    list_fold(lista, sumatoria, sumarSizeConLongitudString); // Devuelve lo foldeado pero hice que modificara sumatoria y listo, que al principio es la seed.
-    size_t tamanio_lista = *sumatoria;
-    free(sumatoria);
+    size_t tamanio_lista = 0;
+    list_fold(lista, &tamanio_lista, sumarSizeConLongitudString); // Devuelve lo foldeado pero hice que modificara tamanio_lista y listo, que al principio es la seed.
     return tamanio_lista;
 }
 
@@ -42,7 +39,9 @@ char* lista_pids_a_string(t_list* lista, char string[]) {
 
     t_list_iterator* lista_it = list_iterator_create(lista);
     for(int i = 0; list_iterator_has_next(lista_it); i++) {
-       strcat(string, string_itoa(*((int*)list_iterator_next(lista_it))));
+        char* tmp = string_itoa(*((int*)list_iterator_next(lista_it)));
+       strcat(string, tmp);
+       free(tmp);
        if(list_size(lista) > 1 && list_iterator_has_next(lista_it))
         strcat(string, ", ");
     }
@@ -99,48 +98,62 @@ void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros)
 
     char* registro_objetivo;
 
+    int longitud;
+
     switch(reg) {
         case AX: 
             registro_objetivo = registros->AX;
+            longitud = 4;
             break;
         case BX: 
             registro_objetivo = registros->BX;
+            longitud = 4;
             break;
         case CX: 
             registro_objetivo = registros->CX;
+            longitud = 4;
             break;
         case DX: 
             registro_objetivo = registros->DX;
+            longitud = 4;
             break;
         case EAX: 
             registro_objetivo = registros->EAX;
+            longitud = 8;
             break;
         case EBX: 
             registro_objetivo = registros->EBX;
+            longitud = 8;
             break;
         case ECX: 
             registro_objetivo = registros->ECX;
+            longitud = 8;
             break;
         case EDX: 
             registro_objetivo = registros->EDX;
+            longitud = 8;
             break;
         case RAX: 
             registro_objetivo = registros->RAX;
+            longitud = 16;
             break;
         case RBX: 
             registro_objetivo = registros->RBX;
+            longitud = 16;
             break;
         case RCX: 
             registro_objetivo = registros->RCX;
+            longitud = 16;
             break;
         case RDX: 
             registro_objetivo = registros->RDX;
+            longitud = 16;
             break;
         default:
             printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
     }
 
-    strncpy(registro_objetivo, valor, strlen(valor));
+    strncpy(registro_objetivo, valor, longitud);
 }
 
 void inicializar_diccionarios() {
@@ -182,3 +195,74 @@ void inicializar_diccionarios() {
     dictionary_put(diccionario_registros_cpu, "RCX",  (void*) (intptr_t) RCX);
     dictionary_put(diccionario_registros_cpu, "RDX",  (void*) (intptr_t) RDX);
 }
+
+
+// Crear en memoria estructuras y devolver contexto virgen.
+t_contexto_ejecucion* crear_contexto(){
+    t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
+    contexto->instrucciones = list_create();
+    contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
+
+    return contexto;
+}
+
+void registros_copypaste(t_registros_cpu* registros_destino, t_registros_cpu* registros_origen){
+    asignar_a_registro("AX", registros_origen->AX, registros_destino);
+    asignar_a_registro("BX", registros_origen->BX, registros_destino);
+    asignar_a_registro("CX", registros_origen->CX, registros_destino);
+    asignar_a_registro("DX", registros_origen->DX, registros_destino);
+
+    asignar_a_registro("EAX", registros_origen->EAX, registros_destino);
+    asignar_a_registro("EBX", registros_origen->EBX, registros_destino);
+    asignar_a_registro("ECX", registros_origen->ECX, registros_destino);
+    asignar_a_registro("EDX", registros_origen->EDX, registros_destino);
+    
+    asignar_a_registro("RAX", registros_origen->RAX, registros_destino);
+    asignar_a_registro("RBX", registros_origen->RBX, registros_destino);
+    asignar_a_registro("RCX", registros_origen->RCX, registros_destino);
+    asignar_a_registro("RDX", registros_origen->RDX, registros_destino);
+}
+
+// Jere podrías haber usado list_add_all de las commons !!
+// NO
+// Yo queria duplicar los elementos, no queria hacer que ambas listas apunten a los mismos elementos.
+// Mas que nada porque para mi el contexto de ejecucion no deberia apuntar a campos de un proceso, sino que deberia tener su propia estructura.
+void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
+    t_list_iterator* lista_it = list_iterator_create(lista_origen);
+
+    while (list_iterator_has_next(lista_it)) {
+        char* instruccion = strdup((char*)list_iterator_next(lista_it));
+        list_add(lista_objetivo, instruccion);
+    }
+    
+    list_iterator_destroy(lista_it);
+}
+
+// Dado un proceso se carga un contexto, primero crea el contexto. Siempre que se carga hay una creacion previa.
+t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
+    t_contexto_ejecucion* contexto = crear_contexto();
+
+    contexto->pid = proceso->pid;
+    contexto->pc = proceso->pc;
+    // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
+    registros_copypaste(contexto->registros_cpu, proceso->registros_cpu); 
+    lista_copypaste(contexto->instrucciones, proceso->instrucciones);
+    
+    return contexto;
+}
+
+void liberar_contexto(t_contexto_ejecucion* contexto){
+    free(contexto->registros_cpu);
+    list_destroy_and_destroy_elements(contexto->instrucciones, free);
+    free(contexto);
+}
+
+void liberar_proceso(t_pcb* proceso){
+    free(proceso->registros_cpu);
+    list_destroy_and_destroy_elements(proceso->tabla_segmentos, free);
+    list_destroy_and_destroy_elements(proceso->instrucciones, free);
+    list_destroy_and_destroy_elements(proceso->tabla_archivos_abiertos, free);
+    free(proceso);
+}
+
+

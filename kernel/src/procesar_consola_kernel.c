@@ -1,4 +1,4 @@
-#include "procesar_consola.h"
+#include "procesar_consola_kernel.h"
 
 void procesar_consola(void* void_cliente_consola) {
     

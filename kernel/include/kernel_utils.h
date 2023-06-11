@@ -5,12 +5,18 @@
 // Todos los archivos que esten en la carpeta kernel van a tener include de kernel_utils.h
 
 extern t_log* logger;
+extern t_config* config;
 
 
 
 extern t_temporal* temporal;
 extern double tiempo;
 
+
+typedef enum {
+    FIFO,
+    HRRN
+} t_algoritmo_planificacion;
 
 
 typedef struct {
@@ -23,7 +29,7 @@ typedef struct {
     char* IP_CPU;
     int PUERTO_CPU;
     int PUERTO_ESCUCHA;
-    char* ALGORITMO_PLANIFICACION;
+    t_algoritmo_planificacion ALGORITMO_PLANIFICACION;
     int ESTIMACION_INICIAL;
     double HRRN_ALFA;                   // Es double por el config_get_double_value
     int GRADO_MAX_MULTIPROGRAMACION;
@@ -33,22 +39,6 @@ typedef struct {
 } t_kernel_config;
 
 extern t_kernel_config* config_kernel;
-
-
-typedef struct {
-    int pid;                            // process id: identificador del proceso.
-    int pc;                             // program counter: número de la próxima instrucción a ejecutar.
-    t_registros_cpu* registros_cpu;
-    t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
-	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
-    double estimacion_prox_rafaga;      // Para HRRN
-    double tiempo_llegada_ready;        // Para HRRN
-    double tiempo_llegada_running;      // Para HRRN
-    double tiempo_salida_running;       // Para HRRN
-    double tasa_de_respuesta;           // Para HRRN
-    t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
-    int socket_consola;
-} t_pcb;
 
 
 typedef struct {
@@ -102,12 +92,9 @@ void buscar_y_borrar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 t_recurso* recurso_en_lista(char* recurso_solicitado);
 void bloquear_proceso(args_io* argumentos_io);
 
-
-void cargar_contexto_de_ejecucion(t_pcb*, t_contexto_ejecucion*);
-
 // HRRN
 void estimar_proxima_rafaga(t_pcb* proceso);
-void calcular_tasa_de_respuesta(double tiempo_actual);
+void calcular_tasa_de_respuesta();
 t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
 
@@ -116,7 +103,7 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 // Funciones de otros modulos
 
 
-void volver_a_encolar_en_ready(t_pcb* proceso);
+void mandar_a_ready(t_pcb* proceso);
 
 void inicializar_registros(t_registros_cpu* registros);
 

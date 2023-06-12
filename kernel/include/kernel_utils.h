@@ -80,6 +80,8 @@ extern sem_t cant_procesos_ready;
 extern sem_t cpu_libre;
 
 extern int server_cpu;
+extern int server_fs;
+extern int server_memoria;
 
 
 // FUNCIONES EN KERNEL_UTILS.C

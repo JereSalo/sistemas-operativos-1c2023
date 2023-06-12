@@ -1,8 +1,7 @@
 #include "procesar_cpu_kernel.h"
 
-void procesar_cpu(void* void_server_cpu) {
+void procesar_cpu() {
     //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA
-    server_cpu = (intptr_t) void_server_cpu;
     
     while(1) {
         op_code cod_op = recibir_operacion(server_cpu);
@@ -111,7 +110,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     sem_post(&cpu_libre);
                 }
                 else{
-                    log_info(logger, "Voy a volver a running XD \n");
                     volver_a_running();
                 }
             }

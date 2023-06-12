@@ -32,6 +32,8 @@ pthread_mutex_t mutex_pids;
 t_list* lista_pids;
 
 int server_cpu;
+int server_fs;
+int server_memoria;
 
 
 void matar_proceso(char* motivo) {

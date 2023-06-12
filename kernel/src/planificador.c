@@ -23,10 +23,8 @@ void planificador_largo_plazo() {
 // ------------------------------ PLANIFICADOR DE CORTITO PLAZO ------------------------------ //
 
 // Pasaje de READY -> RUNNING
-void planificador_corto_plazo(int fd) {
+void planificador_corto_plazo() {
     while(1){
-        
-        
         // Verificamos que la lista de ready no este vacia
         sem_wait(&cant_procesos_ready);
         // Verificamos que la cpu este libre -> si no lo esta, no podemos mandar a running
@@ -68,31 +66,24 @@ void planificador_corto_plazo(int fd) {
             }
         }
 
-        t_contexto_ejecucion* contexto_de_ejecucion = cargar_contexto(proceso_en_running);
-        
-
-        // Y ahora le mandamos el contexto de ejecucion a la CPU para ejecutar el proceso
-        // Contexto de ejecucion (por ahora) = PID + PC + REGISTROS + INSTRUCCIONES
-        
-        
-        send_contexto(fd, contexto_de_ejecucion);
+        mandar_a_running(proceso_en_running);
         
         log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
-    
-        liberar_contexto(contexto_de_ejecucion);
     }  
 }
 
-void volver_a_running() {
-        
-    t_contexto_ejecucion* contexto_de_ejecucion = cargar_contexto(proceso_en_running);
+void mandar_a_running(t_pcb* proceso){
+    t_contexto_ejecucion* contexto_de_ejecucion = cargar_contexto(proceso);
 
     send_contexto(server_cpu, contexto_de_ejecucion);
 
-    // log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); // Este log para mi esta mal.
-    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
-
     liberar_contexto(contexto_de_ejecucion);
+}
+
+void volver_a_running() {
+    mandar_a_running(proceso_en_running);
+    
+    log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 }
 
 

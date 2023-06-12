@@ -47,38 +47,38 @@ int main(int argc, char** argv){
 
     
     /* ------------------------- INICIAR SERVIDOR -------------------------*/
-    int server_fd = preparar_servidor("KERNEL", config, logger);
+    int kernel_fd = preparar_servidor("KERNEL", config, logger);
 
 
     /* ------------------------- CONEXION CON CPU -------------------------*/
-    int conexion_cpu = conectar_con(CPU, config, logger);
+    server_cpu = conectar_con(CPU, config, logger);
 
 
     /* -------------------------CONEXION CON FILESYSTEM --------------------*/
-    //int conexion_fs = conectar_con(FILESYSTEM, config, logger);
+    //server_fs = conectar_con(FILESYSTEM, config, logger);
 
 
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
-    //int conexion_mem = conectar_con(MEMORIA, config, logger);
+    //server_memoria = conectar_con(MEMORIA, config, logger);
 
 
 
 
     /* ------------------------- PLANIFICADOR LARGO PLAZO -------------------------*/
     pthread_t hilo_planificador_largo;
-	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, (void*) logger);
+	pthread_create(&hilo_planificador_largo, NULL, (void*)planificador_largo_plazo, NULL);
 	pthread_detach(hilo_planificador_largo);
 
 
     /* ------------------------- PLANIFICADOR CORTITO PLAZO -------------------------*/
     pthread_t hilo_planificador_corto;
-	pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, (void *) (intptr_t) conexion_cpu);
+	pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, NULL);
 	pthread_detach(hilo_planificador_corto);
 
 
     /* ------------------------- PROCESAR CPU -------------------------*/
     pthread_t hilo_kernel_cpu;
-    pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_cpu, (void*) (intptr_t) conexion_cpu);
+    pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_cpu, NULL);
     pthread_detach(hilo_kernel_cpu);
 
 
@@ -87,7 +87,7 @@ int main(int argc, char** argv){
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo
     while (1)
     {
-        int consola_fd = esperar_cliente(server_fd, logger, "Kernel");
+        int consola_fd = esperar_cliente(kernel_fd, logger, "Kernel");
         
         pthread_t hilo;
         pthread_create(&hilo, NULL, (void *)procesar_consola, (void *) (intptr_t) consola_fd);

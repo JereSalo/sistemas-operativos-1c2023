@@ -5,7 +5,7 @@
 
 // Funciones de este modulo
 
-void procesar_cpu(void* void_server_cpu);
+void procesar_cpu();
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
 
 

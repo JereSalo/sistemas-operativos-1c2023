@@ -100,7 +100,7 @@ void inicializar_recursos() {
 }
 
 
-t_pcb* inicializar_pcb(int cliente_consola) {
+t_pcb* inicializar_pcb(int cliente_consola, int server_memoria) {
     
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
@@ -108,6 +108,18 @@ t_pcb* inicializar_pcb(int cliente_consola) {
     if(!recv_instrucciones(cliente_consola, instrucciones_recibidas)){
         log_error(logger, "Fallo recibiendo INSTRUCCIONES \n");
     }
+
+    // Recibimos la tabla de segmentos inicial
+    t_list* tabla_segmentos = list_create();
+
+    // Solicitamos los segmentos a memoria mandandole un entero
+    SEND_INT(server_memoria, 1);
+
+    //if(!recv_segmentos(server_memoria, tabla_segmentos)){
+    //    log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");
+    //}
+
+
 
     // Creamos el PCB
     t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_consola);
@@ -126,7 +138,7 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
     pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
     
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
-    pcb->tiempo_llegada_ready = 0;                                      //TODO: Esto lo tenemos que cambiar por el timestamp
+    pcb->tiempo_llegada_ready = 0;
     pcb->tiempo_salida_running = 0;
     pcb->tiempo_llegada_running = 0;
     pcb->tasa_de_respuesta = 0;

@@ -37,11 +37,11 @@ typedef enum {
     RAX, RBX, RCX, RDX
 } registro_cpu;
 
-typedef struct {
+/*typedef struct {
     int id;
     int direccion_base; // ???
 	int size; // Tamaño de segmento
-} t_segmento;
+} t_segmento;*/
 
 typedef enum {
     SUCCESS,

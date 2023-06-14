@@ -3,6 +3,17 @@
 
 #include "shared.h"
 
+typedef struct {
+    int id_segmento;
+    int direccion_base_segmento;    //lo ponemos como int* o como int?
+    int tamanio_segmento;
+} t_segmento;
+
+typedef struct {
+    int* direccion_base_hueco;
+    int tamanio_hueco;
+} t_hueco;
+
 typedef enum {
     FIRST,
     BEST,
@@ -26,8 +37,10 @@ extern int cliente_kernel;
 extern int cliente_cpu;
 extern int cliente_filesystem;
 
+extern t_list* tabla_huecos;
 
 void cargar_config_memoria(t_config* config);
+void inicializar_estructuras();
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo);
 
 

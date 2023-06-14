@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 
 
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
-    //server_memoria = conectar_con(MEMORIA, config, logger);
+    server_memoria = conectar_con(MEMORIA, config, logger);
 
 
 

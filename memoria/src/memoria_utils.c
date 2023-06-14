@@ -6,6 +6,7 @@ t_memoria_config config_memoria;
 int cliente_kernel;
 int cliente_cpu;
 int cliente_filesystem;
+t_list* tabla_huecos;
 
 void cargar_config_memoria(t_config* config){
     config_memoria.PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
@@ -16,6 +17,13 @@ void cargar_config_memoria(t_config* config){
     config_memoria.RETARDO_COMPACTACION = config_get_int_value(config, "RETARDO_COMPACTACION");
     config_memoria.ALGORITMO_ASIGNACION = obtener_algoritmo_asignacion(config_get_string_value(config, "ALGORITMO_ASIGNACION"));
 }
+
+void inicializar_tabla_segmentos() {
+    //tabla_segmentos = list_create();
+}
+
+
+
 
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo){
     if(strcmp(string_algoritmo, "FIRST") == 0){

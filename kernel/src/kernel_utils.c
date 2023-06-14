@@ -64,7 +64,7 @@ void bloquear_proceso(args_io* argumentos_io){
 
     free(argumentos_io);
 
-    log_info(logger, "Proceso %d se bloqueara %d segundos por IO", proceso->pid, tiempo);
+    log_info(logger, "Proceso %d se bloqueara %d segundos por I/O", proceso->pid, tiempo);
 
     sleep(tiempo);
 

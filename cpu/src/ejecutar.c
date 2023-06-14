@@ -48,10 +48,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
     int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, nemonico_instruccion);
 
     switch(op_instruccion) {
-        case SET:
+        case SET: // SET (Registro, Valor)
         {
-            // SET (Registro, Valor)
-
             char* registro = instruccion_decodificada[1];
             char* valor = instruccion_decodificada[2];
             
@@ -64,21 +62,63 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             break;
         }
-        case YIELD:
-        case EXIT:
+        case MOV_IN: // MOV_IN (Registro, Dirección Lógica)
+        {
+            
+            break;
+        }
+        case MOV_OUT: // MOV_OUT (Dirección Lógica, Registro)
+        {
+            
+            break;
+        }
+        case YIELD: // YIELD
+        case EXIT: // EXIT
         {   
             desalojado = 1;
             break;        
         }
-        case IO:
-        case WAIT:
-        case SIGNAL:
+        case IO: // IO (Tiempo)
+        case WAIT: // WAIT (Recurso)
+        case SIGNAL: // SIGNAL (Recurso)
         {
             list_add(lista_parametros, strdup(instruccion_decodificada[1]));   
 
             desalojado = 1;
             
             break;   
+        }
+        case CREATE_SEGMENT: // CREATE_SEGMENT (Id del Segmento, Tamaño)
+        {
+            break;
+        }
+        case DELETE_SEGMENT: // DELETE_SEGMENT (Id del Segmento)
+        {
+            break;
+        }
+        case F_OPEN: // F_OPEN (Nombre Archivo)
+        {
+            break;
+        }
+        case F_CLOSE: // F_CLOSE (Nombre Archivo)
+        {
+            break;
+        }
+        case F_SEEK: // F_SEEK (Nombre Archivo, Posición)
+        {
+            break;
+        }
+        case F_READ: // F_READ (Nombre Archivo, Dirección Lógica, Cantidad de Bytes)
+        {
+            break;
+        }
+        case F_WRITE: // F_WRITE (Nombre Archivo, Dirección Lógica, Cantidad de bytes)
+        {
+            break;
+        }
+        case F_TRUNCATE: // F_TRUNCATE (Nombre Archivo, Tamaño)
+        {
+            break;
         }
         default: {
             log_error(logger, "INSTRUCCION DESCONOCIDA");

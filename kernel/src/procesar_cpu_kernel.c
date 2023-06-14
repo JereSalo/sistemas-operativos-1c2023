@@ -169,5 +169,42 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             break;
         }
+        case CREATE_SEGMENT:
+        {
+            break;
+        }
+        case DELETE_SEGMENT:
+        {
+            break;
+        }
+        case F_OPEN:
+        {
+            break;
+        }
+        case F_CLOSE:
+        {
+            break;
+        }
+        case F_SEEK:
+        {
+            break;
+        }
+        case F_READ:
+        {
+            break;
+        }
+        case F_WRITE:
+        {
+            break;
+        }
+        case F_TRUNCATE:
+        {
+            break;
+        }
+        default:
+        {
+            log_error(logger, "Motivo de desalojo no es valido\n");
+            break;
+        }
     }  
 }

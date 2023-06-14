@@ -156,6 +156,73 @@ void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros)
     strncpy(registro_objetivo, valor, longitud);
 }
 
+//TODO
+char* leer_de_registro(char* registro, t_registros_cpu* registros){
+    registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
+
+    char* registro_objetivo;
+    int longitud;
+
+    switch(reg) {
+        case AX: 
+            registro_objetivo = registros->AX;
+            longitud = 4;
+            break;
+        case BX: 
+            registro_objetivo = registros->BX;
+            longitud = 4;
+            break;
+        case CX: 
+            registro_objetivo = registros->CX;
+            longitud = 4;
+            break;
+        case DX: 
+            registro_objetivo = registros->DX;
+            longitud = 4;
+            break;
+        case EAX: 
+            registro_objetivo = registros->EAX;
+            longitud = 8;
+            break;
+        case EBX: 
+            registro_objetivo = registros->EBX;
+            longitud = 8;
+            break;
+        case ECX: 
+            registro_objetivo = registros->ECX;
+            longitud = 8;
+            break;
+        case EDX: 
+            registro_objetivo = registros->EDX;
+            longitud = 8;
+            break;
+        case RAX: 
+            registro_objetivo = registros->RAX;
+            longitud = 16;
+            break;
+        case RBX: 
+            registro_objetivo = registros->RBX;
+            longitud = 16;
+            break;
+        case RCX: 
+            registro_objetivo = registros->RCX;
+            longitud = 16;
+            break;
+        case RDX: 
+            registro_objetivo = registros->RDX;
+            longitud = 16;
+            break;
+        default:
+            printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
+    }
+
+    char valor[longitud];
+
+    strncpy(valor, registro_objetivo, longitud);
+
+    return valor;
+}
+
 void inicializar_diccionarios() {
     
     // Diccionario de instrucciones

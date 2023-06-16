@@ -263,7 +263,7 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
 
 
 
-// ------------------------------ SERIALIZACION NUMERO (PRUEBA) ------------------------------ //
+// ------------------------------ SERIALIZACION NUMERITO (PRUEBA) ------------------------------ //
 
 void* serializar_numero(int numero) {
     

@@ -16,49 +16,28 @@ int main(int argc, char** argv){
 
     cargar_config_memoria(config);
     
+    inicializar_estructuras();
 
 
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);
 
     //cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
-    //cliente_cpu = esperar_cliente(server_fd, logger, "Memoria");
-    cliente_kernel = esperar_cliente(server_fd, logger, "Memoria");
+    cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
+    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
     
-    t_segmento* segmento_cero = malloc(sizeof(t_segmento));
-    segmento_cero->id_segmento = 0;
-    segmento_cero->direccion_base_segmento = 0; // dudosito
-    segmento_cero->tamanio_segmento = config_memoria.TAM_SEGMENTO_0;
-
-    //while(1) {
-        int solicitud;
-
-        RECV_INT(cliente_kernel, solicitud);
-        if(solicitud == 1) 
-        {
-            log_info(logger,"RECIBI UNA SOLICITUD DE SEGMENTOS");
-            
-            t_list* tabla_segmentos = list_create();
-            list_add(tabla_segmentos, segmento_cero);
-
-            for(int i=1; i < config_memoria.CANT_SEGMENTOS; i++) {
-                
-                t_segmento* segmento = malloc(sizeof(t_segmento));
-                segmento->id_segmento = i;
-                segmento->direccion_base_segmento = 0; // dudosito
-                segmento->tamanio_segmento = 10; // dudosito -> no sabemos como definirlo
-                
-                list_add(tabla_segmentos, segmento);
-            }
-            //send_segmentos(cliente_kernel, tabla_segmentos);
-            
-            
-            //creamos la tabla de segmentos y se la mandamos a kernel
-        }
-    //}
     
+    procesar_kernel_memoria();
+
+    /*
+        pthread_t hilo_procesar_kernel_memoria;
+        pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
+        pthread_detach(hilo_procesar_kernel_memoria);
+    */
+    // EL HILO NO ESTA FUNCIONANDO CORRECTAMENTE -> POR AHORA NO HACE FALTA IGUAL PERO CUANDO PROCESEMOS VARIOS SI
 
 
+    //send_segmentos(cliente_kernel, tabla_segmentos);
 
 
     // aca crea el hilo de "responder_orden()"

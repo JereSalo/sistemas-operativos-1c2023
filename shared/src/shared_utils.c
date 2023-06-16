@@ -17,6 +17,7 @@ size_t tamanio_lista(t_list* lista){
     return tamanio_lista;
 }
 
+
 char* lista_a_string(t_list* lista, char string[]) {
     
     string[0] = '\0';
@@ -92,6 +93,25 @@ void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_li
 
     list_iterate(lista_instrucciones, copiar_y_desplazar_string_con_tamanio);
 }
+
+
+void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_segmentos){
+    
+    // El vscode se enoja con esto pero funca igual.
+    // La definí como función auxiliar para poder usar al paquete
+    // Me gustaria mandar el paquete como parámetro pero list_iterate admite funciones con 1 solo parámetro.
+    size_t desplazamiento = 0;
+    
+    void copiar_y_desplazar_segmento_con_tamanio(void* segmento) {
+        size_t tamanio = 12;        //SI NO ES T_SEGMENTO ES SEGMENTO  //ESTA HARDCODEADO
+        copiar_variable_en_stream_y_desplazar(paquete, &tamanio, sizeof(size_t), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(paquete, segmento, tamanio, &desplazamiento);
+    }
+
+    list_iterate(tabla_segmentos, copiar_y_desplazar_segmento_con_tamanio);
+}
+
+
 
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
     registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);

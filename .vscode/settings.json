@@ -32,6 +32,7 @@
         "ejecutar.h": "c",
         "file_system_utils.h": "c",
         "procesar_consola_kernel.h": "c",
-        "procesar_cpu_kernel.h": "c"
+        "procesar_cpu_kernel.h": "c",
+        "memoria_utils.h": "c"
     }
 }

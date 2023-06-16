@@ -100,7 +100,7 @@ void inicializar_recursos() {
 }
 
 
-t_pcb* inicializar_pcb(int cliente_consola, int server_memoria) {
+t_pcb* inicializar_pcb(int cliente_consola) {
     
     // Recibimos las instrucciones
     t_list* instrucciones_recibidas = list_create();
@@ -113,12 +113,11 @@ t_pcb* inicializar_pcb(int cliente_consola, int server_memoria) {
     t_list* tabla_segmentos = list_create();
 
     // Solicitamos los segmentos a memoria mandandole un entero
-    SEND_INT(server_memoria, 1);
+    send_opcode(server_memoria, SOLICITUD_TABLA);
 
-    //if(!recv_segmentos(server_memoria, tabla_segmentos)){
-    //    log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");
-    //}
-
+    if(!recv_tabla_segmentos(server_memoria, tabla_segmentos)){
+        log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");
+    }
 
 
     // Creamos el PCB

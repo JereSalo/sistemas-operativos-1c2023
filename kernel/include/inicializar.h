@@ -10,7 +10,7 @@ void inicializar_colas();
 
 t_algoritmo_planificacion obtener_algoritmo_planificacion(char* string_algoritmo);
 
-t_pcb* inicializar_pcb(int cliente_consola, int server_memoria);
+t_pcb* inicializar_pcb(int cliente_consola);
 t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola);
 
 

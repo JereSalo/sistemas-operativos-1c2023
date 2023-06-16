@@ -14,7 +14,7 @@ void procesar_consola(void* void_cliente_consola) {
                 // log_info(logger, "Me llego el codigo de operacion INSTRUCCIONES \n");
 
                 // Inicializamos el PCB de un proceso (esto implica crearlo)
-                pcb = inicializar_pcb(cliente_consola, server_memoria);
+                pcb = inicializar_pcb(cliente_consola);
                 
                 // Agregamos el proceso creado a NEW
                 pthread_mutex_lock(&mutex_new);

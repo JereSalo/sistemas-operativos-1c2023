@@ -23,6 +23,8 @@ bool recv_desalojo(int fd, int* motivo_desalojo, t_list* lista_parametros);
 bool send_string(int fd, char* string);
 bool recv_string(int fd, char* string);
 
+bool send_tabla_segmentos(int fd, t_list* tabla_segmentos);
+bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos);
 
 // FUNCIONES AUXILIARES (Se usan dentro de otros recv)
 bool send_paquete(int fd, void* paquete, size_t size_paquete);

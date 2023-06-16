@@ -103,6 +103,7 @@ size_t tamanio_lista(t_list* lista);
 
 void copiar_variable_en_stream_y_desplazar(void* paquete, void* elemento, size_t tamanio_elemento, size_t* desplazamiento);
 void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_list* lista_instrucciones);
+void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_segmentos); //ADD
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento);
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
 char* leer_de_registro(char* registro, t_registros_cpu* registros);

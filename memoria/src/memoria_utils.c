@@ -6,7 +6,12 @@ t_memoria_config config_memoria;
 int cliente_kernel;
 int cliente_cpu;
 int cliente_filesystem;
+
+t_list* tabla_segmentos_global;
 t_list* tabla_huecos;
+void* memoria_principal;
+t_segmento* segmento_cero;
+
 
 void cargar_config_memoria(t_config* config){
     config_memoria.PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
@@ -18,9 +23,26 @@ void cargar_config_memoria(t_config* config){
     config_memoria.ALGORITMO_ASIGNACION = obtener_algoritmo_asignacion(config_get_string_value(config, "ALGORITMO_ASIGNACION"));
 }
 
-void inicializar_tabla_segmentos() {
-    //tabla_segmentos = list_create();
+void inicializar_estructuras() {
+    
+    // Inicializamos memoria principal
+    memoria_principal = malloc(config_memoria.TAM_MEMORIA);
+
+    // Inicializamos el segmento 0
+    segmento_cero = malloc(sizeof(t_segmento));
+    segmento_cero->id_segmento = 0;
+    segmento_cero->direccion_base_segmento = 0; 
+    segmento_cero->tamanio_segmento = config_memoria.TAM_SEGMENTO_0;
+
+    // Inicializamos la tabla de segmentos global
+    tabla_segmentos_global = list_create();
+
+    // Inicializamos la tabla de huecos
+    tabla_huecos = list_create();
+
+    log_info(logger, "Estructuras administrativas inicializadas \n");
 }
+
 
 
 

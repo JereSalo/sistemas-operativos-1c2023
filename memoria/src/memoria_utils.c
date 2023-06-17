@@ -24,7 +24,7 @@ void cargar_config_memoria(t_config* config){
     config_memoria.ALGORITMO_ASIGNACION = obtener_algoritmo_asignacion(config_get_string_value(config, "ALGORITMO_ASIGNACION"));
 }
 
-void inicializar_estructuras() {
+void inicializar_estructuras_administrativas() {
     
     // Inicializamos memoria principal
     memoria_principal = malloc(config_memoria.TAM_MEMORIA);
@@ -39,7 +39,7 @@ void inicializar_estructuras() {
     t_hueco* hueco = crear_hueco(0, config_memoria.TAM_MEMORIA);
     list_add(tabla_huecos, hueco);
 
-    // Creamos el segmento 0
+    // Creamos el segmento 0 -> no buscamos huecos libres porque ya sabemos que hay
     if(config_memoria.TAM_SEGMENTO_0 <= tamanio_max_segmento_cpu) {
         segmento_cero = crear_segmento(0, 0, config_memoria.TAM_SEGMENTO_0);
     }
@@ -48,9 +48,24 @@ void inicializar_estructuras() {
 
 
     // Actualizamos la tabla de huecos libres ya que hemos creado un segmento
+    // De una forma similar haremos esto cuando creemos segmentos con CREATE_SEGMENT
     
-    
+    t_hueco* hueco_actual = list_get(tabla_huecos, 0);
 
+    log_info(logger, "TAMANIO ACTUAL HUECO: %d \n", hueco_actual->tamanio_hueco);
+
+    hueco_actual->direccion_base_hueco += segmento_cero->tamanio_segmento;
+    hueco_actual->tamanio_hueco -= segmento_cero->tamanio_segmento;
+
+    hueco_actual = NULL;    // Hago que apunte a null asi no referencia mas al valor de la lista
+    free(hueco_actual);     // Lo libero asi no genera leaks
+    
+    //t_hueco* hueco_nuevo = list_get(tabla_huecos, 0); //esto es para ver si se modifica correctamente
+    
+    //log_info(logger, "TAMANIO ACTUAL HUECO: %d \n", hueco_nuevo->tamanio_hueco);
+
+    // Si yo modifico el elemento que retorna list_get se modifica tambien lo que esta en la lista
+    
 
     log_info(logger, "Estructuras administrativas inicializadas \n");
 }

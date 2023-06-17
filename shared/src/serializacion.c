@@ -77,7 +77,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(int)               // pc
                 + sizeof(t_registros_cpu)   // registros cpu
                 + sizeof(size_t)            // size instrucciones
-                + size_instrucciones ;       // instrucciones
+                + size_instrucciones;        // instrucciones
                 //+ sizeof(size_t)            // size segmentos
                 //+ size_segmentos;           // segmentos
     
@@ -96,10 +96,12 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento); //add
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
+    
     //copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento); //add
     //copiar_variable_en_stream_y_desplazar(paquete, stream_segmentos, size_segmentos, &desplazamiento);
     
     free(stream_instrucciones);
+    //free(stream_segmentos);
     return paquete;
 }
 

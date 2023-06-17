@@ -21,6 +21,7 @@
 #include <commons/temporal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <math.h>
 
 
 typedef struct{
@@ -123,5 +124,6 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso);
 void liberar_contexto(t_contexto_ejecucion* contexto);
 void liberar_proceso(t_pcb* proceso);
 void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen);
+void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 
 #endif

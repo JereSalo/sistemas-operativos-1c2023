@@ -65,23 +65,23 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case MOV_IN: // MOV_IN (Registro, Dirección Lógica)
         {
             char* registro = instruccion_decodificada[1];
-            int direccion_logica = instruccion_decodificada[2];
+            int direccion_logica = atoi(instruccion_decodificada[2]);
 
-            int direccion_fisica = traducir_direccion(direccion_logica);
+            int direccion_fisica = traducir_direccion(direccion_logica, contexto);
 
             // Leer valor de memoria correspondiente a direccion_fisica
-            char* valor; //TODO
+            //char* valor; //TODO
 
-            asignar_a_registro(registro, valor, contexto->registros_cpu);
+            //asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             break;
         }
         case MOV_OUT: // MOV_OUT (Dirección Lógica, Registro)
         {
-            int direccion_logica = instruccion_decodificada[1];
+            int direccion_logica = atoi(instruccion_decodificada[1]);
             char* registro = instruccion_decodificada[2];
 
-            char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
+            //char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
             //TODO: Escribir en direccion fisica de memoria a partir de la direccion logica
             

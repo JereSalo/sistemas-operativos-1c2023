@@ -26,12 +26,12 @@ int main(int argc, char** argv){
     cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
     cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
     
-    
+    // Recibimos el tamanio maximo de segmento indicado por CPU
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
 
     log_info(logger, "Tamanio maximo de segmento recibido: %d", tamanio_max_segmento_cpu);
 
-    inicializar_estructuras();
+    inicializar_estructuras_administrativas();
     
     procesar_kernel_memoria();
 

@@ -325,15 +325,32 @@ void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
     list_iterator_destroy(lista_it);
 }
 
+void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
+    t_list_iterator* lista_it = list_iterator_create(lista_origen);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+        list_add(lista_objetivo, segmento);
+    }
+    
+    list_iterator_destroy(lista_it);
+}
+
+
+
 // Dado un proceso se carga un contexto, primero crea el contexto. Siempre que se carga hay una creacion previa.
 t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
     t_contexto_ejecucion* contexto = crear_contexto();
 
     contexto->pid = proceso->pid;
     contexto->pc = proceso->pc;
+    contexto->tabla_segmentos = proceso->tabla_segmentos; //esto lo hago asi pero mepa que hay que hacer un copypaste como con los registros
+    
     // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
     registros_copypaste(contexto->registros_cpu, proceso->registros_cpu); 
     lista_copypaste(contexto->instrucciones, proceso->instrucciones);
+    //tabla_copypaste(contexto->tabla_segmentos, proceso->tabla_segmentos);
+
     
     return contexto;
 }

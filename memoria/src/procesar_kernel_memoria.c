@@ -1,4 +1,4 @@
-#include "procesar_conexiones_memoria.h"
+#include "procesar_kernel_memoria.h"
 
 void procesar_kernel_memoria() {
     while(1) {

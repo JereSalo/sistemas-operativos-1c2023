@@ -119,22 +119,27 @@ t_pcb* inicializar_pcb(int cliente_consola) {
         log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");
     }
 
+    //t_segmento* prueba = list_get(tabla_segmentos, 0);
+    //log_info(logger, "ID SEGMENTO RECIBIDO: %d \n", prueba->id_segmento);
+    //log_info(logger, "DIRECCION BASE SEGMENTO RECIBIDO: %d \n", prueba->direccion_base_segmento);
+    //log_info(logger, "TAMANIO SEGMENTO RECIBIDO: %d \n", prueba->tamanio_segmento);
+
 
     // Creamos el PCB
-    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_consola);
+    t_pcb* pcb = crear_pcb(pid_counter, instrucciones_recibidas, cliente_consola, tabla_segmentos);
     pid_counter++;
    
     return pcb;
 }
 
-t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola) {
+t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola, t_list* tabla_segmentos) {
     t_pcb* pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->pc = 0;
     pcb->instrucciones = lista_instrucciones;
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
     inicializar_registros(pcb->registros_cpu);
-    pcb->tabla_segmentos = list_create();                               //TODO: la dejamos como vacia pero la tabla la va a armar la memoria
+    pcb->tabla_segmentos = tabla_segmentos;   
     
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            
     pcb->tiempo_llegada_ready = 0;

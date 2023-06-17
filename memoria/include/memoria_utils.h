@@ -3,12 +3,6 @@
 
 #include "shared.h"
 
-typedef struct {
-    int id_segmento;
-    int direccion_base_segmento;    
-    int tamanio_segmento;
-} t_segmento;
-
 
 typedef struct {
 	int pid;

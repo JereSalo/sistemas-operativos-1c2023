@@ -65,6 +65,13 @@ typedef struct {
 } t_pcb;
 
 typedef struct {
+    int id_segmento;
+    int direccion_base_segmento;    
+    int tamanio_segmento;
+} t_segmento;
+
+
+typedef struct {
     int pid;  
     int pc; 
     t_registros_cpu* registros_cpu;

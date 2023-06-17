@@ -191,45 +191,53 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 
 void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos) {
     
-    printf("CANTIDAD DE ELEMENTOS EN LA TABLA: %d", list_size(tabla_segmentos));
-    
     // Hay 3 pasos. Calcular size total, hacer malloc, hacer memcpy de los datos a un stream y devolverlo.
     
     // Paso 1: Calcular size de lo que se quiere mandar, en este caso los strings de la lista y sus respectivos tamaños
-    *size_tabla_segmentos = 12 * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
+    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
     
-    printf("falopa1");
-
     // Paso 2: Hacer malloc
     void* stream = malloc(*size_tabla_segmentos);
 
     // Paso 3: Guardar en stream los elementos de la lista con sus tamaños.
+    
+    size_t desplazamiento = 0;
 
-    // Recorrer la lista de instrucciones y para cada elemento hacer copiar_variable_en_stream_y_desplazar 2 veces, 1 de el size del string y otra del string en sí
-    copiar_en_stream_y_desplazar_tabla_segmentos(stream, tabla_segmentos);
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
 
-    printf("falopa2");
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+        
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->id_segmento), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->direccion_base_segmento), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->tamanio_segmento), sizeof(int), &desplazamiento);    
+        
+    }
+    
+    list_iterator_destroy(lista_it);
     return stream;
 }
-
+    
+    
 void* serializar_segmentos(size_t* size, t_list* segmentos) {
     size_t size_segmentos;
     
     void* stream_tabla_segmentos = serializar_tabla_segmentos(&size_segmentos, segmentos);
-    printf("falopa3");
+
+
     // stream completo
-    *size = sizeof(size_t)        // size segmentos
-            + size_segmentos;       // segmentos
+    *size = sizeof(size_t)         // size segmentos
+            + size_segmentos;      // segmentos
     
    
     void* paquete = malloc(*size);
 
-    printf("falopa4");
+   
     size_t desplazamiento = 0;
 
     copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, stream_tabla_segmentos, size_segmentos, &desplazamiento);
-    printf("falopa5");
+  
     free(stream_tabla_segmentos);
     return paquete;
 }
@@ -240,13 +248,14 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
     size_t desplazamiento_inicial = *desplazamiento;
 
     while(*desplazamiento < size_segmentos + desplazamiento_inicial){
-        size_t tamanio_segmento = 0;
-        copiar_stream_en_variable_y_desplazar(&tamanio_segmento, stream, sizeof(size_t), desplazamiento);
         
-        char* string = malloc(tamanio_segmento);
-        copiar_stream_en_variable_y_desplazar(string, stream, tamanio_segmento, desplazamiento);
+        t_segmento* segmento = malloc(sizeof(t_segmento));
+        copiar_stream_en_variable_y_desplazar(&(segmento->id_segmento), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->direccion_base_segmento), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->tamanio_segmento), stream, sizeof(int), desplazamiento);
 
-        list_add(tabla_segmentos, string);
+
+        list_add(tabla_segmentos, segmento);
         // WARNING: NO HACER FREE DEL STRING, SE LIBERA DESPUÉS CUANDO DESTRUIMOS LA LISTA :)
     }
 }
@@ -258,7 +267,7 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
 
 
 
-// prueba prueba
+
 
 
 

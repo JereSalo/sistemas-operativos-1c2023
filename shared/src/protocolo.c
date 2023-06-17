@@ -140,6 +140,7 @@ bool send_tabla_segmentos(int fd, t_list* tabla_segmentos) {
 
 bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos) {
     
+    
     // Recibimos el size del payload
     size_t size_tabla_segmentos;
 
@@ -148,6 +149,8 @@ bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos) {
     size_t desplazamiento = 0;
 
     deserializar_segmentos(payload, size_tabla_segmentos, tabla_segmentos, &desplazamiento);
+
+    //printf("RECIBI LA TABLA DE SEGMENTOS QUE ME MANDO MEMORIA");
 
     free(payload);
     return true;

@@ -3,6 +3,7 @@
 
 #include "shared_utils.h"
 
+
 typedef enum {
     NUMERO,
     INSTRUCCIONES,

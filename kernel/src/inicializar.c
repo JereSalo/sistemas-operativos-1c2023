@@ -119,10 +119,10 @@ t_pcb* inicializar_pcb(int cliente_consola) {
         log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");
     }
 
-    //t_segmento* prueba = list_get(tabla_segmentos, 0);
-    //log_info(logger, "ID SEGMENTO RECIBIDO: %d \n", prueba->id_segmento);
-    //log_info(logger, "DIRECCION BASE SEGMENTO RECIBIDO: %d \n", prueba->direccion_base_segmento);
-    //log_info(logger, "TAMANIO SEGMENTO RECIBIDO: %d \n", prueba->tamanio_segmento);
+    // t_segmento* prueba = list_get(tabla_segmentos, 0);
+    // log_info(logger, "ID SEGMENTO RECIBIDO: %d \n", prueba->id_segmento);
+    // log_info(logger, "DIRECCION BASE SEGMENTO RECIBIDO: %d \n", prueba->direccion_base_segmento);
+    // log_info(logger, "TAMANIO SEGMENTO RECIBIDO: %d \n", prueba->tamanio_segmento);
 
 
     // Creamos el PCB

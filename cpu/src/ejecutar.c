@@ -30,6 +30,7 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     // Si es desalojado =>
     desalojado = 0;
 
+    // Si pero no, en realidad cuando es MOV_IN o MOV_OUT es porque hay un seg fault
     log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
 
     send_contexto(cliente_kernel, contexto);
@@ -67,7 +68,15 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* registro = instruccion_decodificada[1];
             int direccion_logica = atoi(instruccion_decodificada[2]);
 
-            int direccion_fisica = traducir_direccion(direccion_logica, contexto);
+            // int direccion_fisica = obtener_direccion(direccion_logica);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+
+            if(direccion_fisica == -1){
+                desalojado = 1;
+                break;
+            }
+            
+            
 
             // Leer valor de memoria correspondiente a direccion_fisica
             //char* valor; //TODO
@@ -80,6 +89,14 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         {
             int direccion_logica = atoi(instruccion_decodificada[1]);
             char* registro = instruccion_decodificada[2];
+
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+
+            if(direccion_fisica == -1){
+                desalojado = 1;
+                break;
+            }
+                
 
             //char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 

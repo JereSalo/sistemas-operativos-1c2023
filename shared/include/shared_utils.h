@@ -112,6 +112,8 @@ void copiar_variable_en_stream_y_desplazar(void* paquete, void* elemento, size_t
 void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_list* lista_instrucciones);
 void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_segmentos); //ADD
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento);
+int obtener_longitud_registro(char* registro);
+char* obtener_registro_objetivo(t_registros_cpu* registros, char* nombre_registro);
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
 char* leer_de_registro(char* registro, t_registros_cpu* registros);
 void inicializar_diccionarios();

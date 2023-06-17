@@ -112,129 +112,118 @@ void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_s
 }
 
 
-
-void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
+int obtener_longitud_registro(char* registro){
     registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
-
-    char* registro_objetivo;
 
     int longitud;
 
     switch(reg) {
         case AX: 
-            registro_objetivo = registros->AX;
             longitud = 4;
             break;
         case BX: 
-            registro_objetivo = registros->BX;
             longitud = 4;
             break;
         case CX: 
-            registro_objetivo = registros->CX;
             longitud = 4;
             break;
         case DX: 
-            registro_objetivo = registros->DX;
             longitud = 4;
             break;
         case EAX: 
-            registro_objetivo = registros->EAX;
             longitud = 8;
             break;
         case EBX: 
-            registro_objetivo = registros->EBX;
             longitud = 8;
             break;
         case ECX: 
-            registro_objetivo = registros->ECX;
             longitud = 8;
             break;
         case EDX: 
-            registro_objetivo = registros->EDX;
             longitud = 8;
             break;
         case RAX: 
-            registro_objetivo = registros->RAX;
             longitud = 16;
             break;
         case RBX: 
-            registro_objetivo = registros->RBX;
             longitud = 16;
             break;
         case RCX: 
-            registro_objetivo = registros->RCX;
             longitud = 16;
             break;
         case RDX: 
-            registro_objetivo = registros->RDX;
             longitud = 16;
             break;
         default:
             printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
     }
 
+    return longitud;
+}
+
+char* obtener_registro_objetivo(t_registros_cpu* registros, char* nombre_registro){
+    registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, nombre_registro);
+
+    char* registro_objetivo;
+
+    switch(reg) {
+        case AX: 
+            registro_objetivo = registros->AX;
+            break;
+        case BX: 
+            registro_objetivo = registros->BX;
+            break;
+        case CX: 
+            registro_objetivo = registros->CX;
+            break;
+        case DX: 
+            registro_objetivo = registros->DX;
+            break;
+        case EAX: 
+            registro_objetivo = registros->EAX;
+            break;
+        case EBX: 
+            registro_objetivo = registros->EBX;
+            break;
+        case ECX: 
+            registro_objetivo = registros->ECX;
+            break;
+        case EDX: 
+            registro_objetivo = registros->EDX;
+            break;
+        case RAX: 
+            registro_objetivo = registros->RAX;
+            break;
+        case RBX: 
+            registro_objetivo = registros->RBX;
+            break;
+        case RCX: 
+            registro_objetivo = registros->RCX;
+            break;
+        case RDX: 
+            registro_objetivo = registros->RDX;
+            break;
+        default:
+            printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
+    }
+
+    return registro_objetivo;
+}
+
+
+void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
+    char* registro_objetivo = obtener_registro_objetivo(registros, registro);
+    int longitud = obtener_longitud_registro(registro);
+    
     strncpy(registro_objetivo, valor, longitud);
 }
 
+
+
 //TODO
 char* leer_de_registro(char* registro, t_registros_cpu* registros){
-    registro_cpu reg = (intptr_t) dictionary_get(diccionario_registros_cpu, registro);
-
-    char* registro_objetivo;
-    int longitud;
-
-    switch(reg) {
-        case AX: 
-            registro_objetivo = registros->AX;
-            longitud = 4;
-            break;
-        case BX: 
-            registro_objetivo = registros->BX;
-            longitud = 4;
-            break;
-        case CX: 
-            registro_objetivo = registros->CX;
-            longitud = 4;
-            break;
-        case DX: 
-            registro_objetivo = registros->DX;
-            longitud = 4;
-            break;
-        case EAX: 
-            registro_objetivo = registros->EAX;
-            longitud = 8;
-            break;
-        case EBX: 
-            registro_objetivo = registros->EBX;
-            longitud = 8;
-            break;
-        case ECX: 
-            registro_objetivo = registros->ECX;
-            longitud = 8;
-            break;
-        case EDX: 
-            registro_objetivo = registros->EDX;
-            longitud = 8;
-            break;
-        case RAX: 
-            registro_objetivo = registros->RAX;
-            longitud = 16;
-            break;
-        case RBX: 
-            registro_objetivo = registros->RBX;
-            longitud = 16;
-            break;
-        case RCX: 
-            registro_objetivo = registros->RCX;
-            longitud = 16;
-            break;
-        case RDX: 
-            registro_objetivo = registros->RDX;
-            longitud = 16;
-            break;
-        default:
-            printf("ERROR: EL REGISTRO NO EXISTE !!! \n");
-    }
+    char* registro_objetivo = obtener_registro_objetivo(registros, registro);
+    int longitud = obtener_longitud_registro(registro);
 
     char valor[longitud];
 

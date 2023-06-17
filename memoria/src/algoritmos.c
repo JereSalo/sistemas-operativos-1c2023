@@ -1,35 +1,31 @@
 #include "algoritmos.h"
 
+// La idea es retornar el hueco libre (dependiendo del algoritmo), pero no lo sacamos de la lista.
 t_hueco* buscar_hueco_libre() {
 
-    t_hueco* hueco_libre = malloc(sizeof(t_hueco));
-    t_hueco* hueco_a_ocupar = malloc(sizeof(t_hueco));
+    t_hueco* hueco_libre;
     
     switch(config_memoria.ALGORITMO_ASIGNACION) {
 
         case FIRST:
         {
-            // Antes lo hice con un remove pero me parece que no hay que remover nada si no solo sacar la referencia
-            // Solo se remueve el hueco libre de la tabla si el tamanio del segmento que se va a crear = tamanio_hueco
-            // Removemos el primer hueco libre de la tabla de huecos
+            // Primer hueco libre de tabla de huecos (suponiendo que esta ordenada por base)
             hueco_libre = list_get(tabla_huecos, 0);
             break;
         }
         case BEST:
         {
-            // Buscamos y removemos el hueco mas chico de la tabla de huecos
-            hueco_a_ocupar = buscar_hueco_mas_chico();
+            // Buscamos y obtenemos el hueco mas chico de la tabla de huecos
+            hueco_libre = buscar_hueco_mas_chico();
             break;
         }
         case WORST:
         {
-            // Buscamos y removemos el hueco mas grande de la tabla de huecos
+            // Buscamos y obtenemos el hueco mas grande de la tabla de huecos
             hueco_libre = buscar_hueco_mas_grande();
             break;
         }
     }
-    
-    free(hueco_a_ocupar);
 
     return hueco_libre;
 }

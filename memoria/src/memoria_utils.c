@@ -56,9 +56,6 @@ void inicializar_estructuras_administrativas() {
 
     hueco_actual->direccion_base_hueco += segmento_cero->tamanio_segmento;
     hueco_actual->tamanio_hueco -= segmento_cero->tamanio_segmento;
-
-    hueco_actual = NULL;    // Hago que apunte a null asi no referencia mas al valor de la lista
-    free(hueco_actual);     // Lo libero asi no genera leaks
     
     //t_hueco* hueco_nuevo = list_get(tabla_huecos, 0); //esto es para ver si se modifica correctamente
     

@@ -16,9 +16,6 @@ int main(int argc, char** argv){
 
     cargar_config_memoria(config);
     
-
-
-
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);
 
@@ -33,23 +30,11 @@ int main(int argc, char** argv){
 
     inicializar_estructuras_administrativas();
     
-    procesar_kernel_memoria();
+    pthread_t hilo_procesar_kernel_memoria;
+    pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
+    pthread_detach(hilo_procesar_kernel_memoria);
+    
 
-    /*
-        pthread_t hilo_procesar_kernel_memoria;
-        pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
-        pthread_detach(hilo_procesar_kernel_memoria);
-    */
-    // EL HILO NO ESTA FUNCIONANDO CORRECTAMENTE -> POR AHORA NO HACE FALTA IGUAL PERO CUANDO PROCESEMOS VARIOS SI
-
-
-    //send_segmentos(cliente_kernel, tabla_segmentos);
-
-
-    // aca crea el hilo de "responder_orden()"
-
-    liberar_conexion(&server_fd);
-    cerrar_programa(logger,config);
-
+    while(1); // Memoria solo termina con Ctrl + C. Este while(1) hace que no termine por causas naturales.
     return 0;
 }

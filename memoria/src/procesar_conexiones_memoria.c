@@ -1,7 +1,6 @@
 #include "procesar_conexiones_memoria.h"
 
 void procesar_kernel_memoria() {
-    
     while(1) {
         op_code cod_op = recibir_operacion(cliente_kernel);
         

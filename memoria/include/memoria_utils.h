@@ -10,7 +10,7 @@ typedef struct {
 } t_tabla_proceso;
 
 typedef struct {
-    int* direccion_base_hueco;
+    int direccion_base_hueco;
     int tamanio_hueco;
 } t_hueco;
 
@@ -41,6 +41,7 @@ extern t_list* tabla_segmentos_global;
 extern t_list* tabla_huecos;
 extern void* memoria_principal;
 extern t_segmento* segmento_cero;
+extern int tamanio_max_segmento_cpu;
 
 
 
@@ -49,7 +50,8 @@ void cargar_config_memoria(t_config* config);
 void inicializar_estructuras();
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo);
 
-
+t_segmento* crear_segmento(int id, int direccion_base, int tamanio);
+t_hueco* crear_hueco(int direccion_base, int tamanio);
 
 
 

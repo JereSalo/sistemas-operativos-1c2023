@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
     cargar_config_memoria(config);
     
-    inicializar_estructuras();
+
 
 
     // SERVER -> CPU, Kernel, FileSystem
@@ -26,6 +26,12 @@ int main(int argc, char** argv){
     cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
     cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
     
+    
+    RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
+
+    log_info(logger, "Tamanio maximo de segmento recibido: %d", tamanio_max_segmento_cpu);
+
+    inicializar_estructuras();
     
     procesar_kernel_memoria();
 

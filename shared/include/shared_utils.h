@@ -23,8 +23,6 @@
 #include <arpa/inet.h>
 
 
-
-
 typedef struct{
     char AX[4], BX[4], CX[4], DX[4];
     char EAX[8], EBX[8], ECX[8], EDX[8];
@@ -76,6 +74,7 @@ typedef struct {
     int pc; 
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;
+    t_list* tabla_segmentos;
 } t_contexto_ejecucion;
 
 typedef enum {

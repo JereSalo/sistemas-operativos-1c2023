@@ -3,7 +3,6 @@
 
 #include "shared.h"
 
-
 typedef struct {
     int RETARDO_INSTRUCCION;
     char* IP_MEMORIA;
@@ -12,8 +11,8 @@ typedef struct {
     int TAM_MAX_SEGMENTO;
 } t_cpu_config;
 
-extern t_log* logger;
 extern t_cpu_config config_cpu;
+extern t_log* logger;
 extern int cliente_kernel;
 
 void cargar_config_cpu(t_config* config);

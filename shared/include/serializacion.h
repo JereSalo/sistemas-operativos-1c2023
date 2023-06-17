@@ -3,12 +3,15 @@
 
 #include "shared_utils.h"
 
+
 typedef enum {
     NUMERO,
     INSTRUCCIONES,
     CONTEXTO_EJECUCION,
     PROCESO_DESALOJADO,
-    STRING
+    STRING,
+    SOLICITUD_TABLA,
+    SEGMENTOS
 } op_code;
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones);
@@ -26,6 +29,11 @@ void deserializar_numero(void* stream, int* numero);
 
 void deserializar_string(void* stream, size_t stream_size, char* string, size_t* desplazamiento);
 void* serializar_string(size_t* size, char* string);
+
+void* serializar_segmentos(size_t* size, t_list* segmentos);
+void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos);
+void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_segmentos, size_t* desplazamiento);
+
 
 
 #endif

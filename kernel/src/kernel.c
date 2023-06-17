@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 
 
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
-    //server_memoria = conectar_con(MEMORIA, config, logger);
+    server_memoria = conectar_con(MEMORIA, config, logger);
 
 
 
@@ -82,7 +82,6 @@ int main(int argc, char** argv){
     pthread_detach(hilo_kernel_cpu);
 
 
-
     /* ------------------------- PROCESAR CONSOLAS -------------------------*/
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo
     while (1)
@@ -93,10 +92,6 @@ int main(int argc, char** argv){
         pthread_create(&hilo, NULL, (void *)procesar_consola, (void *) (intptr_t) consola_fd);
         pthread_detach(hilo);
     }
-
-    cerrar_programa(logger, config);
-    free(config_kernel);
-    list_destroy(lista_pids);
 
     return 0;
 }

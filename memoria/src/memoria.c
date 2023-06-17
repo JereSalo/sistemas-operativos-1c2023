@@ -15,20 +15,26 @@ int main(int argc, char** argv){
     }
 
     cargar_config_memoria(config);
-
-
+    
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);
 
-    cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
-    cliente_cpu = esperar_cliente(server_fd, logger, "Memoria");
-    cliente_kernel = esperar_cliente(server_fd, logger, "Memoria");
+    //cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
+    cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
+    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
+    
+    // Recibimos el tamanio maximo de segmento indicado por CPU
+    RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
+
+    log_info(logger, "Tamanio maximo de segmento recibido: %d", tamanio_max_segmento_cpu);
+
+    inicializar_estructuras_administrativas();
+    
+    pthread_t hilo_procesar_kernel_memoria;
+    pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
+    pthread_detach(hilo_procesar_kernel_memoria);
     
 
-    // aca crea el hilo de "responder_orden()"
-
-    liberar_conexion(&server_fd);
-    cerrar_programa(logger,config);
-
+    while(1); // Memoria solo termina con Ctrl + C. Este while(1) hace que no termine por causas naturales.
     return 0;
 }

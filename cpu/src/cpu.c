@@ -20,7 +20,9 @@ int main(int argc, char** argv){
     cargar_config_cpu(config);
        
     // CLIENTE -> Memoria
-    // int conexion = conectar_con(MEMORIA, config, logger);
+    int server_memoria = conectar_con(MEMORIA, config, logger);
+
+    SEND_INT(server_memoria, config_cpu.TAM_MAX_SEGMENTO);
 
     // SERVER -> Kernel
     int server_fd = preparar_servidor("CPU", config, logger);

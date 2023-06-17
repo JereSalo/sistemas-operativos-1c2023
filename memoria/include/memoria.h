@@ -2,6 +2,9 @@
 #define MEMORIA_H
 
 #include "memoria_utils.h"
-#include "procesar_conexiones_memoria.h"
+#include "procesar_kernel_memoria.h"
+#include "procesar_cpu_memoria.h"
+#include "procesar_filesystem_memoria.h"
+#include "algoritmos.h"
 
 #endif

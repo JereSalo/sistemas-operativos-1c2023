@@ -2,6 +2,7 @@
 #define EJECUTAR_H_
 
 #include "cpu_utils.h"
+#include "mmu.h"
 
 extern int desalojado;
 extern t_list* lista_parametros;

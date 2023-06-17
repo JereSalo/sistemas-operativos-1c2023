@@ -201,6 +201,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             break;
         }
+        case MOV_IN:
+        case MOV_OUT:
+        {
+            matar_proceso("SEG_FAULT");
+            break;
+        }
         default:
         {
             log_error(logger, "Motivo de desalojo no es valido\n");

@@ -65,17 +65,21 @@ void deserializar_instrucciones(void* stream, size_t size_instrucciones , t_list
 void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
 
     size_t size_instrucciones;
+    size_t size_segmentos;
 
     void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, contexto->instrucciones);
+    //void* stream_segmentos = serializar_tabla_segmentos(&size_segmentos, contexto->tabla_segmentos);
 
      // stream completo
      *size =    sizeof(op_code)
-                + sizeof(size_t)            //size total del payload
-                + sizeof(int)               //pid
-                + sizeof(int)               //pc
+                + sizeof(size_t)            // size total del payload
+                + sizeof(int)               // pid
+                + sizeof(int)               // pc
                 + sizeof(t_registros_cpu)   // registros cpu
-                + sizeof(size_t)            //size instrucciones
-                + size_instrucciones;       // instrucciones
+                + sizeof(size_t)            // size instrucciones
+                + size_instrucciones;        // instrucciones
+                //+ sizeof(size_t)            // size segmentos
+                //+ size_segmentos;           // segmentos
     
     size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
@@ -93,12 +97,17 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento); //add
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
     
+    //copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento); //add
+    //copiar_variable_en_stream_y_desplazar(paquete, stream_segmentos, size_segmentos, &desplazamiento);
+    
     free(stream_instrucciones);
+    //free(stream_segmentos);
     return paquete;
 }
 
 void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucion* contexto, size_t* desplazamiento) {
     size_t size_instrucciones;
+    size_t size_segmentos;
 
     copiar_stream_en_variable_y_desplazar(&contexto->pid, stream, sizeof(int), desplazamiento);
 
@@ -109,6 +118,10 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
     copiar_stream_en_variable_y_desplazar(&size_instrucciones, stream, sizeof(size_t), desplazamiento);
 
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
+
+    //copiar_stream_en_variable_y_desplazar(&size_segmentos, stream, sizeof(size_t), desplazamiento);
+
+    //deserializar_segmentos(stream, size_segmentos, contexto->tabla_segmentos, desplazamiento);
 }
 
 
@@ -187,6 +200,78 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 // recv de algo del tamaño de lo de arriba
 
 
+// ------------------------------ SERIALIZACION TABLA SEGMENTOS ------------------------------ //
+
+void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos) {
+    
+    // Hay 3 pasos. Calcular size total, hacer malloc, hacer memcpy de los datos a un stream y devolverlo.
+    
+    // Paso 1: Calcular size de lo que se quiere mandar, en este caso los strings de la lista y sus respectivos tamaños
+    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
+    
+    // Paso 2: Hacer malloc
+    void* stream = malloc(*size_tabla_segmentos);
+
+    // Paso 3: Guardar en stream los elementos de la lista con sus tamaños.
+    
+    size_t desplazamiento = 0;
+
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+        
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->id_segmento), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->direccion_base_segmento), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->tamanio_segmento), sizeof(int), &desplazamiento);    
+        
+    }
+    
+    list_iterator_destroy(lista_it);
+    return stream;
+}
+    
+    
+void* serializar_segmentos(size_t* size, t_list* segmentos) {
+    size_t size_segmentos;
+    
+    void* stream_tabla_segmentos = serializar_tabla_segmentos(&size_segmentos, segmentos);
+
+
+    // stream completo
+    *size = sizeof(size_t)         // size segmentos
+            + size_segmentos;      // segmentos
+    
+   
+    void* paquete = malloc(*size);
+
+   
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_tabla_segmentos, size_segmentos, &desplazamiento);
+  
+    free(stream_tabla_segmentos);
+    return paquete;
+}
+
+// Dado un stream (con instrucciones) y una lista de instrucciones (vacia), la armamos con los elementos del stream.
+void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_segmentos, size_t* desplazamiento){
+    // Tenemos todo el stream con los elementos y sus tamaños.
+    size_t desplazamiento_inicial = *desplazamiento;
+
+    while(*desplazamiento < size_segmentos + desplazamiento_inicial){
+        
+        t_segmento* segmento = malloc(sizeof(t_segmento));
+        copiar_stream_en_variable_y_desplazar(&(segmento->id_segmento), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->direccion_base_segmento), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->tamanio_segmento), stream, sizeof(int), desplazamiento);
+
+
+        list_add(tabla_segmentos, segmento);
+        // WARNING: NO HACER FREE DEL STRING, SE LIBERA DESPUÉS CUANDO DESTRUIMOS LA LISTA :)
+    }
+}
 
 
 
@@ -196,7 +281,11 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 
 
 
-// ------------------------------ SERIALIZACION NUMERO (PRUEBA) ------------------------------ //
+
+
+
+
+// ------------------------------ SERIALIZACION NUMERITO (PRUEBA) ------------------------------ //
 
 void* serializar_numero(int numero) {
     

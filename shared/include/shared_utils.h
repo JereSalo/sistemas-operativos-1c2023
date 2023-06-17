@@ -21,8 +21,7 @@
 #include <commons/temporal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-
+#include <math.h>
 
 
 typedef struct{
@@ -37,11 +36,11 @@ typedef enum {
     RAX, RBX, RCX, RDX
 } registro_cpu;
 
-typedef struct {
+/*typedef struct {
     int id;
     int direccion_base; // ???
 	int size; // Tamaño de segmento
-} t_segmento;
+} t_segmento;*/
 
 typedef enum {
     SUCCESS,
@@ -65,10 +64,18 @@ typedef struct {
 } t_pcb;
 
 typedef struct {
+    int id_segmento;
+    int direccion_base_segmento;    
+    int tamanio_segmento;
+} t_segmento;
+
+
+typedef struct {
     int pid;  
     int pc; 
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;
+    t_list* tabla_segmentos;
 } t_contexto_ejecucion;
 
 typedef enum {
@@ -103,8 +110,12 @@ size_t tamanio_lista(t_list* lista);
 
 void copiar_variable_en_stream_y_desplazar(void* paquete, void* elemento, size_t tamanio_elemento, size_t* desplazamiento);
 void copiar_en_stream_y_desplazar_lista_strings_con_tamanios(void* paquete, t_list* lista_instrucciones);
+void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_segmentos); //ADD
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento);
+int obtener_longitud_registro(char* registro);
+char* obtener_registro_objetivo(t_registros_cpu* registros, char* nombre_registro);
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros);
+char* leer_de_registro(char* registro, t_registros_cpu* registros);
 void inicializar_diccionarios();
 char* lista_a_string(t_list* lista, char string[]);
 char* lista_pids_a_string(t_list* lista, char string[]);
@@ -115,5 +126,6 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso);
 void liberar_contexto(t_contexto_ejecucion* contexto);
 void liberar_proceso(t_pcb* proceso);
 void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen);
+void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 
 #endif

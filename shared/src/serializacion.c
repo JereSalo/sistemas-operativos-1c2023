@@ -77,7 +77,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(int)               // pc
                 + sizeof(t_registros_cpu)   // registros cpu
                 + sizeof(size_t)            // size instrucciones
-                + size_instrucciones;        // instrucciones
+                + size_instrucciones        // instrucciones
                 + sizeof(size_t)            // size segmentos
                 + size_segmentos;           // segmentos
     

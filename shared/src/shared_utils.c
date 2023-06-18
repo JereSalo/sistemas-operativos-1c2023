@@ -364,6 +364,7 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
 void liberar_contexto(t_contexto_ejecucion* contexto){
     free(contexto->registros_cpu);
     list_destroy_and_destroy_elements(contexto->instrucciones, free);
+    list_destroy_and_destroy_elements(contexto->tabla_segmentos, free);
     free(contexto);
 }
 

@@ -1,7 +1,7 @@
 #include "memoria.h"
 
 int main(int argc, char** argv){
-    logger = log_create("memoria.log", "MEMORIA", true, LOG_LEVEL_INFO);
+    logger = log_create("memoria.log", "MEMORIA", true, LOG_LEVEL_DEBUG);
 
     if (argc==1){
         config = config_create("memoria.config");
@@ -26,7 +26,7 @@ int main(int argc, char** argv){
     // Recibimos el tamanio maximo de segmento indicado por CPU
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
 
-    log_info(logger, "Tamanio maximo de segmento recibido: %d", tamanio_max_segmento_cpu);
+    log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);
 
     inicializar_estructuras_administrativas();
     

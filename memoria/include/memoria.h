@@ -6,5 +6,6 @@
 #include "procesar_cpu_memoria.h"
 #include "procesar_filesystem_memoria.h"
 #include "algoritmos.h"
+#include "inicializar_memoria.h"
 
 #endif

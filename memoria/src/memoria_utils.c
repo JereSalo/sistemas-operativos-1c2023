@@ -7,12 +7,14 @@ int cliente_kernel;
 int cliente_cpu;
 int cliente_filesystem;
 
-t_list* tabla_segmentos_global;
+t_list* lista_global_segmentos;
+t_list* tabla_segmentos_por_proceso;
 t_list* tabla_huecos;
 void* memoria_principal;
 t_segmento* segmento_cero;
 int tamanio_max_segmento_cpu;
 
+// CONFIG
 
 void cargar_config_memoria(t_config* config){
     config_memoria.PUERTO_ESCUCHA = config_get_int_value(config, "PUERTO_ESCUCHA");
@@ -23,72 +25,6 @@ void cargar_config_memoria(t_config* config){
     config_memoria.RETARDO_COMPACTACION = config_get_int_value(config, "RETARDO_COMPACTACION");
     config_memoria.ALGORITMO_ASIGNACION = obtener_algoritmo_asignacion(config_get_string_value(config, "ALGORITMO_ASIGNACION"));
 }
-
-void inicializar_estructuras_administrativas() {
-    
-    // Inicializamos memoria principal
-    memoria_principal = malloc(config_memoria.TAM_MEMORIA);
-
-    // Inicializamos la tabla de huecos
-    tabla_huecos = list_create();
-    
-    // Inicializamos la tabla de segmentos global
-    tabla_segmentos_global = list_create();
-    
-    // Creamos el hueco inicial cuyo tamanio es toda la memoria principal y lo aniadimos a la tabla de huecos
-    t_hueco* hueco = crear_hueco(0, config_memoria.TAM_MEMORIA);
-    list_add(tabla_huecos, hueco);
-
-    // Creamos el segmento 0 -> no buscamos huecos libres porque ya sabemos que hay
-    if(config_memoria.TAM_SEGMENTO_0 <= tamanio_max_segmento_cpu) {
-        segmento_cero = crear_segmento(0, 0, config_memoria.TAM_SEGMENTO_0);
-    }
-    else
-        log_error(logger, "No se puede crear el segmento porque excede el tamanio maximo permitido por CPU \n");
-
-
-    // Actualizamos la tabla de huecos libres ya que hemos creado un segmento
-    // De una forma similar haremos esto cuando creemos segmentos con CREATE_SEGMENT
-    
-    t_hueco* hueco_actual = list_get(tabla_huecos, 0);
-
-    log_info(logger, "TAMANIO ACTUAL HUECO: %d \n", hueco_actual->tamanio_hueco);
-
-    hueco_actual->direccion_base_hueco += segmento_cero->tamanio_segmento;
-    hueco_actual->tamanio_hueco -= segmento_cero->tamanio_segmento;
-    
-    //t_hueco* hueco_nuevo = list_get(tabla_huecos, 0); //esto es para ver si se modifica correctamente
-    
-    //log_info(logger, "TAMANIO ACTUAL HUECO: %d \n", hueco_nuevo->tamanio_hueco);
-
-    // Si yo modifico el elemento que retorna list_get se modifica tambien lo que esta en la lista
-    
-
-    log_info(logger, "Estructuras administrativas inicializadas \n");
-}
-
-t_hueco* crear_hueco(int direccion_base, int tamanio) {
-
-    t_hueco* hueco = malloc(sizeof(t_hueco));
-
-    hueco->direccion_base_hueco = direccion_base;
-    hueco->tamanio_hueco = tamanio;
-
-    return hueco;
-}
-
-
-t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
-
-    t_segmento* segmento = malloc(sizeof(t_segmento));
-
-    segmento->id_segmento = id;
-    segmento->direccion_base_segmento = direccion_base;
-    segmento->tamanio_segmento = tamanio;
-
-    return segmento;
-}
-
 
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo){
     if(strcmp(string_algoritmo, "FIRST") == 0){
@@ -102,6 +38,69 @@ t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo){
     }
     log_error(logger, "Hubo un error con el algoritmo de asignacion");
     return -1;
+}
+
+
+t_hueco* crear_hueco(int direccion_base, int tamanio){
+    t_hueco* hueco = malloc(sizeof(t_hueco));
+
+    hueco->direccion_base_hueco = direccion_base;
+    hueco->tamanio_hueco = tamanio;
+
+    return hueco;
+}
+
+// Crea hueco y lo agrega a la tabla de huecos
+void agregar_hueco(t_hueco* hueco){
+    list_add(tabla_huecos, hueco);
+}
+
+void crear_y_agregar_hueco(int direccion_base, int tamanio){
+    t_hueco* hueco = crear_hueco(direccion_base, tamanio);
+    agregar_hueco(hueco);
+}
+
+// Crea segmento, lo agrega a tabla global de segmentos y actualiza tabla de huecos.
+void crear_segmento(int id, int direccion_base, int tamanio) {
+    t_segmento* segmento = malloc(sizeof(t_segmento));
+
+    segmento->id_segmento = id;
+    segmento->direccion_base_segmento = direccion_base;
+    segmento->tamanio_segmento = tamanio;
+
+    list_add(lista_global_segmentos, segmento);
+
+    // Actualizar tabla de huecos.
+
+    t_hueco* hueco = buscar_hueco_por_base(direccion_base);
+
+    // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
+    // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
+
+    hueco->direccion_base_hueco += segmento->tamanio_segmento;
+    hueco->tamanio_hueco -= segmento->tamanio_segmento;
+
+    // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base_hueco);
+    // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio_hueco);
+
+    if(hueco->tamanio_hueco == 0){
+        log_debug(logger, "Hueco eliminado \n");
+        list_remove_element(tabla_huecos, hueco);
+        free(hueco);
+    }
+}
+
+// Agrega segmento a la tabla de segmentos por proceso
+void agregar_segmento(t_segmento* segmento, int pid){
+    //TODO
+}
+
+t_hueco* buscar_hueco_por_base(int direccion_base){
+    bool coincide_con_base(void* hueco){
+        return ((t_hueco*)hueco)->direccion_base_hueco == direccion_base;
+    }
+
+    return ((t_hueco*)list_find(tabla_huecos, coincide_con_base));
 }
 
 

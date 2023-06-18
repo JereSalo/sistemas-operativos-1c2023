@@ -51,7 +51,12 @@ void inicializar_estructuras_administrativas();
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo);
 
 t_segmento* crear_segmento(int id, int direccion_base, int tamanio);
+void agregar_segmento(t_segmento* segmento, int pid);
 t_hueco* crear_hueco(int direccion_base, int tamanio);
+void agregar_hueco(t_hueco* hueco);
+void crear_y_agregar_hueco(int direccion_base, int tamanio);
+
+t_hueco* buscar_hueco_por_base(int direccion_base);
 
 
 

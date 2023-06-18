@@ -127,5 +127,6 @@ void liberar_contexto(t_contexto_ejecucion* contexto);
 void liberar_proceso(t_pcb* proceso);
 void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
+t_segmento* duplicar_segmento(const t_segmento* original);
 
 #endif

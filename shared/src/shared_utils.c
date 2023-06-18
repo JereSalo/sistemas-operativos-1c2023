@@ -278,6 +278,7 @@ t_contexto_ejecucion* crear_contexto(){
     t_contexto_ejecucion* contexto = malloc(sizeof(t_contexto_ejecucion));
     contexto->instrucciones = list_create();
     contexto->registros_cpu = malloc(sizeof(t_registros_cpu));
+    contexto->tabla_segmentos = list_create();
 
     return contexto;
 }
@@ -303,6 +304,7 @@ void registros_copypaste(t_registros_cpu* registros_destino, t_registros_cpu* re
 // NO
 // Yo queria duplicar los elementos, no queria hacer que ambas listas apunten a los mismos elementos.
 // Mas que nada porque para mi el contexto de ejecucion no deberia apuntar a campos de un proceso, sino que deberia tener su propia estructura.
+// Al pedo, porque no cambia nada de funcionamiento
 void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
     t_list_iterator* lista_it = list_iterator_create(lista_origen);
 
@@ -314,12 +316,25 @@ void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
     list_iterator_destroy(lista_it);
 }
 
+t_segmento* duplicar_segmento(const t_segmento* original) {
+    t_segmento* duplicado = (t_segmento*)malloc(sizeof(t_segmento));
+    
+    duplicado->id_segmento = original->id_segmento;
+    duplicado->direccion_base_segmento = original->direccion_base_segmento;
+    duplicado->tamanio_segmento = original->tamanio_segmento;
+    
+    return duplicado;
+}
+
+
 void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
     t_list_iterator* lista_it = list_iterator_create(lista_origen);
 
     while (list_iterator_has_next(lista_it)) {
-        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
-        list_add(lista_objetivo, segmento);
+        t_segmento* segmento_original = (t_segmento*)list_iterator_next(lista_it);
+        t_segmento* segmento_copia = duplicar_segmento(segmento_original);
+        
+        list_add(lista_objetivo, segmento_copia);
     }
     
     list_iterator_destroy(lista_it);
@@ -333,12 +348,14 @@ t_contexto_ejecucion* cargar_contexto(t_pcb* proceso){
 
     contexto->pid = proceso->pid;
     contexto->pc = proceso->pc;
-    contexto->tabla_segmentos = proceso->tabla_segmentos; //esto lo hago asi pero mepa que hay que hacer un copypaste como con los registros
+    // contexto->tabla_segmentos = proceso->tabla_segmentos; //esto lo hago asi pero mepa que hay que hacer un copypaste como con los registros
+    
+    
     
     // No hago un = para estas dos ultimas porque la idea es que no apunten al mismo lugar, sino que solo tengan la misma informacion.
     registros_copypaste(contexto->registros_cpu, proceso->registros_cpu); 
     lista_copypaste(contexto->instrucciones, proceso->instrucciones);
-    //tabla_copypaste(contexto->tabla_segmentos, proceso->tabla_segmentos);
+    tabla_copypaste(contexto->tabla_segmentos, proceso->tabla_segmentos);
 
     
     return contexto;

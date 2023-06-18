@@ -68,7 +68,7 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     size_t size_segmentos;
 
     void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, contexto->instrucciones);
-    //void* stream_segmentos = serializar_tabla_segmentos(&size_segmentos, contexto->tabla_segmentos);
+    void* stream_segmentos = serializar_tabla_segmentos(&size_segmentos, contexto->tabla_segmentos);
 
      // stream completo
      *size =    sizeof(op_code)
@@ -78,8 +78,8 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
                 + sizeof(t_registros_cpu)   // registros cpu
                 + sizeof(size_t)            // size instrucciones
                 + size_instrucciones;        // instrucciones
-                //+ sizeof(size_t)            // size segmentos
-                //+ size_segmentos;           // segmentos
+                + sizeof(size_t)            // size segmentos
+                + size_segmentos;           // segmentos
     
     size_t size_payload = *size - sizeof(op_code) - sizeof(size_t);
    
@@ -94,14 +94,13 @@ void* serializar_contexto(size_t* size, t_contexto_ejecucion* contexto) {
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pid, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, &contexto->pc, sizeof(int), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, contexto->registros_cpu, sizeof(t_registros_cpu), &desplazamiento);
-    copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento); //add
+    copiar_variable_en_stream_y_desplazar(paquete, &size_instrucciones, sizeof(size_t), &desplazamiento);
     copiar_variable_en_stream_y_desplazar(paquete, stream_instrucciones, size_instrucciones, &desplazamiento);
-    
-    //copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento); //add
-    //copiar_variable_en_stream_y_desplazar(paquete, stream_segmentos, size_segmentos, &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_segmentos, size_segmentos, &desplazamiento);
     
     free(stream_instrucciones);
-    //free(stream_segmentos);
+    free(stream_segmentos);
     return paquete;
 }
 
@@ -119,9 +118,9 @@ void deserializar_contexto(void* stream, size_t stream_size, t_contexto_ejecucio
 
     deserializar_instrucciones(stream, size_instrucciones, contexto->instrucciones, desplazamiento);
 
-    //copiar_stream_en_variable_y_desplazar(&size_segmentos, stream, sizeof(size_t), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(&size_segmentos, stream, sizeof(size_t), desplazamiento);
 
-    //deserializar_segmentos(stream, size_segmentos, contexto->tabla_segmentos, desplazamiento);
+    deserializar_segmentos(stream, size_segmentos, contexto->tabla_segmentos, desplazamiento);
 }
 
 
@@ -224,7 +223,7 @@ void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_seg
         copiar_variable_en_stream_y_desplazar(stream, &(segmento->id_segmento), sizeof(int), &desplazamiento);
         copiar_variable_en_stream_y_desplazar(stream, &(segmento->direccion_base_segmento), sizeof(int), &desplazamiento);
         copiar_variable_en_stream_y_desplazar(stream, &(segmento->tamanio_segmento), sizeof(int), &desplazamiento);    
-        
+
     }
     
     list_iterator_destroy(lista_it);

@@ -126,6 +126,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case IO: // IO (Tiempo)
         case WAIT: // WAIT (Recurso)
         case SIGNAL: // SIGNAL (Recurso)
+        case DELETE_SEGMENT: // DELETE_SEGMENT (Id Segmento)
         {
             list_add(lista_parametros, strdup(instruccion_decodificada[1]));   
 
@@ -135,10 +136,11 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         }
         case CREATE_SEGMENT: // CREATE_SEGMENT (Id del Segmento, Tamaño)
         {
-            break;
-        }
-        case DELETE_SEGMENT: // DELETE_SEGMENT (Id del Segmento)
-        {
+            list_add(lista_parametros, strdup(instruccion_decodificada[1]));
+            list_add(lista_parametros, strdup(instruccion_decodificada[2]));
+
+            desalojado = 1;
+
             break;
         }
         case F_OPEN: // F_OPEN (Nombre Archivo)

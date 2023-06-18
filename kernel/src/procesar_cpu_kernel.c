@@ -171,6 +171,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case CREATE_SEGMENT:
         {
+            int id_segmento = atoi((char*)list_get(lista_parametros, 0));
+            int tamanio_segmento = atoi((char*)list_get(lista_parametros, 1));
+            int pid = proceso_en_running->pid;
+
+            // Mandarle a memoria de crear segmento junto a pid del proceso
+            // send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+
             break;
         }
         case DELETE_SEGMENT:

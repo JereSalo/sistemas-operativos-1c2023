@@ -225,7 +225,7 @@ char* leer_de_registro(char* registro, t_registros_cpu* registros){
     char* registro_objetivo = obtener_registro_objetivo(registros, registro);
     int longitud = obtener_longitud_registro(registro);
 
-    char valor[longitud];
+    char* valor = malloc(longitud);
 
     strncpy(valor, registro_objetivo, longitud);
 

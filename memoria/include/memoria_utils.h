@@ -37,7 +37,8 @@ extern int cliente_kernel;
 extern int cliente_cpu;
 extern int cliente_filesystem;
 
-extern t_list* tabla_segmentos_global;
+extern t_list* lista_global_segmentos;
+extern t_list* tabla_segmentos_por_proceso;
 extern t_list* tabla_huecos;
 extern void* memoria_principal;
 extern t_segmento* segmento_cero;
@@ -45,12 +46,11 @@ extern int tamanio_max_segmento_cpu;
 
 
 
-
 void cargar_config_memoria(t_config* config);
 void inicializar_estructuras_administrativas();
 t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo);
 
-t_segmento* crear_segmento(int id, int direccion_base, int tamanio);
+void crear_segmento(int id, int direccion_base, int tamanio);
 void agregar_segmento(t_segmento* segmento, int pid);
 t_hueco* crear_hueco(int direccion_base, int tamanio);
 void agregar_hueco(t_hueco* hueco);

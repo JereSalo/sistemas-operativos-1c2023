@@ -10,7 +10,7 @@ typedef enum {
     CONTEXTO_EJECUCION,
     PROCESO_DESALOJADO,
     STRING,
-    SOLICITUD_TABLA,
+    SOLICITUD_TABLA_NEW,
     SEGMENTOS
 } op_code;
 

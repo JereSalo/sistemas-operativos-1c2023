@@ -7,7 +7,8 @@ int cliente_kernel;
 int cliente_cpu;
 int cliente_filesystem;
 
-t_list* tabla_segmentos_global;
+t_list* lista_global_segmentos;
+t_list* tabla_segmentos_por_proceso;
 t_list* tabla_huecos;
 void* memoria_principal;
 t_segmento* segmento_cero;
@@ -59,34 +60,47 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio){
     agregar_hueco(hueco);
 }
 
-
-// Crea segmento, actualizando tabla de huecos
-//TODO
-t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
+// Crea segmento, lo agrega a tabla global de segmentos y actualiza tabla de huecos.
+void crear_segmento(int id, int direccion_base, int tamanio) {
     t_segmento* segmento = malloc(sizeof(t_segmento));
 
     segmento->id_segmento = id;
     segmento->direccion_base_segmento = direccion_base;
     segmento->tamanio_segmento = tamanio;
 
+    list_add(lista_global_segmentos, segmento);
+
     // Actualizar tabla de huecos.
 
     t_hueco* hueco = buscar_hueco_por_base(direccion_base);
+
+    // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
+    // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
+
     hueco->direccion_base_hueco += segmento->tamanio_segmento;
     hueco->tamanio_hueco -= segmento->tamanio_segmento;
 
+    // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base_hueco);
+    // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio_hueco);
+
     if(hueco->tamanio_hueco == 0){
+        log_debug(logger, "Hueco eliminado \n");
         list_remove_element(tabla_huecos, hueco);
         free(hueco);
     }
 }
 
+// Agrega segmento a la tabla de segmentos por proceso
+void agregar_segmento(t_segmento* segmento, int pid){
+    //TODO
+}
+
 t_hueco* buscar_hueco_por_base(int direccion_base){
-    bool coincide_con_base(t_hueco* hueco){
-        hueco->direccion_base_hueco == direccion_base;
+    bool coincide_con_base(void* hueco){
+        return ((t_hueco*)hueco)->direccion_base_hueco == direccion_base;
     }
 
-    list_find(tabla_huecos, coincide_con_base);
+    return ((t_hueco*)list_find(tabla_huecos, coincide_con_base));
 }
 
 

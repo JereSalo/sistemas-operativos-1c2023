@@ -186,6 +186,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             switch((int)respuesta_memoria){
                 case CREACION:
                 {
+                    log_debug(logger, "Se creara segmento");
                     int base_segmento;
                     RECV_INT(server_memoria, base_segmento);
                     // Crear segmento y agregarlo a tabla de segmentos del proceso
@@ -195,11 +196,13 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     nuevo_segmento->tamanio = tamanio_segmento;
                     list_add(proceso_en_running->tabla_segmentos, nuevo_segmento);
                     log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+                    volver_a_running();
 
                     break;
                 }
                 case COMPACTACION:
                 {
+                    log_debug(logger, "Kernel solicitara compactacion a memoria");
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     t_list* lista_recepcion_segmentos_actualizados = list_create();
                     // Hay que recibir todas las listas de segmentos actualizadas
@@ -212,6 +215,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     matar_proceso("OUT_OF_MEMORY");
                     break;
+                }
+                default:
+                {
+                    log_error(logger, "Mensaje de memoria a kernel no es el adecuado");
                 }
             }
 

@@ -35,6 +35,7 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_CREACION_SEGMENTO:
             {
+                log_debug(logger, "Solicitud de creacion de segmento recibida");
                 // Recibir pid, id_segmento y tamanio_segmento
                 int pid;
                 int id_segmento;
@@ -42,17 +43,23 @@ void procesar_kernel_memoria() {
 
                 recv_solicitud_creacion_segmento(cliente_kernel, &pid, &id_segmento, &tamanio_segmento);
 
+                // log_debug(logger, "PID %d", pid);
+                // log_debug(logger, "ID SEGMENTO %d", id_segmento);
+                // log_debug(logger, "TAMANIO SEGMENTO %d", tamanio_segmento);
                 // Mandarle tamanio al algoritmo de busqueda y ver si encuentra hueco o devuelve NULL.
                 t_hueco* hueco = obtener_hueco_libre(tamanio_segmento);
                 if(hueco == NULL){
                     if(espacio_restante_memoria() >= tamanio_segmento){
+                        log_debug(logger, "Se necesita compactacion");
                         SEND_INT(cliente_kernel, COMPACTACION);
                     }
                     else{
+                        log_debug(logger, "No hay memoria");
                         SEND_INT(cliente_kernel, OUT_OF_MEMORY);
                     }
                 }
                 else{
+                    log_debug(logger, "Se realizara la creacion");
                     // Camino feliz :D
                     // Crear segmento y agregarlo a lista global de segmentos
                     // Modificar tabla de huecos
@@ -63,11 +70,14 @@ void procesar_kernel_memoria() {
                     agregar_segmento(segmento_creado, pid);
                     
                     // Mandarle a Kernel la base del nuevo segmento
+                    SEND_INT(cliente_kernel, CREACION);
                     SEND_INT(cliente_kernel, segmento_creado->direccion_base);
+                    // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }
             }
             case SOLICITUD_COMPACTACION:
             {
+                log_debug(logger, "Solicitud de compactacion recibida");
                 //TODO
                 break;
             }

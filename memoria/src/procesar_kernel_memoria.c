@@ -16,10 +16,10 @@ void procesar_kernel_memoria() {
 
                 // Crear estructura t_tabla_proceso (con pid y lista de tabla de segmentos del proceso)
                 // Cargarle a la estructura el pid del proceso y crear la lista que va a tener adentro
-                t_tabla_proceso* tabla_proceso = malloc(sizeof(tabla_proceso));
+                t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
                 tabla_proceso->pid = pid;
                 tabla_proceso->lista_segmentos = list_create();
-
+	            
                 
                 // Agregarle a esa lista creada el segmento 0
                 list_add(tabla_proceso->lista_segmentos,segmento_cero);

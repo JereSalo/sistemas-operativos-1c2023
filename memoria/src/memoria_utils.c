@@ -106,6 +106,8 @@ void agregar_segmento(t_segmento* segmento, int pid){
         log_error(logger,"No se encontro la tabla del proceso de PID %d", pid);
 
     list_add(tabla_proceso->lista_segmentos, segmento);
+
+    log_debug(logger, "Segmento %d agregado a proceso %d: Base %d, Tamanio: %d", segmento->id, pid, segmento->direccion_base, segmento->tamanio);
 }
 
 t_hueco* buscar_hueco_por_base(int direccion_base){

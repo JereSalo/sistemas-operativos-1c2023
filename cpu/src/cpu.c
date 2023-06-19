@@ -2,7 +2,7 @@
 
 
 int main(int argc, char** argv){
-    logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_INFO);
+    logger = log_create("cpu.log", "CPU", true, LOG_LEVEL_DEBUG);
     t_config *config;
 
     if (argc==1){

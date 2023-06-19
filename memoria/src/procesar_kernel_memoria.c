@@ -19,14 +19,11 @@ void procesar_kernel_memoria() {
                 t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
                 tabla_proceso->pid = pid;
                 tabla_proceso->lista_segmentos = list_create();
-	            
-                
-                // Agregarle a esa lista creada el segmento 0
-                list_add(tabla_proceso->lista_segmentos,segmento_cero);
-                log_debug(logger,"Segmento 0 cargado en tabla del proceso \n");
 
                 // Agregar esa estructura (t_tabla_proceso) a la tabla de segmentos por proceso
                 list_add(tabla_segmentos_por_proceso, tabla_proceso);
+
+                agregar_segmento(segmento_cero, pid);
 
                 // Al kernel se le devuelve en este caso la tabla interna del proceso
                 send_tabla_segmentos(cliente_kernel, tabla_proceso->lista_segmentos);

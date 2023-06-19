@@ -303,7 +303,23 @@ void deserializar_solicitud_creacion_segmento(void* payload, int* pid, int* id_s
 
 
 
+void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longitud){
+    // stream completo
+    *size = sizeof(op_code) +
+            sizeof(int) * 2;      // DIRECCION_FISICA, LONGITUD
+    
+    void* paquete = malloc(*size);
 
+    size_t desplazamiento = 0;
+    
+    op_code cop = SOLICITUD_LECTURA;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &cop, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &direccion_fisica, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &longitud, sizeof(int), &desplazamiento);
+  
+    return paquete;
+}
 
 
 

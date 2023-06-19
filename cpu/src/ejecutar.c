@@ -75,20 +75,20 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
                 desalojado = 1;
                 break;
             }
-            
-            
 
+            int longitud = obtener_longitud_registro(registro);
+            
             // Leer valor de memoria correspondiente a direccion_fisica
 
-            // Aca: send_peticion_lectura(&servidor_memoria, direccion_fisica, longitud)
+            send_peticion_lectura(server_memoria, direccion_fisica, longitud);
 
-            //char* valor;
+            char valor[64];
 
-            // Aca: recv_datos_leidos(&servidor_memoria, &valor)
+            recv_string(server_memoria, valor);
 
-            
+            log_debug(logger, "Valor leido de memoria: %s", valor);
 
-            //asignar_a_registro(registro, valor, contexto->registros_cpu);
+            asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             break;
         }
@@ -104,9 +104,9 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
                 break;
             }
                 
-            int longitud = obtener_longitud_registro(registro);
+            // int longitud = obtener_longitud_registro(registro);
 
-            char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
+            // char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
             //TODO: Escribir en direccion fisica de memoria
 

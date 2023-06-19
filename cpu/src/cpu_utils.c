@@ -3,6 +3,7 @@
 t_log* logger;
 t_cpu_config config_cpu;
 int cliente_kernel;
+int server_memoria;
 
 void cargar_config_cpu(t_config* config) {    
     config_cpu.RETARDO_INSTRUCCION = config_get_int_value(config, "RETARDO_INSTRUCCION");

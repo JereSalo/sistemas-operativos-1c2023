@@ -179,6 +179,21 @@ bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* t
 
 
 
+bool send_peticion_lectura(int fd, int direccion_fisica, int longitud){
+    size_t size_paquete = 0;
+    void* paquete = serializar_peticion_lectura(&size_paquete, direccion_fisica, longitud);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+//TODO
+// bool send_datos_leidos(int fd, int longitud, char* datos_leidos){
+//     size_t size_paquete = 0;
+//     void* paquete = serializar_datos_leidos(&size_paquete, direccion_fisica, longitud);
+    
+//     return send_paquete(fd, paquete, size_paquete);
+// }
+
 
 
 // OPCODE

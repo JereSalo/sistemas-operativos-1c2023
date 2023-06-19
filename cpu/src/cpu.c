@@ -20,7 +20,7 @@ int main(int argc, char** argv){
     cargar_config_cpu(config);
        
     // CLIENTE -> Memoria
-    int server_memoria = conectar_con(MEMORIA, config, logger);
+    server_memoria = conectar_con(MEMORIA, config, logger);
 
     SEND_INT(server_memoria, config_cpu.TAM_MAX_SEGMENTO);
 

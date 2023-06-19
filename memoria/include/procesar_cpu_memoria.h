@@ -3,5 +3,6 @@
 
 #include "memoria_utils.h"
 
+void procesar_cpu_memoria();
 
 #endif

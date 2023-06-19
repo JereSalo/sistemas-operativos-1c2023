@@ -103,6 +103,19 @@ t_hueco* buscar_hueco_por_base(int direccion_base){
     return ((t_hueco*)list_find(tabla_huecos, coincide_con_base));
 }
 
+//TODO
+int espacio_restante_memoria(){
+    // Yo lo calcularia como una resta: Total_memoria - tamanio de todos los segmentos (de lista global de segmentos)
+    int memoria_total = config_memoria.TAM_MEMORIA;
+    int suma_tamanio_segmentos;
+
+    // Recorrer lista global de segmentos e ir sumando los tamaños. Yo haria un fold porque estoy mal de la cabeza
+
+    return 0;
+}
+
+
+
 
 void responder_pedido(t_orden orden){
     switch(orden.cod_orden){

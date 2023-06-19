@@ -164,6 +164,19 @@ bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tama
     return send_paquete(fd, paquete, size_paquete);
 }
 
+bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* tamanio_segmento) {
+    // Recibimos el size del payload
+
+    void* payload = recv_paquete(fd, sizeof(int) * 3);
+
+    size_t desplazamiento = 0;
+
+    deserializar_solicitud_creacion_segmento(payload, pid, id_segmento, tamanio_segmento, &desplazamiento);
+
+    free(payload);
+    return true;
+}
+
 
 
 

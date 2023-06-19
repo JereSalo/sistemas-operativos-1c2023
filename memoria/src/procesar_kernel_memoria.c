@@ -33,6 +33,40 @@ void procesar_kernel_memoria() {
                 
                 break;
             }
+            case SOLICITUD_CREACION_SEGMENTO:
+            {
+                // Recibir pid, id_segmento y tamanio_segmento
+                int pid;
+                int id_segmento;
+                int tamanio_segmento;
+
+                recv_solicitud_creacion_segmento(cliente_kernel, &pid, &id_segmento, &tamanio_segmento);
+
+                // Mandarle tamanio al algoritmo de busqueda y ver si encuentra hueco o devuelve NULL.
+                t_hueco* hueco = obtener_hueco_libre(tamanio_segmento);
+                if(hueco == NULL){
+                    if(espacio_restante_memoria() >= tamanio_segmento){
+                        SEND_INT(cliente_kernel, COMPACTACION);
+                    }
+                    else{
+                        SEND_INT(cliente_kernel, OUT_OF_MEMORY);
+                    }
+                }
+                else{
+                    // Camino feliz :D
+                    // Crear segmento y agregarlo a lista global de segmentos
+                    
+                    // Agregar tambien segmento con el PID a la tabla de segmetnos por proceso.
+                    // Modificar tabla de huecos (con el hueco dado)
+                    // Mandarle a Kernel la base del nuevo segmento
+
+                }
+            }
+            case SOLICITUD_COMPACTACION:
+            {
+                //TODO
+                break;
+            }
             case -1:
             {
 			    log_error(logger, "El cliente KERNEL se desconecto. Terminando Servidor \n");

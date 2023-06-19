@@ -3,9 +3,10 @@
 
 #include "memoria_utils.h"
 
-t_hueco* buscar_hueco_libre();
-t_hueco* buscar_hueco_mas_chico();
-t_hueco* buscar_hueco_mas_grande();
+t_hueco* obtener_hueco_libre(int tamanio);
+t_hueco* obtener_primer_hueco(int tamanio);
+t_hueco* obtener_hueco_mas_chico(int tamanio);
+t_hueco* obtener_hueco_mas_grande(int tamanio);
 
 
 

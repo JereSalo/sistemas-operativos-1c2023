@@ -58,6 +58,8 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio);
 
 t_hueco* buscar_hueco_por_base(int direccion_base);
 
+int espacio_restante_memoria();
+
 
 
 

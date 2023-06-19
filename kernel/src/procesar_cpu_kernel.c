@@ -200,10 +200,17 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 }
                 case COMPACTACION:
                 {
+                    SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
+                    t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    // Hay que recibir todas las listas de segmentos actualizadas
+                    // recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
+                    // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
+                    // Se puede hacer de varias formas, todavia no se cual sería la mejor. El dilema es si hacer la serialización más compleja para facilitarnos la recepción de los datos o si hacemos lo contrario. (serialización simple y recepción más elaborada)
                     break;
                 }
                 case OUT_OF_MEMORY:
                 {
+                    matar_proceso("OUT_OF_MEMORY");
                     break;
                 }
             }

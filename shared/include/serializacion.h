@@ -11,6 +11,7 @@ typedef enum {
     PROCESO_DESALOJADO,
     STRING,
     SOLICITUD_TABLA_NEW,
+    SOLICITUD_COMPACTACION,
     SEGMENTOS
 } op_code;
 
@@ -35,5 +36,6 @@ void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_seg
 void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_segmentos, size_t* desplazamiento);
 
 
+void* serializar_solicitud_creacion_segmento(size_t* size, int pid, int id_segmento, int tamanio_segmento);
 
 #endif

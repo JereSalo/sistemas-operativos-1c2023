@@ -275,6 +275,21 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
 
 
 
+void* serializar_solicitud_creacion_segmento(size_t* size, int pid, int id_segmento, int tamanio_segmento){
+    // stream completo
+    *size = sizeof(int) * 3;      // PID, ID_SEGMENTO, TAMANIO_SEGMENTO
+    
+    void* paquete = malloc(*size);
+
+    size_t desplazamiento = 0;
+    
+    copiar_variable_en_stream_y_desplazar(paquete, pid, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, id_segmento, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, tamanio_segmento, sizeof(int), &desplazamiento);
+  
+    return paquete;
+}
+
 
 
 

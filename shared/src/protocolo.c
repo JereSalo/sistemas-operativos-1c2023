@@ -157,6 +157,12 @@ bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos) {
 }
 
 
+bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tamanio_segmento){
+    size_t size_paquete = 0;
+    void* paquete = serializar_solicitud_creacion_segmento(&size_paquete, pid, id_segmento, tamanio_segmento);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
 
 
 

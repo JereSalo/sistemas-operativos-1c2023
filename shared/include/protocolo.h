@@ -32,6 +32,8 @@ void* recv_paquete(int fd, size_t size_paquete);
 
 void* recv_payload_con_size(int fd, size_t* size_payload);
 
+bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tamanio_segmento);
+
 // MACROS
 #define SEND_INT(socket, value) send(socket, &(int){value}, sizeof(int), 0)
 #define RECV_INT(socket, value) recv(socket, &(value), sizeof(int), MSG_WAITALL)

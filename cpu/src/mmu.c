@@ -7,7 +7,7 @@ t_segmento* buscar_segmento(t_contexto_ejecucion* proceso, int num_segmento) {
     while (list_iterator_has_next(lista_it)) {
         t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
         
-        if (segmento->id_segmento == num_segmento) {
+        if (segmento->id == num_segmento) {
             list_iterator_destroy(lista_it);
            
             return segmento;
@@ -28,17 +28,17 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
 
     t_segmento* segmento = buscar_segmento(proceso, num_segmento);
 
-    if(desplazamiento_segmento + longitud_registro > segmento->tamanio_segmento){
-        log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio_segmento);
+    if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
+        log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
         return -1;
     }
 
-    int direccion_fisica = segmento->direccion_base_segmento + desplazamiento_segmento;
+    int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
 
 
     // Debug
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
-    log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio_segmento);
+    log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
     
 
     return direccion_fisica;

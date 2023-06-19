@@ -42,12 +42,6 @@ typedef enum {
 	int size; // Tamaño de segmento
 } t_segmento;*/
 
-typedef enum {
-    SUCCESS,
-    SEG_FAULT,
-    OUT_OF_MEMORY
-} t_motivo_fin_proceso;
-
 typedef struct {
     int pid;                            // process id: identificador del proceso.
     int pc;                             // program counter: número de la próxima instrucción a ejecutar.
@@ -64,9 +58,9 @@ typedef struct {
 } t_pcb;
 
 typedef struct {
-    int id_segmento;
-    int direccion_base_segmento;    
-    int tamanio_segmento;
+    int id;
+    int direccion_base;    
+    int tamanio;
 } t_segmento;
 
 
@@ -97,7 +91,11 @@ typedef enum {
     EXIT
 } op_instruccion;
 
-
+typedef enum {
+    CREACION,
+    COMPACTACION,
+    OUT_OF_MEMORY    
+} op_respuesta_memoria;
 
 
 

@@ -14,6 +14,7 @@ typedef struct {
 extern t_cpu_config config_cpu;
 extern t_log* logger;
 extern int cliente_kernel;
+extern int server_memoria;
 
 void cargar_config_cpu(t_config* config);
 

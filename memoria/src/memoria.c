@@ -34,6 +34,9 @@ int main(int argc, char** argv){
     pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
     pthread_detach(hilo_procesar_kernel_memoria);
     
+    pthread_t hilo_procesar_cpu_memoria;
+    pthread_create(&hilo_procesar_cpu_memoria, NULL, (void*)procesar_cpu_memoria, NULL);
+    pthread_detach(hilo_procesar_cpu_memoria);
 
     while(1); // Memoria solo termina con Ctrl + C. Este while(1) hace que no termine por causas naturales.
     return 0;

@@ -59,7 +59,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
-            // printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
+            
 
             break;
         }
@@ -75,20 +75,20 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
                 desalojado = 1;
                 break;
             }
-            
-            
 
+            int longitud = obtener_longitud_registro(registro);
+            
             // Leer valor de memoria correspondiente a direccion_fisica
 
-            // Aca: send_peticion_lectura(&servidor_memoria, direccion_fisica, longitud)
+            send_peticion_lectura(server_memoria, direccion_fisica, longitud);
 
-            //char* valor;
+            char valor[64];
 
-            // Aca: recv_datos_leidos(&servidor_memoria, &valor)
+            recv_string(server_memoria, valor);
 
-            
+            log_debug(logger, "Valor leido de memoria: %s", valor);
 
-            //asignar_a_registro(registro, valor, contexto->registros_cpu);
+            asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             break;
         }
@@ -108,12 +108,12 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
-            //TODO: Escribir en direccion fisica de memoria
+            send_peticion_escritura(server_memoria, direccion_fisica, longitud, valor_leido);
 
-            // Aca: send_peticion_escritura(&servidor_memoria, direccion_fisica, valor_leido, longitud)
-            // Desde memoria: escribir(direccion_fisica, valor_leido, longitud)
+            free(valor_leido);
 
-            // Aca: recv_confirmacion_escritura(&servidor_memoria)
+            int confirmacion_escritura;
+            RECV_INT(server_memoria, confirmacion_escritura);
             
             break;
         }

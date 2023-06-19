@@ -61,12 +61,12 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio){
 }
 
 // Crea segmento, lo agrega a tabla global de segmentos y actualiza tabla de huecos.
-void crear_segmento(int id, int direccion_base, int tamanio) {
+t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
     t_segmento* segmento = malloc(sizeof(t_segmento));
 
-    segmento->id_segmento = id;
-    segmento->direccion_base_segmento = direccion_base;
-    segmento->tamanio_segmento = tamanio;
+    segmento->id = id;
+    segmento->direccion_base = direccion_base;
+    segmento->tamanio = tamanio;
 
     list_add(lista_global_segmentos, segmento);
 
@@ -77,8 +77,8 @@ void crear_segmento(int id, int direccion_base, int tamanio) {
     // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
     // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
 
-    hueco->direccion_base_hueco += segmento->tamanio_segmento;
-    hueco->tamanio_hueco -= segmento->tamanio_segmento;
+    hueco->direccion_base_hueco += segmento->tamanio;
+    hueco->tamanio_hueco -= segmento->tamanio;
 
     // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base_hueco);
     // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio_hueco);
@@ -88,11 +88,26 @@ void crear_segmento(int id, int direccion_base, int tamanio) {
         list_remove_element(tabla_huecos, hueco);
         free(hueco);
     }
+
+    return segmento;
 }
 
 // Agrega segmento a la tabla de segmentos por proceso
 void agregar_segmento(t_segmento* segmento, int pid){
-    //TODO
+    // Buscar en tabla_segmentos_por_proceso por pid la lista de segmentos de un proceso
+    t_tabla_proceso* tabla_proceso;
+    bool coincide_con_pid(void* elemento){
+        return ((t_tabla_proceso*)elemento)->pid == pid;
+    }
+
+    tabla_proceso = (t_tabla_proceso*)(list_find(tabla_segmentos_por_proceso, coincide_con_pid));
+
+    if(tabla_proceso == NULL)
+        log_error(logger,"No se encontro la tabla del proceso de PID %d", pid);
+
+    list_add(tabla_proceso->lista_segmentos, segmento);
+
+    log_debug(logger, "Segmento %d agregado a proceso %d: Base %d, Tamanio: %d", segmento->id, pid, segmento->direccion_base, segmento->tamanio);
 }
 
 t_hueco* buscar_hueco_por_base(int direccion_base){
@@ -102,6 +117,29 @@ t_hueco* buscar_hueco_por_base(int direccion_base){
 
     return ((t_hueco*)list_find(tabla_huecos, coincide_con_base));
 }
+
+int espacio_restante_memoria(){
+    // Yo lo calcularia como una resta: Total_memoria - tamanio de todos los segmentos (de lista global de segmentos)
+    int memoria_total = config_memoria.TAM_MEMORIA;
+    int suma_tamanio_segmentos = 0;
+
+    // Recorrer lista global de segmentos e ir sumando los tamaños. Yo haria un fold porque estoy mal de la cabeza
+    void* sumar_numero_con_tamanio_segmento(void* numero, void* segmento){
+        int tamanio_segmento = ((t_segmento*)segmento)->tamanio;
+        *(int*)numero += tamanio_segmento;
+        return numero;
+    }
+
+    list_fold(lista_global_segmentos, &suma_tamanio_segmentos, sumar_numero_con_tamanio_segmento);
+
+    int espacio_restante = memoria_total - suma_tamanio_segmentos;
+
+    log_debug(logger, "Espacio restante en memoria: %d", espacio_restante);
+
+    return espacio_restante;
+}
+
+
 
 
 void responder_pedido(t_orden orden){

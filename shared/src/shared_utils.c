@@ -319,9 +319,9 @@ void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen) {
 t_segmento* duplicar_segmento(const t_segmento* original) {
     t_segmento* duplicado = (t_segmento*)malloc(sizeof(t_segmento));
     
-    duplicado->id_segmento = original->id_segmento;
-    duplicado->direccion_base_segmento = original->direccion_base_segmento;
-    duplicado->tamanio_segmento = original->tamanio_segmento;
+    duplicado->id = original->id;
+    duplicado->direccion_base = original->direccion_base;
+    duplicado->tamanio = original->tamanio;
     
     return duplicado;
 }

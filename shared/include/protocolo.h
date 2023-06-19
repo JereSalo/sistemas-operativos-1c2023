@@ -32,6 +32,12 @@ void* recv_paquete(int fd, size_t size_paquete);
 
 void* recv_payload_con_size(int fd, size_t* size_payload);
 
+bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tamanio_segmento);
+bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* tamanio_segmento);
+
+bool send_peticion_lectura(int fd, int direccion_fisica, int longitud);
+bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* valor_leido);
+
 // MACROS
 #define SEND_INT(socket, value) send(socket, &(int){value}, sizeof(int), 0)
 #define RECV_INT(socket, value) recv(socket, &(value), sizeof(int), MSG_WAITALL)

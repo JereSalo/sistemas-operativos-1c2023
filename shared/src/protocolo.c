@@ -157,8 +157,41 @@ bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos) {
 }
 
 
+bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tamanio_segmento){
+    size_t size_paquete = 0;
+    void* paquete = serializar_solicitud_creacion_segmento(&size_paquete, pid, id_segmento, tamanio_segmento);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* tamanio_segmento) {
+    // Recibimos el size del payload
+
+    void* payload = recv_paquete(fd, sizeof(int) * 3);
+
+    size_t desplazamiento = 0;
+
+    deserializar_solicitud_creacion_segmento(payload, pid, id_segmento, tamanio_segmento, &desplazamiento);
+
+    free(payload);
+    return true;
+}
 
 
+
+bool send_peticion_lectura(int fd, int direccion_fisica, int longitud){
+    size_t size_paquete = 0;
+    void* paquete = serializar_peticion_lectura(&size_paquete, direccion_fisica, longitud);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* valor_leido){
+    size_t size_paquete = 0;
+    void* paquete = serializar_peticion_escritura(&size_paquete, direccion_fisica, longitud, valor_leido);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
 
 
 

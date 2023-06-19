@@ -176,7 +176,53 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int pid = proceso_en_running->pid;
 
             // Mandarle a memoria de crear segmento junto a pid del proceso
-            // send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+            send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+
+
+            op_respuesta_memoria respuesta_memoria;
+
+            RECV_INT(server_memoria, respuesta_memoria);
+
+            switch((int)respuesta_memoria){
+                case CREACION:
+                {
+                    log_debug(logger, "Se creara segmento");
+                    int base_segmento;
+                    RECV_INT(server_memoria, base_segmento);
+                    // Crear segmento y agregarlo a tabla de segmentos del proceso
+                    t_segmento* nuevo_segmento = malloc(sizeof(t_segmento));
+                    nuevo_segmento->direccion_base = base_segmento;
+                    nuevo_segmento->id = id_segmento;
+                    nuevo_segmento->tamanio = tamanio_segmento;
+                    list_add(proceso_en_running->tabla_segmentos, nuevo_segmento);
+                    log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+                    volver_a_running();
+
+                    break;
+                }
+                case COMPACTACION:
+                {
+                    log_debug(logger, "Kernel solicitara compactacion a memoria");
+                    SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
+                    t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    // Hay que recibir todas las listas de segmentos actualizadas
+                    // recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
+                    // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
+                    // Se puede hacer de varias formas, todavia no se cual sería la mejor. El dilema es si hacer la serialización más compleja para facilitarnos la recepción de los datos o si hacemos lo contrario. (serialización simple y recepción más elaborada)
+
+                    // Termina con: send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+                    break;
+                }
+                case OUT_OF_MEMORY:
+                {
+                    matar_proceso("OUT_OF_MEMORY");
+                    break;
+                }
+                default:
+                {
+                    log_error(logger, "Mensaje de memoria a kernel no es el adecuado");
+                }
+            }
 
             break;
         }

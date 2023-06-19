@@ -35,6 +35,7 @@
         "procesar_cpu_kernel.h": "c",
         "memoria_utils.h": "c",
         "algoritmos.h": "c",
-        "mmu.h": "c"
+        "mmu.h": "c",
+        "procesar_cpu_memoria.h": "c"
     }
 }

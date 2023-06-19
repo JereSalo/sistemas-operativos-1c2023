@@ -59,7 +59,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
-            // printf("VALORES DE TODOS LOS REGISTROS: %s \n", contexto->registros_cpu->AX);
+            
 
             break;
         }
@@ -104,16 +104,16 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
                 break;
             }
                 
-            // int longitud = obtener_longitud_registro(registro);
+            int longitud = obtener_longitud_registro(registro);
 
-            // char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
+            char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
-            //TODO: Escribir en direccion fisica de memoria
+            send_peticion_escritura(server_memoria, direccion_fisica, longitud, valor_leido);
 
-            // Aca: send_peticion_escritura(&servidor_memoria, direccion_fisica, valor_leido, longitud)
-            // Desde memoria: escribir(direccion_fisica, valor_leido, longitud)
+            free(valor_leido);
 
-            // Aca: recv_confirmacion_escritura(&servidor_memoria)
+            int confirmacion_escritura;
+            RECV_INT(server_memoria, confirmacion_escritura);
             
             break;
         }

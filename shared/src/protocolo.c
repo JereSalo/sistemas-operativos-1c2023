@@ -186,13 +186,12 @@ bool send_peticion_lectura(int fd, int direccion_fisica, int longitud){
     return send_paquete(fd, paquete, size_paquete);
 }
 
-//TODO
-// bool send_datos_leidos(int fd, int longitud, char* datos_leidos){
-//     size_t size_paquete = 0;
-//     void* paquete = serializar_datos_leidos(&size_paquete, direccion_fisica, longitud);
+bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* valor_leido){
+    size_t size_paquete = 0;
+    void* paquete = serializar_peticion_escritura(&size_paquete, direccion_fisica, longitud, valor_leido);
     
-//     return send_paquete(fd, paquete, size_paquete);
-// }
+    return send_paquete(fd, paquete, size_paquete);
+}
 
 
 

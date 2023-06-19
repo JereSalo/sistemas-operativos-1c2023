@@ -43,5 +43,6 @@ void* serializar_solicitud_creacion_segmento(size_t* size, int pid, int id_segme
 void deserializar_solicitud_creacion_segmento(void* payload, int* pid, int* id_segmento, int* tamanio_segmento, size_t* desplazamiento);
 
 void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longitud);
+void* serializar_peticion_escritura(size_t* size, int direccion_fisica, int longitud, char* valor_leido);
 
 #endif

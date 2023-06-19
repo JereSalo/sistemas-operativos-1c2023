@@ -20,11 +20,24 @@ void procesar_cpu_memoria() {
 
                 send_string(cliente_cpu, datos_leidos);
 
+                free(datos_leidos);
+
                 break;
             }
             case SOLICITUD_ESCRITURA:
             {
-                
+                int direccion_fisica;
+                int longitud;
+                RECV_INT(cliente_cpu, direccion_fisica);
+                RECV_INT(cliente_cpu, longitud);
+                char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
+
+                memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
+
+                free(valor_a_escribir);
+
+                SEND_INT(cliente_cpu, 1);
+
                 break;
             }
             case -1:

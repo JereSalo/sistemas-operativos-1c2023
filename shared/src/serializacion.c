@@ -321,7 +321,25 @@ void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longit
     return paquete;
 }
 
+void* serializar_peticion_escritura(size_t* size, int direccion_fisica, int longitud, char* valor_leido){
+    // stream completo
+    *size = sizeof(op_code) +
+            sizeof(int) * 2 + // DIRECCION_FISICA, LONGITUD
+            longitud;      
+    
+    void* paquete = malloc(*size);
 
+    size_t desplazamiento = 0;
+    
+    op_code cop = SOLICITUD_ESCRITURA;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &cop, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &direccion_fisica, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &longitud, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, valor_leido, longitud, &desplazamiento);
+  
+    return paquete;
+}
 
 
 

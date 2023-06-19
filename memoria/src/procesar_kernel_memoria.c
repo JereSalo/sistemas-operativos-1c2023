@@ -74,6 +74,8 @@ void procesar_kernel_memoria() {
                     SEND_INT(cliente_kernel, segmento_creado->direccion_base);
                     // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }
+
+                break;
             }
             case SOLICITUD_COMPACTACION:
             {

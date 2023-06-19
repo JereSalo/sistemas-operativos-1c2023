@@ -176,7 +176,37 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int pid = proceso_en_running->pid;
 
             // Mandarle a memoria de crear segmento junto a pid del proceso
-            // send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+            send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+
+
+            op_respuesta_memoria respuesta_memoria;
+
+            RECV_INT(server_memoria, respuesta_memoria);
+
+            switch((int)respuesta_memoria){
+                case CREACION:
+                {
+                    int base_segmento;
+                    RECV_INT(server_memoria, base_segmento);
+                    // Crear segmento y agregarlo a tabla de segmentos del proceso
+                    t_segmento* nuevo_segmento = malloc(sizeof(t_segmento));
+                    nuevo_segmento->direccion_base = base_segmento;
+                    nuevo_segmento->id = id_segmento;
+                    nuevo_segmento->tamanio = tamanio_segmento;
+                    list_add(proceso_en_running->tabla_segmentos, nuevo_segmento);
+                    log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+
+                    break;
+                }
+                case COMPACTACION:
+                {
+                    break;
+                }
+                case OUT_OF_MEMORY:
+                {
+                    break;
+                }
+            }
 
             break;
         }

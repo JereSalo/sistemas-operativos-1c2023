@@ -64,9 +64,9 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio){
 void crear_segmento(int id, int direccion_base, int tamanio) {
     t_segmento* segmento = malloc(sizeof(t_segmento));
 
-    segmento->id_segmento = id;
-    segmento->direccion_base_segmento = direccion_base;
-    segmento->tamanio_segmento = tamanio;
+    segmento->id = id;
+    segmento->direccion_base = direccion_base;
+    segmento->tamanio = tamanio;
 
     list_add(lista_global_segmentos, segmento);
 
@@ -77,8 +77,8 @@ void crear_segmento(int id, int direccion_base, int tamanio) {
     // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
     // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
 
-    hueco->direccion_base_hueco += segmento->tamanio_segmento;
-    hueco->tamanio_hueco -= segmento->tamanio_segmento;
+    hueco->direccion_base_hueco += segmento->tamanio;
+    hueco->tamanio_hueco -= segmento->tamanio;
 
     // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base_hueco);
     // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio_hueco);

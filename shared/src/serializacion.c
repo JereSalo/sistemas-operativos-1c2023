@@ -220,9 +220,9 @@ void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_seg
     while (list_iterator_has_next(lista_it)) {
         t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
         
-        copiar_variable_en_stream_y_desplazar(stream, &(segmento->id_segmento), sizeof(int), &desplazamiento);
-        copiar_variable_en_stream_y_desplazar(stream, &(segmento->direccion_base_segmento), sizeof(int), &desplazamiento);
-        copiar_variable_en_stream_y_desplazar(stream, &(segmento->tamanio_segmento), sizeof(int), &desplazamiento);    
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->id), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->direccion_base), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, &(segmento->tamanio), sizeof(int), &desplazamiento);    
 
     }
     
@@ -262,9 +262,9 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
     while(*desplazamiento < size_segmentos + desplazamiento_inicial){
         
         t_segmento* segmento = malloc(sizeof(t_segmento));
-        copiar_stream_en_variable_y_desplazar(&(segmento->id_segmento), stream, sizeof(int), desplazamiento);
-        copiar_stream_en_variable_y_desplazar(&(segmento->direccion_base_segmento), stream, sizeof(int), desplazamiento);
-        copiar_stream_en_variable_y_desplazar(&(segmento->tamanio_segmento), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->id), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->direccion_base), stream, sizeof(int), desplazamiento);
+        copiar_stream_en_variable_y_desplazar(&(segmento->tamanio), stream, sizeof(int), desplazamiento);
 
 
         list_add(tabla_segmentos, segmento);

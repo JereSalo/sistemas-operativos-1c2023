@@ -55,11 +55,15 @@ void procesar_kernel_memoria() {
                 else{
                     // Camino feliz :D
                     // Crear segmento y agregarlo a lista global de segmentos
-                    
-                    // Agregar tambien segmento con el PID a la tabla de segmetnos por proceso.
-                    // Modificar tabla de huecos (con el hueco dado)
-                    // Mandarle a Kernel la base del nuevo segmento
+                    // Modificar tabla de huecos
+                    // Esta funcion hace ambas cosas y retorna el segmento creado
+                    t_segmento* segmento_creado = crear_segmento(id_segmento, hueco->direccion_base_hueco, tamanio_segmento);
 
+                    // Agregar tambien segmento con el PID a la tabla de segmentos por proceso.
+                    agregar_segmento(segmento_creado, pid);
+                    
+                    // Mandarle a Kernel la base del nuevo segmento
+                    SEND_INT(cliente_kernel, segmento_creado->direccion_base);
                 }
             }
             case SOLICITUD_COMPACTACION:

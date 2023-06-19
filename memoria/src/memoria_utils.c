@@ -61,7 +61,7 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio){
 }
 
 // Crea segmento, lo agrega a tabla global de segmentos y actualiza tabla de huecos.
-void crear_segmento(int id, int direccion_base, int tamanio) {
+t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
     t_segmento* segmento = malloc(sizeof(t_segmento));
 
     segmento->id = id;
@@ -88,11 +88,24 @@ void crear_segmento(int id, int direccion_base, int tamanio) {
         list_remove_element(tabla_huecos, hueco);
         free(hueco);
     }
+
+    return segmento;
 }
 
 // Agrega segmento a la tabla de segmentos por proceso
 void agregar_segmento(t_segmento* segmento, int pid){
-    //TODO
+    // Buscar en tabla_segmentos_por_proceso por pid la lista de segmentos de un proceso
+    t_tabla_proceso* tabla_proceso;
+    bool coincide_con_pid(void* elemento){
+        return ((t_tabla_proceso*)elemento)->pid == pid;
+    }
+
+    tabla_proceso = (t_tabla_proceso*)(list_find(tabla_segmentos_por_proceso, coincide_con_pid));
+
+    if(tabla_proceso == NULL)
+        log_error(logger,"No se encontro la tabla del proceso de PID %d", pid);
+
+    list_add(tabla_proceso->lista_segmentos, segmento);
 }
 
 t_hueco* buscar_hueco_por_base(int direccion_base){

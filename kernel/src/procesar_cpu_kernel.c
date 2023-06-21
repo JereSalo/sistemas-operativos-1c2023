@@ -290,15 +290,3 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 }
 
 
-void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
-    
-    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
-
-    while (list_iterator_has_next(lista_it)) {
-        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
-        
-        printf("ID Segmento: %d \n", segmento->id);
-    }
-    
-    list_iterator_destroy(lista_it);
-}

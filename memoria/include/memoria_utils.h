@@ -9,11 +9,6 @@ typedef struct {
 	t_list* lista_segmentos;
 } t_tabla_proceso;
 
-typedef struct {
-    int direccion_base;
-    int tamanio;
-    int direccion_final;
-} t_hueco;
 
 typedef enum {
     FIRST,

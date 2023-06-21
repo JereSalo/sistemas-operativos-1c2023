@@ -134,7 +134,7 @@ void procesar_kernel_memoria() {
                 // Agregamos el hueco consolidado a la tabla de huecos libres
                 agregar_hueco(hueco);
 
-                //mostrar_tabla_huecos(tabla_huecos);
+                mostrar_tabla_huecos(tabla_huecos);
 
                 break;
             }
@@ -158,17 +158,5 @@ void procesar_kernel_memoria() {
     }
 }
 
-void mostrar_tabla_huecos(t_list* tabla_huecos) {
 
-    t_list_iterator* lista_it = list_iterator_create(tabla_huecos);
-
-    while (list_iterator_has_next(lista_it)) {
-        t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
-        
-        printf("Base Hueco: %d \n", hueco->direccion_base);
-        printf("Tamanio Hueco: %d \n", hueco->tamanio);
-        printf("Final Hueco: %d \n", hueco->direccion_final);
-    }   
-    list_iterator_destroy(lista_it);
-}
 

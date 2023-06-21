@@ -36,11 +36,6 @@ typedef enum {
     RAX, RBX, RCX, RDX
 } registro_cpu;
 
-/*typedef struct {
-    int id;
-    int direccion_base; // ???
-	int size; // Tamaño de segmento
-} t_segmento;*/
 
 typedef struct {
     int pid;                            // process id: identificador del proceso.
@@ -62,6 +57,12 @@ typedef struct {
     int direccion_base;    
     int tamanio;
 } t_segmento;
+
+typedef struct {
+    int direccion_base;
+    int tamanio;
+    int direccion_final;
+} t_hueco;
 
 
 typedef struct {
@@ -104,6 +105,8 @@ extern t_dictionary* diccionario_instrucciones;
 extern t_dictionary* diccionario_registros_cpu;
 
 void mostrar_lista(t_list* lista);
+void mostrar_tabla_huecos(t_list* tabla_huecos);
+void mostrar_tabla_segmentos(t_list* tabla_segmentos);
 void* sumarSizeConLongitudString(void* a, void* b);
 size_t tamanio_lista(t_list* lista);
 

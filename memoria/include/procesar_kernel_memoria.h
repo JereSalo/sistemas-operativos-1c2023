@@ -5,6 +5,6 @@
 #include "algoritmos.h"
 
 void procesar_kernel_memoria();
-void mostrar_tabla_huecos(t_list* tabla_huecos);
+
 
 #endif

@@ -64,6 +64,33 @@ void mostrar_lista(t_list* lista) {
     list_iterator_destroy(lista_it);
 }
 
+void mostrar_tabla_huecos(t_list* tabla_huecos) {
+
+    t_list_iterator* lista_it = list_iterator_create(tabla_huecos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
+        
+        printf("Base Hueco: %d \n", hueco->direccion_base);
+        printf("Tamanio Hueco: %d \n", hueco->tamanio);
+        printf("Final Hueco: %d \n", hueco->direccion_final);
+    }   
+    list_iterator_destroy(lista_it);
+}
+
+void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
+    
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+        
+        printf("ID Segmento: %d \n", segmento->id);
+    }
+    
+    list_iterator_destroy(lista_it);
+}
+
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento){
     
     memcpy(variable, stream + *desplazamiento, tamanio_elemento);

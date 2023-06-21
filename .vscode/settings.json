@@ -38,5 +38,8 @@
         "mmu.h": "c",
         "procesar_cpu_memoria.h": "c",
         "serializacion.h": "c"
-    }
+    },
+    
+	"C_Cpp.errorSquiggles": "disabled"
+	
 }

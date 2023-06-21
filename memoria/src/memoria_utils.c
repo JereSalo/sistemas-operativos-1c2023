@@ -44,15 +44,28 @@ t_algoritmo_asignacion obtener_algoritmo_asignacion(char* string_algoritmo){
 t_hueco* crear_hueco(int direccion_base, int tamanio){
     t_hueco* hueco = malloc(sizeof(t_hueco));
 
-    hueco->direccion_base_hueco = direccion_base;
-    hueco->tamanio_hueco = tamanio;
+    hueco->direccion_base = direccion_base;
+    hueco->tamanio = tamanio;
+    hueco->direccion_final = direccion_base + tamanio - 1;
 
     return hueco;
 }
 
 // Crea hueco y lo agrega a la tabla de huecos
 void agregar_hueco(t_hueco* hueco){
-    list_add(tabla_huecos, hueco);
+    
+    bool comparar_por_direccion_base(void* elemento1, void* elemento2) {
+        t_hueco* hueco1 = (t_hueco*)elemento1;
+        t_hueco* hueco2 = (t_hueco*)elemento2;
+    
+        return hueco1->direccion_base < hueco2->direccion_base;
+    }
+
+                
+    // Tenemos que meter los huecos de forma ordenada a la lista para que los algoritmos hagan bien su trabajo
+    list_add_sorted(tabla_huecos, hueco, comparar_por_direccion_base);
+
+    //list_add(tabla_huecos, hueco);
 }
 
 void crear_y_agregar_hueco(int direccion_base, int tamanio){
@@ -68,22 +81,23 @@ t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
     segmento->direccion_base = direccion_base;
     segmento->tamanio = tamanio;
 
+    // Se agrega el segmento creado a la lista global de segmentos
     list_add(lista_global_segmentos, segmento);
 
     // Actualizar tabla de huecos.
 
     t_hueco* hueco = buscar_hueco_por_base(direccion_base);
 
-    // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
-    // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base_hueco);
+    // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base);
+    // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base);
 
-    hueco->direccion_base_hueco += segmento->tamanio;
-    hueco->tamanio_hueco -= segmento->tamanio;
+    hueco->direccion_base += segmento->tamanio;
+    hueco->tamanio -= segmento->tamanio;
 
-    // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base_hueco);
-    // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio_hueco);
+    // log_debug(logger, "Base del hueco (posterior a creacion segmento) -> %d", hueco->direccion_base);
+    // log_debug(logger, "Tamanio del hueco (posterior a creacion segmento) -> %d", hueco->tamanio);
 
-    if(hueco->tamanio_hueco == 0){
+    if(hueco->tamanio == 0){
         log_debug(logger, "Hueco eliminado \n");
         list_remove_element(tabla_huecos, hueco);
         free(hueco);
@@ -112,11 +126,60 @@ void agregar_segmento(t_segmento* segmento, int pid){
 
 t_hueco* buscar_hueco_por_base(int direccion_base){
     bool coincide_con_base(void* hueco){
-        return ((t_hueco*)hueco)->direccion_base_hueco == direccion_base;
+        return ((t_hueco*)hueco)->direccion_base == direccion_base;
     }
 
     return ((t_hueco*)list_find(tabla_huecos, coincide_con_base));
 }
+
+t_hueco* buscar_hueco_por_final(int direccion_final){
+    bool coincide_con_final(void* hueco){
+        return ((t_hueco*)hueco)->direccion_final == direccion_final;
+    }
+
+    return ((t_hueco*)list_find(tabla_huecos, coincide_con_final));
+}
+
+
+
+
+
+t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos){
+    bool coincide_con_id(void* segmento){
+        return ((t_segmento*)segmento)->id_segmento == id_segmento;
+    }
+
+    return ((t_segmento*)list_find(tabla_segmentos, id_segmento));
+}
+
+t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos){
+    bool coincide_con_base(void* segmento){
+        return ((t_segmento*)segmento)->direccion_base == direccion_base;
+    }
+
+    return ((t_segmento*)list_find(tabla_segmentos, id_segmento));
+}
+
+t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid) {
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+// si lo encuentra, lo saca de la lista y lo devuelve
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_proceso* proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+        
+        if (proceso->pid == pid) {
+            list_iterator_destroy(lista_it);
+            
+           
+            return proceso;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+
 
 int espacio_restante_memoria(){
     // Yo lo calcularia como una resta: Total_memoria - tamanio de todos los segmentos (de lista global de segmentos)
@@ -152,4 +215,27 @@ void responder_pedido(t_orden orden){
             // hace un send con el mensaje "OK" o "ERROR" luego de poder escribir o no en esa direccion
             break;
     }
+}
+
+t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t_hueco* hueco_aledanio_2)
+{
+    if(hueco_aledanio_1 != NULL && hueco_aledanio_2 == NULL)
+    {
+        hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
+        hueco_original->tamanio += hueco_aledanio_1->tamanio;
+    }
+    else if(hueco_aledanio_1 == NULL && hueco_aledanio_2 != NULL)
+    {
+        hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
+        hueco_original->tamanio += hueco_aledanio_2->tamanio;
+    }
+    else if(hueco_aledanio_1 != NULL && hueco_aledanio_2 != NULL)
+    {
+        hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
+        hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
+        hueco_original->tamanio += hueco_aledanio_1->tamanio;
+        hueco_original->tamanio += hueco_aledanio_2->tamanio;
+    }
+    
+    return hueco_original;
 }

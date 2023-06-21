@@ -10,8 +10,9 @@ typedef struct {
 } t_tabla_proceso;
 
 typedef struct {
-    int direccion_base_hueco;
-    int tamanio_hueco;
+    int direccion_base;
+    int tamanio;
+    int direccion_final;
 } t_hueco;
 
 typedef enum {
@@ -57,6 +58,11 @@ void agregar_hueco(t_hueco* hueco);
 void crear_y_agregar_hueco(int direccion_base, int tamanio);
 
 t_hueco* buscar_hueco_por_base(int direccion_base);
+
+t_segmento* buscar_segmento_por_base(int id_segmento, t_list* tabla_segmentos);
+t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
+
+t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid);
 
 int espacio_restante_memoria();
 

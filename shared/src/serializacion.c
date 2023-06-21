@@ -302,6 +302,36 @@ void deserializar_solicitud_creacion_segmento(void* payload, int* pid, int* id_s
 }
 
 
+void* serializar_solicitud_eliminacion_segmento(size_t* size, int id_segmento, int pid){
+    // stream completo
+    *size = sizeof(op_code) +
+            sizeof(int) * 3;      // DIRECCION_BASE, ID_SEGMENTO, TAMANIO_SEGMENTO
+    
+    void* paquete = malloc(*size);
+
+    size_t desplazamiento = 0;
+    
+    op_code cop = SOLICITUD_ELIMINACION_SEGMENTO;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &cop, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &id_segmento, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &pid, sizeof(int), &desplazamiento);
+  
+    return paquete;
+}
+
+
+void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento, int* pid, size_t* desplazamiento){
+    copiar_stream_en_variable_y_desplazar(id_segmento, payload, sizeof(int), desplazamiento);
+    copiar_stream_en_variable_y_desplazar(pid, payload, sizeof(int), desplazamiento);
+}
+
+
+
+
+
+
+
 
 void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longitud){
     // stream completo

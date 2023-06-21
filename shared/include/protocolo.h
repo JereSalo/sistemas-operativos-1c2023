@@ -38,6 +38,9 @@ bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* t
 bool send_peticion_lectura(int fd, int direccion_fisica, int longitud);
 bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* valor_leido);
 
+bool send_solicitud_eliminacion_segmento(int fd, int id_segmento, int pid);
+bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid);
+
 // MACROS
 #define SEND_INT(socket, value) send(socket, &(int){value}, sizeof(int), 0)
 #define RECV_INT(socket, value) recv(socket, &(value), sizeof(int), MSG_WAITALL)

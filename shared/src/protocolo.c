@@ -178,6 +178,30 @@ bool recv_solicitud_creacion_segmento(int fd, int* pid, int* id_segmento, int* t
 }
 
 
+bool send_solicitud_eliminacion_segmento(int fd, int id_segmento, int pid){
+    size_t size_paquete = 0;
+    void* paquete = serializar_solicitud_eliminacion_segmento(&size_paquete, id_segmento, pid);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid) {
+    // Recibimos el size del payload
+
+    void* payload = recv_paquete(fd, sizeof(int) * 3);
+
+    size_t desplazamiento = 0;
+
+    deserializar_solicitud_eliminacion_segmento(payload, id_segmento, pid, &desplazamiento);
+
+    free(payload);
+    return true;
+}
+
+
+
+
+
 
 bool send_peticion_lectura(int fd, int direccion_fisica, int longitud){
     size_t size_paquete = 0;

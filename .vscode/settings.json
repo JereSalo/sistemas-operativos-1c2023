@@ -36,6 +36,7 @@
         "memoria_utils.h": "c",
         "algoritmos.h": "c",
         "mmu.h": "c",
-        "procesar_cpu_memoria.h": "c"
+        "procesar_cpu_memoria.h": "c",
+        "serializacion.h": "c"
     }
 }

@@ -228,6 +228,39 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case DELETE_SEGMENT:
         {
+            int id_segmento = atoi((char*)list_get(lista_parametros, 0));
+
+            //send_solicitud_eliminacion_segmento(server_memoria, id_segmento, proceso_en_running->pid);
+
+            op_respuesta_memoria respuesta_memoria;
+
+
+            switch((int)respuesta_memoria){
+                case ELIMINACION:
+                {
+                    log_debug(logger, "Se eliminara el segmento con ID %d del proceso %d", id_segmento, proceso_en_running->pid);
+                    
+                    // Buscamos al segmento y lo eliminamos de la tabla de segmentos de dicho proceso
+                    t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+
+                    list_remove_element(proceso_en_running->tabla_segmentos, segmento);
+
+                    volver_a_running();
+
+                    break;
+                }
+                case -1:
+                {
+                    log_error(logger, "No existe segmento con ID %d en el proceso %d", id_segmento, proceso_en_running->pid);
+                    break;
+                }
+                default:
+                {
+                    log_error(logger, "Mensaje de memoria a kernel no es el adecuado");
+                    break;
+                }
+            }
+
             break;
         }
         case F_OPEN:

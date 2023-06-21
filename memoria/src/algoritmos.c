@@ -36,7 +36,7 @@ t_hueco* obtener_primer_hueco(int tamanio){
     while(list_iterator_has_next(lista_it)) {
         t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
 
-        if(hueco->tamanio_hueco >= tamanio) {
+        if(hueco->tamanio >= tamanio) {
             list_iterator_destroy(lista_it);
             return hueco;
         }
@@ -56,8 +56,8 @@ t_hueco* obtener_hueco_mas_chico(int tamanio) {
     while(list_iterator_has_next(lista_it)) {
         t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
 
-        if(hueco->tamanio_hueco <= menor_tamanio && hueco->tamanio_hueco >= tamanio) {
-            menor_tamanio = hueco->tamanio_hueco;
+        if(hueco->tamanio <= menor_tamanio && hueco->tamanio >= tamanio) {
+            menor_tamanio = hueco->tamanio;
             hueco_mas_chico = hueco;
         }
     }
@@ -77,8 +77,8 @@ t_hueco* obtener_hueco_mas_grande(int tamanio) {
     while(list_iterator_has_next(lista_it)) {
         t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
 
-        if(hueco->tamanio_hueco > mayor_tamanio && hueco->tamanio_hueco >= tamanio) {
-            mayor_tamanio = hueco->tamanio_hueco;
+        if(hueco->tamanio > mayor_tamanio && hueco->tamanio >= tamanio) {
+            mayor_tamanio = hueco->tamanio;
             hueco_mas_grande = hueco;
         }
     }
@@ -95,7 +95,7 @@ t_hueco* obtener_hueco_mas_grande(int tamanio) {
     while (list_iterator_has_next(lista_it)) {
         t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
         
-        if (hueco->direccion_base_hueco == hueco_a_buscar->direccion_base_hueco) {
+        if (hueco->direccion_base == hueco_a_buscar->direccion_base) {
             list_iterator_destroy(lista_it);
             list_remove_element(lista, hueco);
            

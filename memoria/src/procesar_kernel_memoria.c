@@ -76,55 +76,75 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_ELIMINACION_SEGMENTO:
             {
-                log_debug(logger, "Solicitud de eliminacion de segmento recibida");
-
-                int id_segmento;
-                int pid;
+                log_debug(logger, "Solicitud de eliminacion de segmento recibida \n");
 
                 // Estas dos nos sirven para saber donde eliminar en la tabla global de segmentos y para crear el hueco con el mismo tamanio que el segmento eliminado
                 int direccion_base;
                 int tamanio;
 
-                recv_solicitud_eliminacion_segmento(cliente_kernel, &id_segmento, &pid);
+                int id_segmento;
+                int pid;
+            
+                // Recibimos la solicitud de eliminacion del segmento
+                if(!recv_solicitud_eliminacion_segmento(cliente_kernel, &id_segmento, &pid)) {
+                    log_error(logger, "Fallo en la solicitud de eliminacion de segmento \n");
+                    break;
+                }
 
-                // Primero eliminamos de la tabla por proceso
+
+                // Eliminamos el segmento de la tabla de segmentos por proceso
+
+                // Buscamos el elemento que corresponda al proceso
                 t_tabla_proceso* proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
 
+                // Buscamos el segmento dentro de la tabla de segmentos de ese proceso
                 t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso->lista_segmentos);
 
+                // Sacamos la direccion base de ese segmento para despues eliminar ese segmento en la lista global de segementos
                 direccion_base = segmento->direccion_base;
 
                 list_remove_element(proceso->lista_segmentos, segmento);
+
+                log_debug(logger, "Segmento %d removido de proceso %d: Base %d, Tamanio: %d", segmento->id, pid, segmento->direccion_base, segmento->tamanio);
         
 
-                // Despues eliminamos de la tabla global de segmentos
+                // Eliminamos el segmento de la lista global de segmentos
+                
                 segmento = buscar_segmento_por_base(direccion_base, lista_global_segmentos);
 
+                // Obtenemos el tamanio de ese segmento para despues crear el hueco libre con ese mismo tamanio
                 tamanio = segmento->tamanio;
 
                 list_remove_element(lista_global_segmentos, segmento);
 
+                log_debug(logger, "Segmento %d removido de memoria %d: Base %d, Tamanio: %d", segmento->id, pid, segmento->direccion_base, segmento->tamanio);
 
+
+                free(segmento);
+
+                // Mandamos la tabla de segmentos actualizada al kernel
+
+                log_debug(logger, "Envio tabla de procesos actualizada a Kernel \n");
+
+                // Enviamos a Kernel la tabla de segmentos actualizada
+                send_tabla_segmentos(cliente_kernel, proceso->lista_segmentos);
+
+                // Creamos el hueco
                 t_hueco* hueco = crear_hueco(direccion_base, tamanio);
-
 
                 // Buscamos un potencial hueco anterior
                 t_hueco* hueco_aledanio_1 = buscar_hueco_por_final(direccion_base - 1);
 
-                // Para hacer esto tendriamos que guardar por cada hueco su direccion de finalizacion
-                // Esto nos va a servir para buscar un hueco anterior
-
                 // Buscamos un potencial hueco siguiente
                 t_hueco* hueco_aledanio_2 = buscar_hueco_por_base(direccion_base + tamanio);
 
-
+                // Consolidamos los huecos
                 hueco = consolidar_huecos(hueco, hueco_aledanio_1, hueco_aledanio_2);            
                 
                 // Agregamos el hueco consolidado a la tabla de huecos libres
                 agregar_hueco(hueco);
 
-                
-
+                mostrar_tabla_huecos(tabla_huecos);
 
                 break;
             }
@@ -146,5 +166,19 @@ void procesar_kernel_memoria() {
             }
         }
     }
+}
+
+void mostrar_tabla_huecos(t_list* tabla_huecos) {
+
+    t_list_iterator* lista_it = list_iterator_create(tabla_huecos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_hueco* hueco = (t_hueco*)list_iterator_next(lista_it);
+        
+        printf("Base Hueco: %d \n", hueco->direccion_base);
+        printf("Tamanio Hueco: %d \n", hueco->tamanio);
+        printf("Final Hueco: %d \n", hueco->direccion_final);
+    }   
+    list_iterator_destroy(lista_it);
 }
 

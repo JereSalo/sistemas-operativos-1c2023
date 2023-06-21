@@ -141,15 +141,12 @@ t_hueco* buscar_hueco_por_final(int direccion_final){
 }
 
 
-
-
-
 t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos){
     bool coincide_con_id(void* segmento){
-        return ((t_segmento*)segmento)->id_segmento == id_segmento;
+        return ((t_segmento*)segmento)->id == id_segmento;
     }
 
-    return ((t_segmento*)list_find(tabla_segmentos, id_segmento));
+    return ((t_segmento*)list_find(tabla_segmentos, coincide_con_id));
 }
 
 t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos){
@@ -157,7 +154,7 @@ t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos
         return ((t_segmento*)segmento)->direccion_base == direccion_base;
     }
 
-    return ((t_segmento*)list_find(tabla_segmentos, id_segmento));
+    return ((t_segmento*)list_find(tabla_segmentos, coincide_con_base));
 }
 
 t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid) {
@@ -221,20 +218,27 @@ t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t
 {
     if(hueco_aledanio_1 != NULL && hueco_aledanio_2 == NULL)
     {
+        list_remove_element(tabla_huecos, hueco_aledanio_1);
         hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
         hueco_original->tamanio += hueco_aledanio_1->tamanio;
+        free(hueco_aledanio_1);
     }
     else if(hueco_aledanio_1 == NULL && hueco_aledanio_2 != NULL)
     {
+        list_remove_element(tabla_huecos, hueco_aledanio_2);
         hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
         hueco_original->tamanio += hueco_aledanio_2->tamanio;
+        free(hueco_aledanio_2);
     }
     else if(hueco_aledanio_1 != NULL && hueco_aledanio_2 != NULL)
-    {
+    {   
+        list_remove_element(tabla_huecos, hueco_aledanio_1);
+        list_remove_element(tabla_huecos, hueco_aledanio_2);
         hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
         hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
-        hueco_original->tamanio += hueco_aledanio_1->tamanio;
-        hueco_original->tamanio += hueco_aledanio_2->tamanio;
+        hueco_original->tamanio += (hueco_aledanio_1->tamanio + hueco_aledanio_2->tamanio);
+        free(hueco_aledanio_1);
+        free(hueco_aledanio_2);
     }
     
     return hueco_original;

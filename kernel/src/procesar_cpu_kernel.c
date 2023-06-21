@@ -204,7 +204,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     log_debug(logger, "Kernel solicitara compactacion a memoria");
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
-                    t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    //t_list* lista_recepcion_segmentos_actualizados = list_create();
                     // Hay que recibir todas las listas de segmentos actualizadas
                     // recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
                     // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
@@ -230,37 +230,25 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             int id_segmento = atoi((char*)list_get(lista_parametros, 0));
 
-            //send_solicitud_eliminacion_segmento(server_memoria, id_segmento, proceso_en_running->pid);
-
-            op_respuesta_memoria respuesta_memoria;
-
-
-            switch((int)respuesta_memoria){
-                case ELIMINACION:
-                {
-                    log_debug(logger, "Se eliminara el segmento con ID %d del proceso %d", id_segmento, proceso_en_running->pid);
-                    
-                    // Buscamos al segmento y lo eliminamos de la tabla de segmentos de dicho proceso
-                    t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
-
-                    list_remove_element(proceso_en_running->tabla_segmentos, segmento);
-
-                    volver_a_running();
-
-                    break;
-                }
-                case -1:
-                {
-                    log_error(logger, "No existe segmento con ID %d en el proceso %d", id_segmento, proceso_en_running->pid);
-                    break;
-                }
-                default:
-                {
-                    log_error(logger, "Mensaje de memoria a kernel no es el adecuado");
-                    break;
-                }
+            send_solicitud_eliminacion_segmento(server_memoria, id_segmento, proceso_en_running->pid);
+            
+            t_list* tabla_segmentos_actualizada = list_create();
+            
+            // Recibimos la tabla actualizada
+            if(!recv_tabla_segmentos(server_memoria, tabla_segmentos_actualizada)) {
+                log_error(logger, "Fallo recibiendo la tabla de segmentos actualizada");
+                break;
             }
+            
+            log_debug(logger, "Se recibio la tabla de segmentos actualizada del proceso %d", proceso_en_running->pid);
 
+            mostrar_tabla_segmentos(tabla_segmentos_actualizada);
+            
+            
+            proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
+
+            volver_a_running();
+   
             break;
         }
         case F_OPEN:
@@ -299,4 +287,18 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             break;
         }
     }  
+}
+
+
+void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
+    
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+        
+        printf("ID Segmento: %d \n", segmento->id);
+    }
+    
+    list_iterator_destroy(lista_it);
 }

@@ -7,7 +7,7 @@
 
 void procesar_cpu();
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
-
+void mostrar_tabla_segmentos(t_list* tabla_segmentos);
 
 // Funciones usadas de otros modulos
 

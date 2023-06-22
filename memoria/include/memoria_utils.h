@@ -10,6 +10,8 @@ typedef struct {
 } t_tabla_proceso;
 
 
+
+
 typedef enum {
     FIRST,
     BEST,
@@ -62,6 +64,12 @@ t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
 t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid);
 
 t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t_hueco* hueco_aledanio_2);
+t_hueco* crear_y_consolidar_huecos(int direccion_base, int tamanio);
+
+t_segmento* buscar_segmento_en_tabla_por_proceso(t_list* tabla_segmentos, t_tabla_proceso** proceso, int pid, int id_segmento);
+t_segmento* buscar_segmento_en_tabla_global(t_list* tabla_segmentos, int direccion_base);
+void eliminar_segmento_de_tabla(t_list* tabla_segmentos, t_segmento* segmento, char* tipo_tabla, int pid);
+
 
 int espacio_restante_memoria();
 

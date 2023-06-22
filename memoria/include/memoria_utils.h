@@ -56,7 +56,7 @@ t_hueco* crear_hueco(int direccion_base, int tamanio);
 void agregar_hueco(t_hueco* hueco);
 void crear_y_agregar_hueco(int direccion_base, int tamanio);
 t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t_hueco* hueco_aledanio_2);
-t_hueco* crear_y_consolidar_huecos(int direccion_base, int tamanio);
+void crear_y_consolidar_huecos(int direccion_base, int tamanio);
 t_hueco* buscar_hueco_por_base(int direccion_base);
 t_hueco* buscar_hueco_por_final(int direccion_final);
 

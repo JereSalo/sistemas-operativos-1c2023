@@ -127,7 +127,7 @@ t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t
     return hueco_original;
 }
 
-t_hueco* crear_y_consolidar_huecos(int direccion_base, int tamanio) {
+void crear_y_consolidar_huecos(int direccion_base, int tamanio) {
 
     // Creamos el hueco
     t_hueco* hueco = crear_hueco(direccion_base, tamanio);
@@ -139,7 +139,7 @@ t_hueco* crear_y_consolidar_huecos(int direccion_base, int tamanio) {
     // Consolidamos los huecos -> Si no encontro huecos aledanios esta funcion retorna el hueco original
     hueco = consolidar_huecos(hueco, hueco_aledanio_1, hueco_aledanio_2);
 
-    return hueco;
+    agregar_hueco(hueco);
 }
 
 t_hueco* buscar_hueco_por_base(int direccion_base){

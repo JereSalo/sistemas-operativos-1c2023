@@ -96,7 +96,7 @@ void procesar_kernel_memoria() {
 
                 // Sacamos segmento de ambas listas y liberamos memoria.
                 list_remove_element(lista_global_segmentos, segmento);
-                list_remove_element(tabla_segmentos_por_proceso, segmento);
+                list_remove_element(tabla_proceso->lista_segmentos, segmento);
                 free(segmento);
 
                 mostrar_tabla_huecos(tabla_huecos);

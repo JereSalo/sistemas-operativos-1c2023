@@ -78,7 +78,7 @@ int main(int argc, char** argv){
 
     /* ------------------------- PROCESAR CPU -------------------------*/
     pthread_t hilo_kernel_cpu;
-    pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_cpu, NULL);
+    pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_cpu_kernel, NULL);
     pthread_detach(hilo_kernel_cpu);
 
 

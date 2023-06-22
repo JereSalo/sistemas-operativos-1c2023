@@ -32,10 +32,10 @@ void cargar_config_kernel(t_config* config) {
 }
 
 t_algoritmo_planificacion obtener_algoritmo_planificacion(char* string_algoritmo){
-    if(strcmp(string_algoritmo, "FIFO") == 0){
+    if(string_equals_ignore_case(string_algoritmo, "FIFO")){
         return FIFO;
     }
-    if(strcmp(string_algoritmo, "HRRN") == 0){
+    if(string_equals_ignore_case(string_algoritmo, "HRRN")){
         return HRRN;
     }
     log_error(logger, "Hubo un error con el algoritmo de planificacion");

@@ -1,6 +1,8 @@
-#include "procesar_kernel.h"
+#include "procesar_kernel_cpu.h"
 
-void procesar_kernel() {
+// ------------------------------ PROCESAMIENTO DEL KERNEL EN CPU ------------------------------ //
+
+void procesar_kernel_cpu() {
     while(1) {
         // Aca pensaba que había que usar semáforos pero no, el recv se encarga de recibir solo cuando el otro hace un send, sino se queda clavado.
         op_code cod_op = recibir_operacion(cliente_kernel);

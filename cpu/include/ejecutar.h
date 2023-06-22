@@ -4,6 +4,8 @@
 #include "cpu_utils.h"
 #include "mmu.h"
 
+// ------------------------------ EJECUCION DE PROCESOS ------------------------------ //
+
 extern int desalojado;
 extern t_list* lista_parametros;
 

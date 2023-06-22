@@ -1,5 +1,7 @@
 #include "mmu.h"
 
+// ------------------------------ TRADUCCION DE DIRECCIONES ------------------------------ //
+
 t_segmento* buscar_segmento(t_contexto_ejecucion* proceso, int num_segmento) {
 
     t_list_iterator* lista_it = list_iterator_create(proceso->tabla_segmentos);
@@ -35,11 +37,8 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
 
     int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
 
-
-    // Debug
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
     log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
-    
 
     return direccion_fisica;
 }

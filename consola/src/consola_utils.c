@@ -1,12 +1,16 @@
 #include "consola_utils.h"
 
+// ------------------------------ VARIABLES GLOBALES ------------------------------ //
 
+// LOGGER Y CONFIG
 t_log* logger;
 t_config* config;
+
+// SOCKETS
 int server_kernel;
 
-/* ---------------------------------- PARSER ---------------------------------- */
 
+// ------------------------------ PARSER ------------------------------ //
 
 t_list* generar_lista_instrucciones(char* path_instrucciones) {
     

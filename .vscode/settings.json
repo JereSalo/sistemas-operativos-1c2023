@@ -18,7 +18,7 @@
         "pthread.h": "c",
         "planificador.h": "c",
         "string.h": "c",
-        "procesar_kernel.h": "c",
+        "procesar_kernel_cpu.h": "c",
         "cpu_utils.h": "c",
         "kernel_utils.h": "c",
         "queue.h": "c",

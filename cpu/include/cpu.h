@@ -3,6 +3,6 @@
 
 #include "cpu_utils.h"
 #include "ejecutar.h"
-#include "procesar_kernel.h"
+#include "procesar_kernel_cpu.h"
 
 #endif

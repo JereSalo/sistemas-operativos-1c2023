@@ -1,5 +1,7 @@
 #include "procesar_consola_kernel.h"
 
+// ------------------------------ PROCESAMIENTO DE CONSOLA EN KERNEL ------------------------------ //
+
 void procesar_consola(void* void_cliente_consola) {
     
     int cliente_consola = (intptr_t) void_cliente_consola;

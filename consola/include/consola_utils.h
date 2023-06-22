@@ -3,11 +3,17 @@
 
 #include "shared.h"
 
-t_list* generar_lista_instrucciones(char* archivo_string);
+// ------------------------------ VARIABLES GLOBALES ------------------------------ //
 
+// LOGGER Y CONFIG
 extern t_log* logger;
 extern t_config* config;
+
+// SOCKETS
 extern int server_kernel;
 
+
+// ------------------------------ PARSER ------------------------------ //
+t_list* generar_lista_instrucciones(char* archivo_string);
 
 #endif

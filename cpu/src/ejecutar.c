@@ -1,5 +1,7 @@
 #include "ejecutar.h"
 
+// ------------------------------ EJECUCION DE PROCESOS ------------------------------ //
+
 t_list* lista_parametros;
 int desalojado = 0;
 

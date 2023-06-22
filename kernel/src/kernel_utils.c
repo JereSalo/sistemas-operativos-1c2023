@@ -110,9 +110,9 @@ void calcular_tasa_de_respuesta() {
         
         proceso->tasa_de_respuesta = 1 + (tiempo_esperando_en_ready / proceso->estimacion_prox_rafaga);
 
-        //log_info(logger, "EL TIEMPO ESPERANDO EN READY DEL PROCESO %d es %f \n",proceso->pid, tiempo_esperando_en_ready);
-        //log_info(logger, "LA ESTIMACION DE RAFAGA DEL PROCESO %d es %f \n",proceso->pid, proceso->estimacion_prox_rafaga);
-        //log_info(logger, "LA TASA DE RESPUESTA DEL PROCESO %d es %f \n \n",proceso->pid, proceso->tasa_de_respuesta);
+        //log_debug(logger, "EL TIEMPO ESPERANDO EN READY DEL PROCESO %d es %f \n",proceso->pid, tiempo_esperando_en_ready);
+        //log_debug(logger, "LA ESTIMACION DE RAFAGA DEL PROCESO %d es %f \n",proceso->pid, proceso->estimacion_prox_rafaga);
+        //log_debug(logger, "LA TASA DE RESPUESTA DEL PROCESO %d es %f \n \n",proceso->pid, proceso->tasa_de_respuesta);
     }
 
     list_iterator_destroy(lista_it);
@@ -156,7 +156,7 @@ t_recurso* recurso_en_lista(char* recurso_solicitado) {
     while (list_iterator_has_next(lista_it)) {
         t_recurso* recurso = (t_recurso*)list_iterator_next(lista_it);
         
-        if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
+        if (string_equals_ignore_case(recurso->dispositivo, recurso_solicitado)) {
             list_iterator_destroy(lista_it);
             return recurso;
         }

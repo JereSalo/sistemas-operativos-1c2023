@@ -1,8 +1,8 @@
 #include "procesar_cpu_kernel.h"
 
-void procesar_cpu() {
-    //ACA PODEMOS SACAR ESTE PARAMETRO QUE RECIBE, YA QUE EL SOCKET DE CPU ES GLOBAL -> POR AHORA NO LO SACO PORQUE NO QUIERO ROMPER NADA
-    
+// ------------------------------ PROCESAMIENTO DE CPU EN KERNEL ------------------------------ //
+
+void procesar_cpu_kernel() {
     while(1) {
         op_code cod_op = recibir_operacion(server_cpu);
         
@@ -41,7 +41,6 @@ void procesar_cpu() {
                 recv_desalojo(server_cpu, &motivo_desalojo, lista_parametros_recibida);
 
                 // mostrar_lista(lista_parametros_recibida);
-
 
                 manejar_proceso_desalojado(motivo_desalojo, lista_parametros_recibida);
 

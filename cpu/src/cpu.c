@@ -29,7 +29,7 @@ int main(int argc, char** argv){
 
     cliente_kernel = esperar_cliente(server_fd, logger, "CPU");   
     
-    procesar_kernel();
+    procesar_kernel_cpu();
     
 
     liberar_conexion(&server_fd);

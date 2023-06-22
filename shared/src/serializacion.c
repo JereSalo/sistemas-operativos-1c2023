@@ -305,7 +305,7 @@ void deserializar_solicitud_creacion_segmento(void* payload, int* pid, int* id_s
 void* serializar_solicitud_eliminacion_segmento(size_t* size, int id_segmento, int pid){
     // stream completo
     *size = sizeof(op_code) +
-            sizeof(int) * 3;      // DIRECCION_BASE, ID_SEGMENTO, TAMANIO_SEGMENTO
+            sizeof(int) * 2;      // DIRECCION_BASE, ID_SEGMENTO, TAMANIO_SEGMENTO
     
     void* paquete = malloc(*size);
 

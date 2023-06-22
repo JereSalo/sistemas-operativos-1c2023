@@ -188,7 +188,7 @@ bool send_solicitud_eliminacion_segmento(int fd, int id_segmento, int pid){
 bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid) {
     // Recibimos el size del payload
 
-    void* payload = recv_paquete(fd, sizeof(int) * 3);
+    void* payload = recv_paquete(fd, sizeof(int) * 2);
 
     size_t desplazamiento = 0;
 

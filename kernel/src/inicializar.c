@@ -1,5 +1,7 @@
 #include "inicializar.h"
 
+// ------------------------------ CONFIG KERNEL ------------------------------ //
+
 void cargar_config_kernel(t_config* config) {
     
     config_kernel = malloc(sizeof(t_kernel_config));
@@ -40,20 +42,22 @@ t_algoritmo_planificacion obtener_algoritmo_planificacion(char* string_algoritmo
     return -1;
 }
 
+
+// ------------------------------ INICIALIZACION KERNEL ------------------------------ //
+
 void inicializar_semaforos() {
     pthread_mutex_init(&mutex_new, NULL);
     pthread_mutex_init(&mutex_ready, NULL);
     pthread_mutex_init(&mutex_running, NULL);
     pthread_mutex_init(&mutex_pids, NULL);
 
-    //sem_init(&sem_proceso_en_running, 0, 0);
     sem_init(&cant_procesos_new, 0, 0);
     sem_init(&cant_procesos_ready, 0, 0);
     sem_init(&maximo_grado_de_multiprogramacion, 0, config_kernel->GRADO_MAX_MULTIPROGRAMACION);
 
     sem_init(&cpu_libre, 0, 1);
 
-    //log_info(logger, "Semaforos inicializados \n");
+    //log_debug(logger, "Semaforos inicializados \n");
 }
 
 void inicializar_colas() {
@@ -80,7 +84,6 @@ void inicializar_registros(t_registros_cpu* registros) {
     
 }
 
-
 void inicializar_recursos() {
     recursos = list_create();    
     t_recurso* recurso;
@@ -99,6 +102,8 @@ void inicializar_recursos() {
     }
 }
 
+
+// ------------------------------ PCB ------------------------------ //
 
 t_pcb* inicializar_pcb(int cliente_consola) {
     

@@ -1,24 +1,25 @@
 #include "kernel_utils.h"
 
+// ------------------------------ VARIABLES GLOBALES ------------------------------ //
+
+// LOGGER Y CONFIG
 t_log* logger;
 t_config* config;
 t_kernel_config* config_kernel;
-int pid_counter = 1;
 
-
-//Para HRRN vamos a tener un clock global que se inicia cuando prendemos el kernel
+// HRRN -> vamos a tener un clock global que se inicia cuando prendemos el kernel
 t_temporal* temporal;
 double tiempo;
 
-
-// Colas de los estados de los procesos
+// COLAS DE ESTADOS DE PROCESOS
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
 t_pcb* proceso_en_running;
+
+// RECURSOS
 t_list* recursos;
 
-
-// Semaforos
+// SEMAFOROS
 pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;
 pthread_mutex_t mutex_running;
@@ -28,13 +29,17 @@ sem_t cant_procesos_ready;
 sem_t cpu_libre;
 pthread_mutex_t mutex_pids;
 
-
-t_list* lista_pids;
-
+// SOCKETS
 int server_cpu;
 int server_fs;
 int server_memoria;
 
+// AUXILIARES
+int pid_counter = 1;
+t_list* lista_pids;
+
+
+// ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 
 void matar_proceso(char* motivo) {
     // Aca no necesariamente el motivo es success...
@@ -45,13 +50,10 @@ void matar_proceso(char* motivo) {
 
     liberar_proceso(proceso_en_running);
 
-
     // Avisarle a consola que finalizó el proceso.
     SEND_INT(socket_consola, pid_finalizado);
     send_string(socket_consola, motivo);
-    
-
-    
+        
     sem_post(&maximo_grado_de_multiprogramacion);
     sem_post(&cpu_libre);
 }
@@ -71,23 +73,6 @@ void bloquear_proceso(args_io* argumentos_io){
     log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
 
     mandar_a_ready(proceso);
-}
-
-
-t_recurso* recurso_en_lista(char* recurso_solicitado) {
-    t_list_iterator* lista_it = list_iterator_create(recursos);
-
-    while (list_iterator_has_next(lista_it)) {
-        t_recurso* recurso = (t_recurso*)list_iterator_next(lista_it);
-        
-        if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
-            list_iterator_destroy(lista_it);
-            return recurso;
-        }
-    }
-    
-    list_iterator_destroy(lista_it);
-    return NULL;
 }
 
 t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
@@ -110,6 +95,8 @@ t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
 }
 
 
+// ------------------------------ HRRN ------------------------------ //
+
 void calcular_tasa_de_respuesta() {
     
     double tiempo_actual = (double)temporal_gettime(temporal);
@@ -123,19 +110,13 @@ void calcular_tasa_de_respuesta() {
         
         proceso->tasa_de_respuesta = 1 + (tiempo_esperando_en_ready / proceso->estimacion_prox_rafaga);
 
-
-
-
         //log_info(logger, "EL TIEMPO ESPERANDO EN READY DEL PROCESO %d es %f \n",proceso->pid, tiempo_esperando_en_ready);
         //log_info(logger, "LA ESTIMACION DE RAFAGA DEL PROCESO %d es %f \n",proceso->pid, proceso->estimacion_prox_rafaga);
         //log_info(logger, "LA TASA DE RESPUESTA DEL PROCESO %d es %f \n \n",proceso->pid, proceso->tasa_de_respuesta);
-        
-
     }
 
     list_iterator_destroy(lista_it);
 }
-
 
 void estimar_proxima_rafaga(t_pcb* proceso) {
 
@@ -146,7 +127,6 @@ void estimar_proxima_rafaga(t_pcb* proceso) {
     // ESTE CALCULO TENEMOS QUE HACERLO CUANDO UN PROCESO FINALIZA SU EJECUCION
     proceso->estimacion_prox_rafaga = (alpha * tiempo_rafaga_actual) + ((1 - alpha) * estimacion_actual);
 }
-
 
 t_pcb* proceso_con_mayor_tasa_de_respuesta() {
 
@@ -167,40 +147,27 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() {
     return proceso_tasa;
 }
 
-    
-/* t_recurso* recurso_en_lista(char* recurso_solicitado) {
 
-    t_recurso* recurso;
-    
-   t_list_iterator* lista_it = list_iterator_create(recursos);
-   
-    
-    for(int i = 0; i < list_size(recursos) ; i++) {
+// ------------------------------ MANEJO DE RECURSOS ------------------------------ //
+
+t_recurso* recurso_en_lista(char* recurso_solicitado) {
+    t_list_iterator* lista_it = list_iterator_create(recursos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_recurso* recurso = (t_recurso*)list_iterator_next(lista_it);
         
-        
-        recurso = list_remove(recursos, i);
-        printf("FALOPA 1: \n");
-        printf("FALOPA 2: \n");
-
-
-        printf("EL RECURSITO QUE ENCONTRE ES %s", recurso->dispositivo);
-
-        if(strcmp(recurso->dispositivo, recurso_solicitado) == 0) 
-        {
+        if (strcmp(recurso->dispositivo, recurso_solicitado) == 0) {
             list_iterator_destroy(lista_it);
             return recurso;
-        } 
-
-        list_iterator_next(lista_it);
-
-        
+        }
     }
     
     list_iterator_destroy(lista_it);
-    recurso = NULL;
-    return recurso;
+    return NULL;
 }
- */
+
+
+
 
 
 /* typedef struct {
@@ -221,21 +188,3 @@ bool compararDispositivo(void* elemento, void* parametros) {
 }
  */
 
-
-
-
-
-
-
-
-
-
-/* 
-Nodo* buscar(Nodo*lista,unsigned unLeg)
-{
-    Nodo*r=lista;
-    while(r!=NULL && r->info.leg!=unLeg)
-        r=r->sig;
-    return r;
-}
- */

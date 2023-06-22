@@ -4,20 +4,12 @@
 #include "shared.h"
 // Todos los archivos que esten en la carpeta kernel van a tener include de kernel_utils.h
 
-extern t_log* logger;
-extern t_config* config;
-
-
-
-extern t_temporal* temporal;
-extern double tiempo;
-
+// ------------------------------ STRUCTS / ENUMS KERNEL ------------------------------ //
 
 typedef enum {
     FIFO,
     HRRN
 } t_algoritmo_planificacion;
-
 
 typedef struct {
     
@@ -38,9 +30,6 @@ typedef struct {
 
 } t_kernel_config;
 
-extern t_kernel_config* config_kernel;
-
-
 typedef struct {
     char* dispositivo;
     int cantidad_disponible;
@@ -53,21 +42,31 @@ typedef struct{
 }args_io;
 
 
-// VARIABLES PARA PCB
+// ------------------------------ VARIABLES GLOBALES ------------------------------ //
 
-extern int pid_counter;
+// LOGGER Y CONFIG
+extern t_log* logger;
+extern t_config* config;
+extern t_kernel_config* config_kernel;
 
-// Estados de procesos
+// SOCKETS
+extern int server_cpu;
+extern int server_fs;
+extern int server_memoria;
+
+// HRRN 
+extern t_temporal* temporal;
+extern double tiempo;
+
+// COLAS DE ESTADOS DE PROCESOS
 extern t_queue* procesos_en_new;
 extern t_list* procesos_en_ready;
 extern t_pcb* proceso_en_running;
 
+// RECURSOS
 extern t_list* recursos;
 
-
-extern t_list* lista_pids;
-
-// Semáforos
+// SEMAFOROS
 extern pthread_mutex_t mutex_new;
 extern pthread_mutex_t mutex_ready;
 extern pthread_mutex_t mutex_running;
@@ -79,38 +78,31 @@ extern sem_t cant_procesos_ready;
 
 extern sem_t cpu_libre;
 
-extern int server_cpu;
-extern int server_fs;
-extern int server_memoria;
+// AUXILIARES
+extern t_list* lista_pids;
+extern int pid_counter;
 
 
-// FUNCIONES EN KERNEL_UTILS.C
-
-
+// ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 void matar_proceso(char* motivo);
-
-t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
-void buscar_y_borrar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
-t_recurso* recurso_en_lista(char* recurso_solicitado);
 void bloquear_proceso(args_io* argumentos_io);
+t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
 
-// HRRN
-void estimar_proxima_rafaga(t_pcb* proceso);
+
+// ------------------------------ HRRN ------------------------------ //
 void calcular_tasa_de_respuesta();
+void estimar_proxima_rafaga(t_pcb* proceso);
 t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
+
+// ------------------------------ MANEJO DE RECURSOS ------------------------------ //
+t_recurso* recurso_en_lista(char* recurso_solicitado);
 
 
 
 // Funciones de otros modulos
-
-
 void mandar_a_ready(t_pcb* proceso);
-
 void inicializar_registros(t_registros_cpu* registros);
-
-
-
 
 
 #endif

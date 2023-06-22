@@ -3,13 +3,12 @@
 
 #include "kernel_utils.h"
 
-// TODO
-
+// ------------------------------ PLANIFICADOR LARGO PLAZO ------------------------------ //
 void planificador_largo_plazo();
-void planificador_corto_plazo();
-
-
 void mandar_a_ready(t_pcb* proceso);
+
+// ------------------------------ PLANIFICADOR CORTO PLAZO ------------------------------ //
+void planificador_corto_plazo();
 void volver_a_running();
 void mandar_a_running(t_pcb* proceso);
 

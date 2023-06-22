@@ -86,7 +86,6 @@ void volver_a_running() {
     log_info(logger, "Proceso %d vuelve a Running despues de haber sido desalojado", proceso_en_running->pid);
 }
 
-
 void mandar_a_ready(t_pcb* proceso) {
     proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
     pthread_mutex_lock(&mutex_ready);

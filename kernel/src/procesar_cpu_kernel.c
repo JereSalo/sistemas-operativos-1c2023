@@ -243,6 +243,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             mostrar_tabla_segmentos(tabla_segmentos_actualizada);
             
+            list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
             
             proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
 

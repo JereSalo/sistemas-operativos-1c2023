@@ -79,14 +79,6 @@ void procesar_kernel_memoria() {
             {
                 log_debug(logger, "Solicitud de eliminacion de segmento recibida \n");
 
-                t_segmento* segmento;
-                t_tabla_proceso* proceso;
-                t_hueco* hueco;
-                
-                // Estas dos nos sirven para saber donde eliminar en la tabla global de segmentos y para crear el hueco con el mismo tamanio que el segmento eliminado
-                int direccion_base;
-                int tamanio;
-
                 int id_segmento;
                 int pid;
             
@@ -96,41 +88,22 @@ void procesar_kernel_memoria() {
                     break;
                 }
                 
-                // Buscamos el segmento dentro de la lista global de segmentos
-                // Le mandamos proceso asi despues tenemos conocimiento del proceso del que se trata -> lo necesitamos para despues eliminar dicho segmento 
-                segmento = buscar_segmento_en_tabla_por_proceso(tabla_segmentos_por_proceso, &proceso, pid, id_segmento);
-        
-                // Sacamos la direccion base de ese segmento para despues eliminar ese segmento en la lista global de segementos
-                // Tambien la direccion base nos sirve para crear el hueco que va a dejar libre ese segmento
-                direccion_base = segmento->direccion_base;
-                
-                // Obtenemos el tamanio de ese segmento para despues crear el hueco libre con ese mismo tamanio
-                tamanio = segmento->tamanio;
-                
-               
-                // Eliminamos el segmento de la tabla de segmentos por proceso
-                eliminar_segmento_de_tabla(proceso->lista_segmentos, segmento, "PROCESO", pid);
-        
-            
-                // Buscamos el segmento dentro de la lista global de segmentos
-                segmento = buscar_segmento_en_tabla_global(lista_global_segmentos, direccion_base);
+                t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
+                t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
 
+                // Creamos hueco con base y tamaño del segmento a eliminar. Si hay hueco aledaño consolidamos.
+                crear_y_consolidar_huecos(segmento->direccion_base, segmento->tamanio);
 
-                // Eliminamos ese segmento de la lista global de segmentos
-                eliminar_segmento_de_tabla(lista_global_segmentos, segmento, "GLOBAL", pid);
-
-                
-                // Enviamos a Kernel la tabla de segmentos actualizada
-                send_tabla_segmentos(cliente_kernel, proceso->lista_segmentos);
-                log_debug(logger, "Envio tabla de procesos actualizada a Kernel \n");
-
-                // Creamos y consolidamos en caso de que haya huecos aledanios
-                hueco = crear_y_consolidar_huecos(direccion_base, tamanio);
-
-                // Agregamos el hueco a la tabla de huecos libres
-                agregar_hueco(hueco);
+                // Sacamos segmento de ambas listas y liberamos memoria.
+                list_remove_element(lista_global_segmentos, segmento);
+                list_remove_element(tabla_proceso->lista_segmentos, segmento);
+                free(segmento);
 
                 mostrar_tabla_huecos(tabla_huecos);
+
+                // Enviamos a Kernel la tabla de segmentos actualizada
+                send_tabla_segmentos(cliente_kernel, tabla_proceso->lista_segmentos);
+                log_debug(logger, "Envio tabla de procesos actualizada a Kernel \n");
 
                 break;
             }

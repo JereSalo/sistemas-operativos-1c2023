@@ -3,6 +3,6 @@
 
 #include "memoria_utils.h"
 
-
+void inicializar_estructuras_administrativas();
 
 #endif

@@ -73,7 +73,7 @@ void mostrar_tabla_huecos(t_list* tabla_huecos) {
         
         printf("Base Hueco: %d \n", hueco->direccion_base);
         printf("Tamanio Hueco: %d \n", hueco->tamanio);
-        printf("Final Hueco: %d \n", hueco->direccion_final);
+        printf("Final Hueco: %d \n", hueco->direccion_base + hueco->tamanio);
     }   
     list_iterator_destroy(lista_it);
 }

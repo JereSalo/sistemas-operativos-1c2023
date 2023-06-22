@@ -61,7 +61,6 @@ typedef struct {
 typedef struct {
     int direccion_base;
     int tamanio;
-    int direccion_final;
 } t_hueco;
 
 

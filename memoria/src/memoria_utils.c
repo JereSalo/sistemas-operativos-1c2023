@@ -59,7 +59,6 @@ t_hueco* crear_hueco(int direccion_base, int tamanio){
 
     hueco->direccion_base = direccion_base;
     hueco->tamanio = tamanio;
-    hueco->direccion_final = direccion_base + tamanio - 1;
 
     return hueco;
 }
@@ -82,47 +81,28 @@ void crear_y_agregar_hueco(int direccion_base, int tamanio){
     agregar_hueco(hueco);
 }
 
-t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_1, t_hueco* hueco_aledanio_2)
+t_hueco* consolidar_huecos(t_hueco* hueco_original, t_hueco* hueco_aledanio_anterior, t_hueco* hueco_aledanio_posterior)
 {
-    if(hueco_aledanio_1 != NULL && hueco_aledanio_2 == NULL)
-    {
-        log_debug(logger, "Se consolidaran los huecos: Base %d - Final %d -- Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final, hueco_aledanio_1->direccion_base, hueco_aledanio_1->direccion_final);
-        
-        hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
-        hueco_original->tamanio += hueco_aledanio_1->tamanio;
-        
-        log_debug(logger, "El hueco resultante es: Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final);
-        
-        list_remove_element(tabla_huecos, hueco_aledanio_1);
-        free(hueco_aledanio_1);
-    }
-    else if(hueco_aledanio_1 == NULL && hueco_aledanio_2 != NULL)
-    {
-        log_debug(logger, "Se consolidaran los huecos: Base %d - Final %d -- Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final, hueco_aledanio_2->direccion_base, hueco_aledanio_2->direccion_final);
+    if(hueco_aledanio_anterior != NULL){
+        log_debug(logger, "Se consolidaran los huecos: Base %d - Size: %d -- Base: %d - Size: %d", hueco_original->direccion_base, hueco_original->tamanio, hueco_aledanio_anterior->direccion_base, hueco_aledanio_anterior->tamanio);
 
-        hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
-        hueco_original->tamanio += hueco_aledanio_2->tamanio;
-        
-        log_debug(logger, "El hueco resultante es: Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final);
+        hueco_original->direccion_base = hueco_aledanio_anterior->direccion_base;
+        hueco_original->tamanio += hueco_aledanio_anterior->tamanio;        
 
-        list_remove_element(tabla_huecos, hueco_aledanio_2);
-        free(hueco_aledanio_2);
+        list_remove_element(tabla_huecos, hueco_aledanio_anterior);
+        free(hueco_aledanio_anterior);
     }
-    else if(hueco_aledanio_1 != NULL && hueco_aledanio_2 != NULL)
-    {   
-        log_debug(logger, "Se consolidaran los huecos: Base %d - Final %d -- Base: %d - Final: %d -- Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final, hueco_aledanio_1->direccion_base, hueco_aledanio_1->direccion_final , hueco_aledanio_2->direccion_base, hueco_aledanio_2->direccion_final);
-        
-        hueco_original->direccion_base = hueco_aledanio_1->direccion_base;
-        hueco_original->direccion_final = hueco_aledanio_2->direccion_final;
-        hueco_original->tamanio += (hueco_aledanio_1->tamanio + hueco_aledanio_2->tamanio);
-        
-        log_debug(logger, "El hueco resultante es: Base: %d - Final: %d", hueco_original->direccion_base, hueco_original->direccion_final);
 
-        list_remove_element(tabla_huecos, hueco_aledanio_1);
-        list_remove_element(tabla_huecos, hueco_aledanio_2);
-        free(hueco_aledanio_1);
-        free(hueco_aledanio_2);
+    if(hueco_aledanio_posterior != NULL){
+        log_debug(logger, "Se consolidaran los huecos: Base %d - Size %d -- Base: %d - Size: %d", hueco_original->direccion_base, hueco_original->tamanio, hueco_aledanio_posterior->direccion_base, hueco_aledanio_posterior->tamanio);
+
+        hueco_original->tamanio += hueco_aledanio_posterior->tamanio;
+
+        list_remove_element(tabla_huecos, hueco_aledanio_posterior);
+        free(hueco_aledanio_posterior);
     }
+
+    log_debug(logger, "El hueco resultante es: Base: %d - Size: %d", hueco_original->direccion_base, hueco_original->tamanio);
     
     return hueco_original;
 }
@@ -133,7 +113,7 @@ void crear_y_consolidar_huecos(int direccion_base, int tamanio) {
     t_hueco* hueco = crear_hueco(direccion_base, tamanio);
 
     // Buscamos un potenciales huecos aledanios
-    t_hueco* hueco_aledanio_1 = buscar_hueco_por_final(direccion_base - 1);
+    t_hueco* hueco_aledanio_1 = buscar_hueco_por_final(direccion_base);
     t_hueco* hueco_aledanio_2 = buscar_hueco_por_base(direccion_base + tamanio);
 
     // Consolidamos los huecos -> Si no encontro huecos aledanios esta funcion retorna el hueco original
@@ -152,7 +132,7 @@ t_hueco* buscar_hueco_por_base(int direccion_base){
 
 t_hueco* buscar_hueco_por_final(int direccion_final){
     bool coincide_con_final(void* hueco){
-        return ((t_hueco*)hueco)->direccion_final == direccion_final;
+        return ((t_hueco*)hueco)->direccion_base + ((t_hueco*)hueco)->tamanio == direccion_final;
     }
 
     return ((t_hueco*)list_find(tabla_huecos, coincide_con_final));

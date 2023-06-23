@@ -152,9 +152,14 @@ t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
     // Se agrega el segmento creado a la lista global de segmentos
     list_add(lista_global_segmentos, segmento);
 
+    return segmento;
+}
+
+// FUNCION IMPROVISADA, ESTO ESTABA EN CREAR_SEGMENTO
+void acutalizar_tabla_de_huecos(t_segmento* segmento){
     // Actualizar tabla de huecos.
 
-    t_hueco* hueco = buscar_hueco_por_base(direccion_base);
+    t_hueco* hueco = buscar_hueco_por_base(segmento->direccion_base);
 
     // log_debug(logger, "Base del hueco (previo a creacion segmento) -> %d", hueco->direccion_base);
     // log_debug(logger, "Tamanio del hueco (previo a creacion segmento) -> %d", hueco->direccion_base);
@@ -170,8 +175,6 @@ t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
         list_remove_element(tabla_huecos, hueco);
         free(hueco);
     }
-
-    return segmento;
 }
 
 // Agrega segmento a la tabla de segmentos por proceso

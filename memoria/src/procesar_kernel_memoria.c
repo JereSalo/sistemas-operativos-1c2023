@@ -1,18 +1,17 @@
 #include "procesar_kernel_memoria.h"
 
-t_tabla_proceso* inicializar_tabla_proceso(int pid){
+// Crea la tabla y los segmentos que están contenidos en esta, agregándolos también a la lista global de segmentos
+t_tabla_proceso* crear_tabla_proceso(int pid){
     t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
     tabla_proceso->pid = pid;
-    // tabla_proceso->lista_segmentos = list_create();
-    t_list* lista_segmentos = list_create();
-    list_add(lista_segmentos, segmento_cero);
+    tabla_proceso->lista_segmentos = list_create();
+    list_add(tabla_proceso->lista_segmentos, segmento_cero);
     
-    // Tengo que crear una banda de segmentos y agregar uno por uno a la lista_segmentos.
-    // Los ids van del 1 al max-1
-    // Tamaños son todos 0
-    // Direccion base no importa, puede arrancar en cualquier valor.
-
-    tabla_proceso->lista_segmentos = lista_segmentos;
+    for(int id_seg = 1; id_seg < config_memoria.CANT_SEGMENTOS; id_seg++){
+        t_segmento* segmento = crear_segmento(id_seg, -1, 0);
+        list_add(tabla_proceso->lista_segmentos, segmento);
+        list_add(lista_global_segmentos, segmento);
+    }
 }
 
 void procesar_kernel_memoria() {
@@ -31,12 +30,10 @@ void procesar_kernel_memoria() {
 
                 // Crear estructura t_tabla_proceso (con pid y lista de tabla de segmentos del proceso)
                 // Cargarle a la estructura el pid del proceso y crear la lista que va a tener adentro
-                t_tabla_proceso* tabla_proceso = inicializar_tabla_proceso(pid);
+                t_tabla_proceso* tabla_proceso = crear_tabla_proceso(pid);
 
                 // Agregar esa estructura (t_tabla_proceso) a la tabla de segmentos por proceso
                 list_add(tabla_segmentos_por_proceso, tabla_proceso);
-
-                // agregar_segmento(segmento_cero, pid);
 
                 // Al kernel se le devuelve en este caso la tabla interna del proceso
                 send_tabla_segmentos(cliente_kernel, tabla_proceso->lista_segmentos);
@@ -70,18 +67,29 @@ void procesar_kernel_memoria() {
                 }
                 else{
                     log_debug(logger, "Se realizara la creacion \n");
-                    // Camino feliz :D
-                    // Crear segmento y agregarlo a lista global de segmentos
-                    // Modificar tabla de huecos
-                    // Esta funcion hace ambas cosas y retorna el segmento creado
-                    t_segmento* segmento_creado = crear_segmento(id_segmento, hueco->direccion_base, tamanio_segmento);
+                    // Es una vil mentira la creacion, solo modifica un segmento existente
 
-                    // Agregar tambien segmento con el PID a la tabla de segmentos por proceso.
-                    agregar_segmento(segmento_creado, pid);
-                    
+                    // Tengo que obtener un segmento en particular dado PID y ID_SEGMENTO y modificar su BASE y TAMAÑO
+                    t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
+                    t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
+
+                    // Modificar base y tamaño de segmento, y modificar base y tamaño de hueco
+
+                    segmento->direccion_base = hueco->direccion_base;
+                    segmento->tamanio = tamanio_segmento;
+
+                    hueco->direccion_base += segmento->tamanio;
+                    hueco->tamanio -= segmento->tamanio;
+
+                    if(hueco->tamanio == 0){
+                        log_debug(logger, "Hueco eliminado \n");
+                        list_remove_element(tabla_huecos, hueco);
+                        free(hueco);
+                    }
+                  
                     // Mandarle a Kernel la base del nuevo segmento
                     SEND_INT(cliente_kernel, CREACION);
-                    SEND_INT(cliente_kernel, segmento_creado->direccion_base);
+                    SEND_INT(cliente_kernel, segmento->direccion_base);
                     //send_base_segmento();
                     // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }

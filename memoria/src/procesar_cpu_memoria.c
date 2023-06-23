@@ -15,7 +15,10 @@ void procesar_cpu_memoria() {
                 RECV_INT(cliente_cpu, longitud);
 
                 char* datos_leidos = malloc(longitud + 1);
+
+                usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(datos_leidos, memoria_principal + direccion_fisica, longitud);
+                
                 datos_leidos[longitud] = '\0';
 
                 send_string(cliente_cpu, datos_leidos);
@@ -32,6 +35,7 @@ void procesar_cpu_memoria() {
                 RECV_INT(cliente_cpu, longitud);
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
 
+                usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
 
                 free(valor_a_escribir);

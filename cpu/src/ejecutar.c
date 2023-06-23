@@ -114,8 +114,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             free(valor_leido);
 
-            int confirmacion_escritura;
-            RECV_INT(server_memoria, confirmacion_escritura);
+            char confirmacion[5];
+            recv_string(server_memoria, confirmacion);
             
             break;
         }

@@ -36,7 +36,7 @@ void procesar_cpu_memoria() {
 
                 free(valor_a_escribir);
 
-                SEND_INT(cliente_cpu, 1);
+                send_string(cliente_cpu, "OK");
 
                 break;
             }

@@ -129,4 +129,6 @@ void lista_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 t_segmento* duplicar_segmento(const t_segmento* original);
 
+t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
+
 #endif

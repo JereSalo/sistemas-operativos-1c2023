@@ -188,12 +188,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     log_debug(logger, "Se creara segmento");
                     int base_segmento;
                     RECV_INT(server_memoria, base_segmento);
-                    // Crear segmento y agregarlo a tabla de segmentos del proceso
-                    t_segmento* nuevo_segmento = malloc(sizeof(t_segmento));
-                    nuevo_segmento->direccion_base = base_segmento;
-                    nuevo_segmento->id = id_segmento;
-                    nuevo_segmento->tamanio = tamanio_segmento;
-                    list_add(proceso_en_running->tabla_segmentos, nuevo_segmento);
+
+                    t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+                    segmento->direccion_base = base_segmento;
+
                     log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
                     volver_a_running();
 

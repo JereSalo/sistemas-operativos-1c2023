@@ -64,7 +64,6 @@ t_hueco* buscar_hueco_por_final(int direccion_final);
 // ------------------------------ MANEJO DE SEGMENTOS ------------------------------ //
 t_segmento* crear_segmento(int id, int direccion_base, int tamanio);
 void agregar_segmento(t_segmento* segmento, int pid);
-t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
 t_segmento* buscar_segmento_por_base(int id_segmento, t_list* tabla_segmentos);
 t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid);
 t_segmento* buscar_segmento_en_tabla_por_proceso(t_list* tabla_segmentos, t_tabla_proceso** proceso, int pid, int id_segmento);

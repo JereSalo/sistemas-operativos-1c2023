@@ -406,3 +406,10 @@ void liberar_proceso(t_pcb* proceso){
 }
 
 
+t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos){
+    bool coincide_con_id(void* segmento){
+        return ((t_segmento*)segmento)->id == id_segmento;
+    }
+
+    return ((t_segmento*)list_find(tabla_segmentos, coincide_con_id));
+}

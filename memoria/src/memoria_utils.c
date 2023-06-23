@@ -196,13 +196,7 @@ void agregar_segmento(t_segmento* segmento, int pid){
     log_debug(logger, "Segmento %d agregado a proceso %d: Base %d, Tamanio: %d", segmento->id, pid, segmento->direccion_base, segmento->tamanio);
 }
 
-t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos){
-    bool coincide_con_id(void* segmento){
-        return ((t_segmento*)segmento)->id == id_segmento;
-    }
 
-    return ((t_segmento*)list_find(tabla_segmentos, coincide_con_id));
-}
 
 t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos){
     bool coincide_con_base(void* segmento){
@@ -300,6 +294,8 @@ t_segmento* mover_segmentos() {
         segmento_anterior = segmento;
     }
     list_iterator_destroy(lista_it);
+
+    list_destroy(lista_global_filtrada);
 
     // Retornamos el ultimo segmento
     return segmento;

@@ -108,6 +108,7 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_LIBERAR_MEMORIA:
             {
+                log_debug(logger,"\nRecibi solicitud para Liberar Memoria de un proceso \n");
                 int pid;
                 RECV_INT(cliente_kernel, pid);
 
@@ -127,6 +128,8 @@ void procesar_kernel_memoria() {
                 list_remove_element(tabla_segmentos_por_proceso, tabla_proceso);
                 list_destroy(tabla_proceso->lista_segmentos);
                 free(tabla_proceso);
+
+                break;
             }
             case -1:
             {

@@ -201,7 +201,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 }
                 case COMPACTACION:
                 {
-                    log_debug(logger, "Kernel solicitara compactacion a memoria");
+                    log_debug(logger, "Kernel solicitara compactacion a memoria \n");
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     //t_list* lista_recepcion_segmentos_actualizados = list_create();
                     // Hay que recibir todas las listas de segmentos actualizadas

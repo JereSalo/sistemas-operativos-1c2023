@@ -265,6 +265,33 @@ void eliminar_segmento_de_tabla(t_list* tabla_segmentos, t_segmento* segmento, c
     }
 }
 
+// COMPACTACION
+t_segmento* mover_segmentos() {
+
+    t_list_iterator* lista_it = list_iterator_create(lista_global_segmentos);
+
+    t_segmento* segmento = NULL;
+    t_segmento* segmento_anterior = NULL;
+
+    while(list_iterator_has_next(lista_it)) {
+        
+        segmento = (t_segmento*)list_iterator_next(lista_it);
+
+        if(segmento->direccion_base != 0) {
+            
+            segmento->direccion_base = segmento_anterior->direccion_base + segmento_anterior->tamanio;
+        }
+
+        segmento_anterior = segmento;
+    }
+    list_iterator_destroy(lista_it);
+
+    // Retornamos el ultimo segmento
+    return segmento;
+}
+
+
+
 
 // ------------------------------ OTROS ------------------------------ //
 

@@ -12,6 +12,9 @@ void inicializar_estructuras_administrativas() {
     // Creamos el segmento 0 -> no buscamos huecos libres porque ya sabemos que hay
     if(config_memoria.TAM_SEGMENTO_0 <= tamanio_max_segmento_cpu) {
         crear_segmento(0, 0, config_memoria.TAM_SEGMENTO_0);
+        t_hueco* hueco = list_get(tabla_huecos, 0);
+        hueco->direccion_base += config_memoria.TAM_SEGMENTO_0;
+        hueco->tamanio -= config_memoria.TAM_SEGMENTO_0;
     }
     else{
         log_error(logger, "Segmento 0 excede size maximo permitido por CPU (Seg0: %d SizeMax: %d) \n", config_memoria.TAM_SEGMENTO_0, tamanio_max_segmento_cpu);

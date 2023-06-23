@@ -5,6 +5,6 @@
 #include "algoritmos.h"
 
 void procesar_kernel_memoria();
-void delete_segment(int pid, int id_segmento);
+t_tabla_proceso* crear_tabla_proceso(int pid);
 
 #endif

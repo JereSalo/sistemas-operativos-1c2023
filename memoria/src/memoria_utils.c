@@ -271,7 +271,19 @@ void eliminar_segmento_de_tabla(t_list* tabla_segmentos, t_segmento* segmento, c
 // COMPACTACION
 t_segmento* mover_segmentos() {
 
-    t_list_iterator* lista_it = list_iterator_create(lista_global_segmentos);
+    // Filtar a los que tengan tamaño distinto de 0
+
+    t_list* lista_global_filtrada;
+
+    bool tamanio_no_nulo(void* segmento){
+        return ((t_segmento*)segmento)->tamanio != 0;
+    }
+
+    lista_global_filtrada = list_filter(lista_global_segmentos, tamanio_no_nulo);
+
+    //mostrar_tabla_segmentos(lista_global_filtrada);
+
+    t_list_iterator* lista_it = list_iterator_create(lista_global_filtrada);
 
     t_segmento* segmento = NULL;
     t_segmento* segmento_anterior = NULL;

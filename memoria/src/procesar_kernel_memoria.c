@@ -100,9 +100,9 @@ void procesar_kernel_memoria() {
                 t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
                 t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
 
-                log_debug(logger, "ID del segmento a eliminar: %d", segmento->id);
-                log_debug(logger, "Tamanio del segmento a eliminar: %d", segmento->tamanio);
-                log_debug(logger, "Direccion base segmento a eliminar: %d", segmento->direccion_base);
+                // log_debug(logger, "ID del segmento a eliminar: %d", segmento->id);
+                // log_debug(logger, "Tamanio del segmento a eliminar: %d", segmento->tamanio);
+                // log_debug(logger, "Direccion base segmento a eliminar: %d", segmento->direccion_base);
 
                 // Creamos hueco con base y tamaño del segmento a eliminar. Si hay hueco aledaño consolidamos.
                 crear_y_consolidar_huecos(segmento->direccion_base, segmento->tamanio);

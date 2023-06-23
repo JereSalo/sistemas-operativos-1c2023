@@ -122,7 +122,7 @@ void procesar_kernel_memoria() {
                 
                 // Creamos el hueco libre resultante de la compactacion y lo agregamos a la lista
                 int direccion_base_hueco = ultimo_segmento->direccion_base + ultimo_segmento->tamanio;
-                int tamanio_hueco = config_memoria.TAM_MEMORIA - (direccion_base_hueco - 1);
+                int tamanio_hueco = config_memoria.TAM_MEMORIA - direccion_base_hueco;
                 
                 crear_y_agregar_hueco(direccion_base_hueco, tamanio_hueco);
 

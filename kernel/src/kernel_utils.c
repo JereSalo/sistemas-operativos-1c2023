@@ -42,16 +42,20 @@ t_list* lista_pids;
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 
 void matar_proceso(char* motivo) {
-    // Aca no necesariamente el motivo es success...
-    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
     
+    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
+
     int socket_consola = proceso_en_running->socket_consola;
-    int pid_finalizado = proceso_en_running->pid;
+    int pid = proceso_en_running->pid;
 
     liberar_proceso(proceso_en_running);
 
+    // Decirle a memoria que libere estructuras del proceso
+    SEND_INT(server_memoria, SOLICITUD_LIBERAR_MEMORIA);
+    SEND_INT(server_memoria, pid);
+    
     // Avisarle a consola que finalizó el proceso.
-    SEND_INT(socket_consola, pid_finalizado);
+    SEND_INT(socket_consola, pid);
     send_string(socket_consola, motivo);
         
     sem_post(&maximo_grado_de_multiprogramacion);

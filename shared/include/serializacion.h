@@ -16,7 +16,8 @@ typedef enum {
     SOLICITUD_COMPACTACION,
     SEGMENTOS,
     SOLICITUD_LECTURA,
-    SOLICITUD_ESCRITURA
+    SOLICITUD_ESCRITURA,
+    SOLICITUD_LIBERAR_MEMORIA
 } op_code;
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones);

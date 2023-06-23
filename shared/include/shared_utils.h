@@ -94,8 +94,7 @@ typedef enum {
 typedef enum {
     CREACION,
     COMPACTACION,
-    OUT_OF_MEMORY,
-    ELIMINACION   
+    OUT_OF_MEMORY
 } op_respuesta_memoria;
 
 

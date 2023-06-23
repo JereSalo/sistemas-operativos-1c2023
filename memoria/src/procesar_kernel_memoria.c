@@ -90,6 +90,7 @@ void procesar_kernel_memoria() {
                 
                 delete_segment(pid, id_segmento);
 
+                // Debug
                 mostrar_tabla_huecos(tabla_huecos);
 
                 // Enviamos a Kernel la tabla de segmentos actualizada
@@ -102,8 +103,25 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_COMPACTACION:
             {
-                log_debug(logger, "Solicitud de compactacion recibida");
-                //TODO
+                log_debug(logger, "Solicitud de compactacion recibida \n");
+                
+                // Recorrer la lista global de segmentos y mover todos al final de donde termina cada uno salvo el primero
+                t_segmento* ultimo_segmento = mover_segmentos();
+
+
+                // Liberamos (eliminamos) la lista de huecos libres
+                list_clean_and_destroy_elements(tabla_huecos, free);                
+                
+                
+                // Creamos el hueco libre resultante de la compactacion y lo agregamos a la lista
+                int direccion_base_hueco = ultimo_segmento->direccion_base + ultimo_segmento->tamanio;
+                int tamanio_hueco = config_memoria.TAM_MEMORIA - direccion_base_hueco;
+                
+                crear_y_agregar_hueco(direccion_base_hueco, tamanio_hueco);
+
+                // Debug
+                mostrar_tabla_huecos(tabla_huecos);
+
                 break;
             }
             case SOLICITUD_LIBERAR_MEMORIA:

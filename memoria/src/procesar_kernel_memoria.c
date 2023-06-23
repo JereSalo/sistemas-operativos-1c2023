@@ -1,5 +1,20 @@
 #include "procesar_kernel_memoria.h"
 
+t_tabla_proceso* inicializar_tabla_proceso(int pid){
+    t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
+    tabla_proceso->pid = pid;
+    // tabla_proceso->lista_segmentos = list_create();
+    t_list* lista_segmentos = list_create();
+    list_add(lista_segmentos, segmento_cero);
+    
+    // Tengo que crear una banda de segmentos y agregar uno por uno a la lista_segmentos.
+    // Los ids van del 1 al max-1
+    // Tamaños son todos 0
+    // Direccion base no importa, puede arrancar en cualquier valor.
+
+    tabla_proceso->lista_segmentos = lista_segmentos;
+}
+
 void procesar_kernel_memoria() {
     while(1) {
         op_code cod_op = recibir_operacion(cliente_kernel);
@@ -16,14 +31,12 @@ void procesar_kernel_memoria() {
 
                 // Crear estructura t_tabla_proceso (con pid y lista de tabla de segmentos del proceso)
                 // Cargarle a la estructura el pid del proceso y crear la lista que va a tener adentro
-                t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
-                tabla_proceso->pid = pid;
-                tabla_proceso->lista_segmentos = list_create();
+                t_tabla_proceso* tabla_proceso = inicializar_tabla_proceso(pid);
 
                 // Agregar esa estructura (t_tabla_proceso) a la tabla de segmentos por proceso
                 list_add(tabla_segmentos_por_proceso, tabla_proceso);
 
-                agregar_segmento(segmento_cero, pid);
+                // agregar_segmento(segmento_cero, pid);
 
                 // Al kernel se le devuelve en este caso la tabla interna del proceso
                 send_tabla_segmentos(cliente_kernel, tabla_proceso->lista_segmentos);

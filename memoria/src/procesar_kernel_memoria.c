@@ -47,7 +47,7 @@ void procesar_kernel_memoria() {
                         SEND_INT(cliente_kernel, COMPACTACION);
                     }
                     else{
-                        log_debug(logger, "No hay memoria");
+                        log_debug(logger, "No hay suficiente espacio en memoria");
                         SEND_INT(cliente_kernel, OUT_OF_MEMORY);
                     }
                 }
@@ -60,10 +60,9 @@ void procesar_kernel_memoria() {
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
 
                     // Modificar base y tamaño de segmento, y modificar base y tamaño de hueco
-
                     segmento->direccion_base = hueco->direccion_base;
                     segmento->tamanio = tamanio_segmento;
-
+                                       
                     hueco->direccion_base += segmento->tamanio;
                     hueco->tamanio -= segmento->tamanio;
 
@@ -107,6 +106,7 @@ void procesar_kernel_memoria() {
                 // Creamos hueco con base y tamaño del segmento a eliminar. Si hay hueco aledaño consolidamos.
                 crear_y_consolidar_huecos(segmento->direccion_base, segmento->tamanio);
 
+                // Acá se produce la "eliminación" del segmento
                 segmento->direccion_base = -1;
                 segmento->tamanio = 0;
 

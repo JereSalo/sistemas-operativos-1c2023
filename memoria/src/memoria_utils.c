@@ -285,10 +285,21 @@ t_segmento* mover_segmentos() {
     while(list_iterator_has_next(lista_it)) {
         
         segmento = (t_segmento*)list_iterator_next(lista_it);
+        //char* datos_leidos;
 
         if(segmento->direccion_base != 0) {
             
+            // Copiamos en datos_leidos los datos del segmento que vamos a modificar y los liberamos
+            //datos_leidos = malloc(segmento->tamanio);
+            //memcpy(datos_leidos, memoria_principal + segmento->direccion_base, segmento->tamanio);
+
+            // Falta borrar lo que esta en ese espacio -> ponemos NULL?
+
             segmento->direccion_base = segmento_anterior->direccion_base + segmento_anterior->tamanio;
+
+            // Escribimos en la nueva direccion_base del segmento los datos que tenia ese segmento
+            //memcpy(memoria_principal + segmento->direccion_base, datos_leidos, segmento->tamanio);
+            //TODO
         }
 
         segmento_anterior = segmento;

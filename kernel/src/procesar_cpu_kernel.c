@@ -190,7 +190,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     RECV_INT(server_memoria, base_segmento);
 
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+                    
                     segmento->direccion_base = base_segmento;
+
+                    // Faltaba modificar el tamanio!!
+                    segmento->tamanio = tamanio_segmento; 
+
 
                     log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
                     volver_a_running();
@@ -206,6 +211,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     // recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
                     // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
                     // Se puede hacer de varias formas, todavia no se cual sería la mejor. El dilema es si hacer la serialización más compleja para facilitarnos la recepción de los datos o si hacemos lo contrario. (serialización simple y recepción más elaborada)
+
+                    //La lista que recibo por cada elemento tiene pid y su tabla asociada
+                
 
                     // Termina con: send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                     break;
@@ -239,6 +247,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_debug(logger, "Se recibio la tabla de segmentos actualizada del proceso %d", proceso_en_running->pid);
 
+            // Debug
             mostrar_tabla_segmentos(tabla_segmentos_actualizada);
             
             list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);

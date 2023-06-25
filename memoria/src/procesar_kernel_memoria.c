@@ -74,9 +74,13 @@ void procesar_kernel_memoria() {
                         free(hueco);
                     }
                   
+                    
+                    
                     // Mandarle a Kernel la base del nuevo segmento
+                    log_debug(logger, "Se le manda al Kernel la base del segmento creado \n");
                     SEND_INT(cliente_kernel, CREACION);
                     SEND_INT(cliente_kernel, segmento->direccion_base);
+                    
                     //send_base_segmento();
                     // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }
@@ -136,7 +140,10 @@ void procesar_kernel_memoria() {
                 crear_y_agregar_hueco(direccion_base_hueco, tamanio_hueco);
 
                 // Mandamos a Kernel las tablas actualizadas
-                //send_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
+                
+                
+                log_debug(logger, "Se va a mandar el resultado de la compactacion a Kernel \n");
+                send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso);
 
 
                 // Debug

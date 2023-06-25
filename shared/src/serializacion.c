@@ -203,13 +203,10 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 
 void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos) {
        
-    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
-    
-    
+    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); 
+        
     void* stream = malloc(*size_tabla_segmentos);
 
-    
-    
     size_t desplazamiento = 0;
 
     t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
@@ -326,15 +323,87 @@ void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento
 
 // ------------------------------ SERIALIZACION DE TABLA POR PROCESO (COMPACTACION) ------------------------------ //
 
-void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_procesos) {
+void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por_proceso) {
+    size_t size_segmentos_por_proceso;
     
-    *size_tabla_segmentos_por_proceso = sizeof(t_tabla_proceso) * list_size(tabla_segmentos_por_proceso); 
+    void* stream_tabla_segmentos_por_proceso = serializar_tabla_segmentos_por_proceso(&size_segmentos_por_proceso, tabla_segmentos_por_proceso);
+
+    // stream completo
+    *size = sizeof(size_t)         		       // size segmentos_por_proceso
+            + size_segmentos_por_proceso;      // segmentos_por_proceso
     
+   
+    void* paquete = malloc(*size);
+   
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos_por_proceso, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_tabla_segmentos_por_proceso, size_segmentos_por_proceso, &desplazamiento);
+  
+    free(stream_tabla_segmentos_por_proceso);
+    return paquete;
 }
 
 
-void deserializar_tabla_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento){
+
+void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso) {
     
+    // El size de la tabla de segmentos por proceso incluye al size de la tabla en si + el tamanio de cada tabla de segmentos
+    // Esto se multiplica por la cantidad de entradas que tenga la tabla (size)
+    
+    size_t size_tabla_segmentos = sizeof(t_segmento) * 16; //Hardcodeado el 16 -> se saca del config de memoria; 
+    
+    *size_tabla_segmentos_por_proceso = (sizeof(t_tabla_proceso) + size_tabla_segmentos) * list_size(tabla_segmentos_por_proceso);    
+
+    void* stream = malloc(*size_tabla_segmentos_por_proceso);
+
+    size_t desplazamiento = 0;
+
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos_por_proceso);
+    
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+           
+        // Aca reusamos la funcion de serializar una tabla en particular
+        size_t size_segmentos;
+    
+        void* stream_tabla_segmentos = serializar_tabla_segmentos(&size_segmentos, tabla_proceso->lista_segmentos);
+        
+        copiar_variable_en_stream_y_desplazar(stream, &(tabla_proceso->pid), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, stream_tabla_segmentos, size_segmentos, &desplazamiento);
+        
+        // La serialiacion queda PID | TABLA SEGMENTOS y esto se hace por cada elemento
+
+        free(stream_tabla_segmentos);
+    }
+    
+    list_iterator_destroy(lista_it);
+    return stream; 
+}
+
+
+void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento) {
+
+    // Tenemos todo el stream con los elementos y sus tamaños.
+    
+    size_t desplazamiento_inicial = *desplazamiento;
+    
+    // Una tabla de segmentos siempre va a pesar esto
+    size_t size_tabla = sizeof(t_segmento) * 16;   //16 esta hardcodeado porque se saca del config de memoria pero no puedo accedero en este .c
+
+
+    while(*desplazamiento < size_segmentos + desplazamiento_inicial){
+        
+        t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
+
+        tabla_proceso->lista_segmentos = list_create();
+        
+        copiar_stream_en_variable_y_desplazar(&(tabla_proceso->pid), stream, sizeof(int), desplazamiento);
+        
+        deserializar_segmentos(stream, size_tabla, tabla_proceso->lista_segmentos, desplazamiento);
+
+        list_add(tabla_segmentos_por_proceso, tabla_proceso);
+    }
 }
 
 

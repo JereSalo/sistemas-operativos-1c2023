@@ -98,7 +98,7 @@ void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
         
         printf("ID Segmento: %d \n", segmento->id);
         printf("Base Segmento: %d \n", segmento->direccion_base);
-        printf("Tamanio Segmento: %d \n", segmento->tamanio);
+        printf("Tamanio Segmento: %d \n \n", segmento->tamanio);
     }
     
     list_iterator_destroy(lista_it);

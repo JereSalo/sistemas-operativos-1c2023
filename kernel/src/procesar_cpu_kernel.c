@@ -192,8 +192,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
                     
                     segmento->direccion_base = base_segmento;
-
-                    // Faltaba modificar el tamanio!!
                     segmento->tamanio = tamanio_segmento; 
 
 
@@ -205,20 +203,51 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 case COMPACTACION:
                 {
                     log_debug(logger, "Kernel solicitara compactacion a memoria \n");
+                    
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
-                    //t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    
+                    
+                    t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    
+                    
                     // Hay que recibir todas las listas de segmentos actualizadas
-                    //recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
+                    // aca hay seg fault y no entra siquiera al recv -> help me!!!!!
                     
+                    if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados)) {
+                        log_error(logger, "Hubo un problema al recibir el resultado de la compactacion \n");
+                        break;
+                    }
                     
-                    // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
-                    // Se puede hacer de varias formas, todavia no se cual sería la mejor. El dilema es si hacer la serialización más compleja para facilitarnos la recepción de los datos o si hacemos lo contrario. (serialización simple y recepción más elaborada)
+                    log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
 
+                    
+                    //log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
+                    //mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+
+                    //t_tabla_proceso* tabla_0 = list_get(lista_recepcion_segmentos_actualizados, 0);
+                    //t_tabla_proceso* tabla_1 = list_get(lista_recepcion_segmentos_actualizados, 1);
+
+                    //log_debug(logger, "PID: %d", tabla_0->pid);
+                    //log_debug(logger, "TABLA DE SEGMENTOS DESPUES DE COMPACTAR: \n");
+                    
+                    
+                    //mostrar_tabla_segmentos(tabla_0->lista_segmentos);
+
+
+                    //log_debug(logger, "PID: %d", tabla_1->pid);
+                    //log_debug(logger, "TABLA DE SEGMENTOS DESPUES DE COMPACTAR: \n");
+
+                    //mostrar_tabla_segmentos(tabla_1->lista_segmentos);
+
+
+                    // Despues de chequear que todo este bien habria que iterar la lista global de procesos y actualizar cada tabla con la recibida de memoria
+
+                    
                     //La lista que recibo por cada elemento tiene pid y su tabla asociada
                 
+                    send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                     
-
-                    // Termina con: send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+                    // Aca no deberiamos volver a running porque si no pasaria a la prox instruccion y tecnicamente la instruccion no termina hasta que se haga la creacion del segmento
 
                     break;
                 }

@@ -285,21 +285,25 @@ t_segmento* mover_segmentos() {
     while(list_iterator_has_next(lista_it)) {
         
         segmento = (t_segmento*)list_iterator_next(lista_it);
-        //char* datos_leidos;
+        char* datos_leidos;
 
         if(segmento->direccion_base != 0) {
             
+            //TODO -> Esto no anda porque no se mueven bien las cosas
+            
             // Copiamos en datos_leidos los datos del segmento que vamos a modificar y los liberamos
-            //datos_leidos = malloc(segmento->tamanio);
-            //memcpy(datos_leidos, memoria_principal + segmento->direccion_base, segmento->tamanio);
+            datos_leidos = malloc(segmento->tamanio);
+            memcpy(datos_leidos, memoria_principal + segmento->direccion_base, segmento->tamanio);
 
-            // Falta borrar lo que esta en ese espacio -> ponemos NULL?
+
+            log_debug(logger, "DATOS_LEIDOS: %s", datos_leidos);
 
             segmento->direccion_base = segmento_anterior->direccion_base + segmento_anterior->tamanio;
 
             // Escribimos en la nueva direccion_base del segmento los datos que tenia ese segmento
-            //memcpy(memoria_principal + segmento->direccion_base, datos_leidos, segmento->tamanio);
-            //TODO
+            memcpy(memoria_principal + segmento->direccion_base, datos_leidos, segmento->tamanio);
+            
+            //free(datos_leidos);
         }
 
         segmento_anterior = segmento;
@@ -338,5 +342,15 @@ int espacio_restante_memoria(){
     return espacio_restante;
 }
 
+void leer_memoria() {
 
+    char* char_ptr = (char*)memoria_principal;
+
+        
+    for(int i = 0; i < 135; i++) {
+
+        //if(char_ptr[i] != NULL)
+            log_debug(logger, "El valor escrito en memoria es: %c", (char)char_ptr[i]);
+    }
+}
 

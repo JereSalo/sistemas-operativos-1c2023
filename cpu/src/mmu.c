@@ -28,14 +28,16 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
     int num_segmento = floor(direccion_logica / tam_max_segmento);
     int desplazamiento_segmento = direccion_logica % tam_max_segmento;
 
-    t_segmento* segmento = buscar_segmento(proceso, num_segmento);
+    t_segmento* segmento = buscar_segmento(proceso, num_segmento); //busca por id
 
-    if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
-        log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
-        return -1;
-    }
+    //if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
+    //    log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
+    //    return -1;
+    //}
 
-    int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
+    //int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
+
+    int direccion_fisica = direccion_logica;
 
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
     log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);

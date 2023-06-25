@@ -82,6 +82,9 @@ extern sem_t cpu_libre;
 extern t_list* lista_pids;
 extern int pid_counter;
 
+// LISTA GLOBAL DE PROCESOS
+extern t_list* lista_global_procesos;
+
 
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 void matar_proceso(char* motivo);

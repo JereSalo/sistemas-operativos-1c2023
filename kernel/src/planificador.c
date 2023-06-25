@@ -15,7 +15,12 @@ void planificador_largo_plazo() {
         proceso = queue_pop(procesos_en_new);
         pthread_mutex_unlock(&mutex_new);
         
+        list_add(lista_global_procesos, proceso); //add
+        
+        mostrar_lista_global_procesos(lista_global_procesos);
+        
         mandar_a_ready(proceso);
+        
         log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
     }
 }

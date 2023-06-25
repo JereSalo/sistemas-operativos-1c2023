@@ -4,10 +4,6 @@
 #include "shared.h"
 
 // ------------------------------ STRUCTS / ENUMS MEMORIA ------------------------------ //
-typedef struct {
-	int pid;
-	t_list* lista_segmentos;
-} t_tabla_proceso;
 
 typedef enum {
     FIRST,
@@ -73,6 +69,7 @@ t_segmento* mover_segmentos();
 
 // ------------------------------ OTROS ------------------------------ // 
 int espacio_restante_memoria();
+void leer_memoria();
 
 
 #endif

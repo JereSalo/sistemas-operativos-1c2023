@@ -20,12 +20,12 @@ void* serializar_lista_instrucciones(size_t* size_instrucciones, t_list* lista_i
 }
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
-     size_t size_instrucciones;
+    size_t size_instrucciones;
     
-     void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, instrucciones);
+    void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, instrucciones);
 
      // stream completo
-     *size =    sizeof(op_code)
+    *size =    sizeof(op_code)
                 + sizeof(size_t)        // size instrucciones
                 + size_instrucciones;   // instrucciones
     
@@ -202,16 +202,13 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 // ------------------------------ SERIALIZACION TABLA SEGMENTOS ------------------------------ //
 
 void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos) {
-    
-    // Hay 3 pasos. Calcular size total, hacer malloc, hacer memcpy de los datos a un stream y devolverlo.
-    
-    // Paso 1: Calcular size de lo que se quiere mandar, en este caso los strings de la lista y sus respectivos tamaños
+       
     *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
     
-    // Paso 2: Hacer malloc
+    
     void* stream = malloc(*size_tabla_segmentos);
 
-    // Paso 3: Guardar en stream los elementos de la lista con sus tamaños.
+    
     
     size_t desplazamiento = 0;
 
@@ -327,6 +324,18 @@ void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento
 }
 
 
+// ------------------------------ SERIALIZACION DE TABLA POR PROCESO (COMPACTACION) ------------------------------ //
+
+void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_procesos) {
+    
+    *size_tabla_segmentos_por_proceso = sizeof(t_tabla_proceso) * list_size(tabla_segmentos_por_proceso); 
+    
+}
+
+
+void deserializar_tabla_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento){
+    
+}
 
 
 

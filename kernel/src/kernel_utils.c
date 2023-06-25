@@ -38,6 +38,9 @@ int server_memoria;
 int pid_counter = 1;
 t_list* lista_pids;
 
+// LISTA GLOBAL DE PROCESOS
+t_list* lista_global_procesos;
+
 
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 
@@ -49,6 +52,9 @@ void matar_proceso(char* motivo) {
     int pid = proceso_en_running->pid;
 
     liberar_proceso(proceso_en_running);
+    list_remove_element(lista_global_procesos, proceso_en_running); //add
+
+    mostrar_lista_global_procesos(lista_global_procesos);
 
     // Decirle a memoria que libere estructuras del proceso
     SEND_INT(server_memoria, SOLICITUD_LIBERAR_MEMORIA);

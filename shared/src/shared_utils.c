@@ -52,6 +52,17 @@ char* lista_pids_a_string(t_list* lista, char string[]) {
 
 }
 
+void mostrar_lista_global_procesos(t_list* lista) {
+    
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+        printf("PID: %d \n", proceso->pid);    
+    }
+    list_iterator_destroy(lista_it);
+}
 
 
 void mostrar_lista(t_list* lista) {

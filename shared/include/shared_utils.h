@@ -52,6 +52,7 @@ typedef struct {
     int socket_consola;
 } t_pcb;
 
+
 typedef struct {
     int id;
     int direccion_base;    
@@ -63,6 +64,10 @@ typedef struct {
     int tamanio;
 } t_hueco;
 
+typedef struct {
+	int pid;
+	t_list* lista_segmentos;
+} t_tabla_proceso;
 
 typedef struct {
     int pid;  
@@ -130,5 +135,7 @@ void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 t_segmento* duplicar_segmento(const t_segmento* original);
 
 t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
+
+void mostrar_lista_global_procesos(t_list* lista);
 
 #endif

@@ -247,7 +247,29 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                     
-                    // Aca no deberiamos volver a running porque si no pasaria a la prox instruccion y tecnicamente la instruccion no termina hasta que se haga la creacion del segmento
+                    // Despues de esto hay que literalmente copypastear el case CREACION
+                    // Capaz que hay una forma de hacerlo mejor que copypasteando -> no se puede salir de este case y que caiga de nuevo en creacion?
+
+                    op_respuesta_memoria respuesta;
+
+                    RECV_INT(server_memoria, respuesta);
+
+                    if(respuesta == CREACION) {
+
+                        log_debug(logger, "Se creara segmento");
+                        int base_segmento;
+                        RECV_INT(server_memoria, base_segmento);
+
+                        t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+                        
+                        segmento->direccion_base = base_segmento;
+                        segmento->tamanio = tamanio_segmento; 
+
+
+                        log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+                        volver_a_running();
+
+                    }
 
                     break;
                 }

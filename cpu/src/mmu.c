@@ -37,10 +37,11 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
 
     //int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
 
+    // Esto de aca abajo es una falopeada para hacer pruebas sin tener que hacer calculos
     int direccion_fisica = direccion_logica;
 
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
-    log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
+    //log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
 
     return direccion_fisica;
 }

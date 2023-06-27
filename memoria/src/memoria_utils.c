@@ -155,7 +155,8 @@ t_segmento* crear_segmento(int id, int direccion_base, int tamanio) {
     return segmento;
 }
 
-// FUNCION IMPROVISADA, ESTO ESTABA EN CREAR_SEGMENTO
+
+// FUNCION IMPROVISADA, ESTO ESTABA EN CREAR_SEGMENTO -> BORRAR
 void acutalizar_tabla_de_huecos(t_segmento* segmento){
     // Actualizar tabla de huecos.
 
@@ -289,21 +290,20 @@ t_segmento* mover_segmentos() {
 
         if(segmento->direccion_base != 0) {
             
-            //TODO -> Esto no anda porque no se mueven bien las cosas
-            
             // Copiamos en datos_leidos los datos del segmento que vamos a modificar y los liberamos
             datos_leidos = malloc(segmento->tamanio);
             memcpy(datos_leidos, memoria_principal + segmento->direccion_base, segmento->tamanio);
 
 
-            log_debug(logger, "DATOS_LEIDOS: %s", datos_leidos);
+            //log_debug(logger, "DATOS_LEIDOS: %s", datos_leidos);
 
+            // Movemos el segmento
             segmento->direccion_base = segmento_anterior->direccion_base + segmento_anterior->tamanio;
 
-            // Escribimos en la nueva direccion_base del segmento los datos que tenia ese segmento
+            // Escribimos en la nueva direccion_base del segmento los datos que tenia dicho segmento
             memcpy(memoria_principal + segmento->direccion_base, datos_leidos, segmento->tamanio);
             
-            //free(datos_leidos);
+            free(datos_leidos);
         }
 
         segmento_anterior = segmento;
@@ -342,15 +342,19 @@ int espacio_restante_memoria(){
     return espacio_restante;
 }
 
+
+// Funcion de debug para leer el espacio de usuario y chequear que se muevan bien las cosas en memoria luego de la compactacion
 void leer_memoria() {
 
     char* char_ptr = (char*)memoria_principal;
 
-        
-    for(int i = 0; i < 135; i++) {
+    // Acá elegimos hasta qué direccion de memoria queremos que lea
+    for(int i = 0; i < 1220; i++) {
 
         //if(char_ptr[i] != NULL)
-            log_debug(logger, "El valor escrito en memoria es: %c", (char)char_ptr[i]);
+            log_debug(logger, "El valor escrito en la posicion %d de memoria es: %c", i, (char)char_ptr[i]);
     }
+
+    free(char_ptr);
 }
 

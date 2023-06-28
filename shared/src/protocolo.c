@@ -215,11 +215,11 @@ bool recv_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso) {
     // Recibimos el size del payload
     size_t size_tabla_segmentos_por_proceso;
 
-    printf("FALOPA1");
+    //printf("FALOPA1");
 
     void* payload = recv_payload_con_size(fd, &size_tabla_segmentos_por_proceso);
 
-    printf("FALOPA2");
+    //printf("FALOPA2");
 
     size_t desplazamiento = 0;
 

@@ -211,7 +211,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     
                     
                     // Hay que recibir todas las listas de segmentos actualizadas
-                    // aca hay seg fault y no entra siquiera al recv -> help me!!!!!
+                   
                     
                     if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados)) {
                         log_error(logger, "Hubo un problema al recibir el resultado de la compactacion \n");
@@ -221,30 +221,41 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
 
                     
-                    //log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
-                    //mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
-
-                    //t_tabla_proceso* tabla_0 = list_get(lista_recepcion_segmentos_actualizados, 0);
-                    //t_tabla_proceso* tabla_1 = list_get(lista_recepcion_segmentos_actualizados, 1);
-
-                    //log_debug(logger, "PID: %d", tabla_0->pid);
-                    //log_debug(logger, "TABLA DE SEGMENTOS DESPUES DE COMPACTAR: \n");
-                    
-                    
-                    //mostrar_tabla_segmentos(tabla_0->lista_segmentos);
-
-
-                    //log_debug(logger, "PID: %d", tabla_1->pid);
-                    //log_debug(logger, "TABLA DE SEGMENTOS DESPUES DE COMPACTAR: \n");
-
-                    //mostrar_tabla_segmentos(tabla_1->lista_segmentos);
-
-
-                    // Despues de chequear que todo este bien habria que iterar la lista global de procesos y actualizar cada tabla con la recibida de memoria
+                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
+                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                     
-                    //La lista que recibo por cada elemento tiene pid y su tabla asociada
+                    
+                    
+                    log_debug(logger, "Voy a actualizar todas mis tablas de procesos \n");
+
+                    // Tengo que iterar la tabla recibida, y por cada pid, buscar la tabla de procesos 
+                    // y ponerla en el pcb correspondiente
+                    t_list_iterator* lista_it = list_iterator_create(lista_recepcion_segmentos_actualizados);
+                    
+                    while(list_iterator_has_next(lista_it)) {
+
+                        t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+
+                        t_pcb* proceso_a_modificar = buscar_proceso_por_pid_en_lista_global_procesos(lista_global_procesos, tabla_proceso->pid);
+
+                        
+                        // Hacemos copypaste porque no nos interesa que la tabla del kernel apunte al mismo elemento de la que recibe de memoria
+                        // Si hacemos que apunte a la misma de memoria entonces no podemos destruir la lista que recibe de memoria despues de copiarlo
+                        // Porque estamos destruyendo la referencia original -> ergo, tendremos memory leaks
+                        
+                        tabla_copypaste(proceso_a_modificar->tabla_segmentos, tabla_proceso->lista_segmentos);
+                        //proceso_a_modificar->tabla_segmentos = tabla_proceso->lista_segmentos;
+
+                        list_destroy_and_destroy_elements(tabla_proceso->lista_segmentos, free);
+                    }
+
+                    list_iterator_destroy(lista_it);
+    
+        
+                    list_destroy_and_destroy_elements(lista_recepcion_segmentos_actualizados, free);
                 
+    
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                     
                     // Despues de esto hay que literalmente copypastear el case CREACION
@@ -265,6 +276,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                         segmento->direccion_base = base_segmento;
                         segmento->tamanio = tamanio_segmento; 
 
+                        // Mostramos la tabla con el segmento creado con la compactacion
+                        log_debug(logger, "Mostrando tabla actualizada recibida de memoria en la compactacion \n");
+                        mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                         log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
                         volver_a_running();
@@ -302,12 +316,16 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_debug(logger, "Se recibio la tabla de segmentos actualizada del proceso %d", proceso_en_running->pid);
 
-            // Debug
-            mostrar_tabla_segmentos(tabla_segmentos_actualizada);
+            // Debug -> mostramos la tabla cada vez que se hace un delete para chequear que se borre bien
+            //mostrar_tabla_segmentos(tabla_segmentos_actualizada);
             
-            list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
+            //list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
+            //proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
             
-            proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
+            // Aca tambien hacemos copypaste por el mismo motivo que por el de SEGMENTACION
+            tabla_copypaste(proceso_en_running->tabla_segmentos, tabla_segmentos_actualizada);
+
+            list_destroy_and_destroy_elements(tabla_segmentos_actualizada, free);
 
             volver_a_running();
    

@@ -90,6 +90,8 @@ extern t_list* lista_global_procesos;
 void matar_proceso(char* motivo);
 void bloquear_proceso(args_io* argumentos_io);
 t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
+t_pcb* buscar_proceso_por_pid_en_lista_global_procesos(t_list* lista ,int pid);
+
 
 
 // ------------------------------ HRRN ------------------------------ //

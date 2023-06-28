@@ -346,16 +346,16 @@ void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por
 
 
 
-void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso) {
+void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso) {
     
     // El size de la tabla de segmentos por proceso incluye al size de la tabla en si + el tamanio de cada tabla de segmentos
     // Esto se multiplica por la cantidad de entradas que tenga la tabla (size)
     
     size_t size_tabla_segmentos = sizeof(t_segmento) * 16; //Hardcodeado el 16 -> se saca del config de memoria; 
     
-    *size_tabla_segmentos_por_proceso = (sizeof(t_tabla_proceso) + size_tabla_segmentos) * list_size(tabla_segmentos_por_proceso);    
+    *size_segmentos_por_proceso = (sizeof(int) + size_tabla_segmentos) * list_size(tabla_segmentos_por_proceso);    
 
-    void* stream = malloc(*size_tabla_segmentos_por_proceso);
+    void* stream = malloc(*size_segmentos_por_proceso);
 
     size_t desplazamiento = 0;
 
@@ -365,7 +365,7 @@ void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_pr
         t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
            
         // Aca reusamos la funcion de serializar una tabla en particular
-        size_t size_segmentos;
+        size_t size_segmentos;    
     
         void* stream_tabla_segmentos = serializar_tabla_segmentos(&size_segmentos, tabla_proceso->lista_segmentos);
         
@@ -373,6 +373,8 @@ void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_pr
         copiar_variable_en_stream_y_desplazar(stream, stream_tabla_segmentos, size_segmentos, &desplazamiento);
         
         // La serialiacion queda PID | TABLA SEGMENTOS y esto se hace por cada elemento
+
+        // 
 
         free(stream_tabla_segmentos);
     }

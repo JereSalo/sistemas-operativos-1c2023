@@ -105,6 +105,24 @@ t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar) {
 }
 
 
+t_pcb* buscar_proceso_por_pid_en_lista_global_procesos(t_list* lista ,int pid) {
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+    // si lo encuentra, lo saca de la lista y lo devuelve
+    while (list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+        if (proceso->pid == pid) {
+            list_iterator_destroy(lista_it);       
+            return proceso;
+        }
+    }
+
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+
 // ------------------------------ HRRN ------------------------------ //
 
 void calcular_tasa_de_respuesta() {

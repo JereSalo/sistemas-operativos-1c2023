@@ -51,11 +51,16 @@ void matar_proceso(char* motivo) {
     int socket_consola = proceso_en_running->socket_consola;
     int pid = proceso_en_running->pid;
 
-    liberar_proceso(proceso_en_running);
     list_remove_element(lista_global_procesos, proceso_en_running); //add
 
     mostrar_lista_global_procesos(lista_global_procesos);
 
+    // Liberamos los recursos que tenia asignado el proceso
+    // Iteramos la lista de recursos asignados del proceso, le sumamos 1 a todas las instancias y eliminamos el elemento de la lista
+    liberar_recursos_asignados(proceso_en_running->recursos_asignados); 
+    
+    liberar_proceso(proceso_en_running);
+    
     // Decirle a memoria que libere estructuras del proceso
     SEND_INT(server_memoria, SOLICITUD_LIBERAR_MEMORIA);
     SEND_INT(server_memoria, pid);
@@ -121,6 +126,48 @@ t_pcb* buscar_proceso_por_pid_en_lista_global_procesos(t_list* lista ,int pid) {
     list_iterator_destroy(lista_it);
     return NULL;
 }
+
+
+void liberar_recursos_asignados(t_list* recursos_asignados) {
+        
+    t_list_iterator* lista_it = list_iterator_create(recursos_asignados);
+                    
+    while(list_iterator_has_next(lista_it)) {
+
+        t_recurso* recurso = (t_recurso*)list_iterator_next(lista_it);
+
+        recurso->cantidad_disponible++;
+    }
+
+    list_iterator_destroy(lista_it);   
+}
+
+
+void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados) {
+                        
+    log_debug(logger, "Voy a actualizar todas mis tablas de procesos \n");
+    
+    // Tengo que iterar la tabla recibida, y por cada pid, buscar la tabla de procesos y ponerla en el pcb correspondiente    
+
+    t_list_iterator* lista_it = list_iterator_create(lista_recepcion_segmentos_actualizados);
+
+    while(list_iterator_has_next(lista_it)) {
+
+        t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+
+        t_pcb* proceso_a_modificar = buscar_proceso_por_pid_en_lista_global_procesos(lista_global_procesos, tabla_proceso->pid);
+
+        list_destroy_and_destroy_elements(proceso_a_modificar->tabla_segmentos, free);
+
+        proceso_a_modificar->tabla_segmentos = tabla_proceso->lista_segmentos;                        
+    }
+
+    list_iterator_destroy(lista_it);
+}
+
+
+
+
 
 
 // ------------------------------ HRRN ------------------------------ //

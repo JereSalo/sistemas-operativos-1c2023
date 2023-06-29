@@ -42,6 +42,7 @@ typedef struct {
     int pc;                             // program counter: número de la próxima instrucción a ejecutar.
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
+    t_list* recursos_asignados;         // esto sirve para despues cuando muera, liberar recursos
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
     double estimacion_prox_rafaga;      // Para HRRN
     double tiempo_llegada_ready;        // Para HRRN

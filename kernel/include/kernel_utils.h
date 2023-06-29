@@ -102,6 +102,8 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
 // ------------------------------ MANEJO DE RECURSOS ------------------------------ //
 t_recurso* recurso_en_lista(char* recurso_solicitado);
+void liberar_recursos_asignados(t_list* recursos_asignados);
+void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados);
 
 
 

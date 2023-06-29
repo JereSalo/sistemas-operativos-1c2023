@@ -98,6 +98,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible--;
+                list_add(proceso_en_running->recursos_asignados, recurso);
+                log_debug(logger, "Recurso %s aniadido a la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
+
                 if(recurso->cantidad_disponible < 0)
                 {
                     log_info(logger, "Proceso %d bloqueado en cola de recurso %s", proceso_en_running->pid, recurso_solicitado);
@@ -130,6 +133,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             if(recurso != NULL) {
                 log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
                 recurso->cantidad_disponible++;
+                list_remove_element(proceso_en_running->recursos_asignados, recurso);
+                log_debug(logger, "Recurso %s eliminado de la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
+
                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
                 if(recurso->cantidad_disponible <= 0){
@@ -154,13 +160,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             argumentos_io->proceso = proceso_en_running;
             argumentos_io->tiempo = atoi((char*)list_get(lista_parametros, 0));
-
-            
+           
             pthread_t hilo_io;
 	        pthread_create(&hilo_io, NULL, (void*)bloquear_proceso, (args_io*) argumentos_io);
 	        pthread_detach(hilo_io);
-
-            
+           
             proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
             estimar_proxima_rafaga(proceso_en_running);
             
@@ -219,40 +223,19 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     }
                     
                     log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
-
                     
                     log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
                     mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
-                    
-                    
-                    
-                    log_debug(logger, "Voy a actualizar todas mis tablas de procesos \n");
+                    actualizar_tablas_segmentos(lista_recepcion_segmentos_actualizados);
 
-                    // Tengo que iterar la tabla recibida, y por cada pid, buscar la tabla de procesos 
-                    // y ponerla en el pcb correspondiente
-                    t_list_iterator* lista_it = list_iterator_create(lista_recepcion_segmentos_actualizados);
-                    
-                    while(list_iterator_has_next(lista_it)) {
+                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO DESPUES DE COMPACTAR: \n");
+                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
-                        t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
-
-                        t_pcb* proceso_a_modificar = buscar_proceso_por_pid_en_lista_global_procesos(lista_global_procesos, tabla_proceso->pid);
-
-                        list_destroy_and_destroy_elements(proceso_a_modificar->tabla_segmentos, free);
-
-                        proceso_a_modificar->tabla_segmentos = tabla_proceso->lista_segmentos;                        
-                    }
-
-                    list_iterator_destroy(lista_it);
-    
-        
                     list_destroy_and_destroy_elements(lista_recepcion_segmentos_actualizados, free);
                 
-    
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
-                    
-                    
+                                         
                     // Despues de esto hay que literalmente copypastear el case CREACION
                     // Capaz que hay una forma de hacerlo mejor que copypasteando -> no se puede salir de este case y que caiga de nuevo en creacion?
 

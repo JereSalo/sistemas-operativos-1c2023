@@ -413,6 +413,7 @@ void liberar_proceso(t_pcb* proceso){
     list_destroy_and_destroy_elements(proceso->tabla_segmentos, free);
     list_destroy_and_destroy_elements(proceso->instrucciones, free);
     list_destroy_and_destroy_elements(proceso->tabla_archivos_abiertos, free);
+    list_destroy(proceso->recursos_asignados);
     free(proceso);
 }
 

@@ -239,15 +239,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                         t_pcb* proceso_a_modificar = buscar_proceso_por_pid_en_lista_global_procesos(lista_global_procesos, tabla_proceso->pid);
 
-                        
-                        // Hacemos copypaste porque no nos interesa que la tabla del kernel apunte al mismo elemento de la que recibe de memoria
-                        // Si hacemos que apunte a la misma de memoria entonces no podemos destruir la lista que recibe de memoria despues de copiarlo
-                        // Porque estamos destruyendo la referencia original -> ergo, tendremos memory leaks
-                        
-                        tabla_copypaste(proceso_a_modificar->tabla_segmentos, tabla_proceso->lista_segmentos);
-                        //proceso_a_modificar->tabla_segmentos = tabla_proceso->lista_segmentos;
+                        list_destroy_and_destroy_elements(proceso_a_modificar->tabla_segmentos, free);
 
-                        list_destroy_and_destroy_elements(tabla_proceso->lista_segmentos, free);
+                        proceso_a_modificar->tabla_segmentos = tabla_proceso->lista_segmentos;                        
                     }
 
                     list_iterator_destroy(lista_it);
@@ -257,6 +251,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 
     
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+                    
                     
                     // Despues de esto hay que literalmente copypastear el case CREACION
                     // Capaz que hay una forma de hacerlo mejor que copypasteando -> no se puede salir de este case y que caiga de nuevo en creacion?
@@ -319,14 +314,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Debug -> mostramos la tabla cada vez que se hace un delete para chequear que se borre bien
             //mostrar_tabla_segmentos(tabla_segmentos_actualizada);
             
-            //list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
-            //proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
+            list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
+            proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
             
-            // Aca tambien hacemos copypaste por el mismo motivo que por el de SEGMENTACION
-            tabla_copypaste(proceso_en_running->tabla_segmentos, tabla_segmentos_actualizada);
-
-            list_destroy_and_destroy_elements(tabla_segmentos_actualizada, free);
-
             volver_a_running();
    
             break;

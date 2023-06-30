@@ -41,8 +41,8 @@ bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* v
 bool send_solicitud_eliminacion_segmento(int fd, int id_segmento, int pid);
 bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid);
 
-bool send_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso);
-bool recv_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso);
+bool send_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
+bool recv_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
 
 
 // MACROS

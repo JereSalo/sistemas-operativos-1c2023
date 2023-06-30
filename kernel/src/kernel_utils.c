@@ -37,9 +37,13 @@ int server_memoria;
 // AUXILIARES
 int pid_counter = 1;
 t_list* lista_pids;
+int cant_segmentos;
+
 
 // LISTA GLOBAL DE PROCESOS
 t_list* lista_global_procesos;
+
+
 
 
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
@@ -163,6 +167,7 @@ void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados)
     }
 
     list_iterator_destroy(lista_it);
+    list_destroy_and_destroy_elements(lista_recepcion_segmentos_actualizados, free);
 }
 
 

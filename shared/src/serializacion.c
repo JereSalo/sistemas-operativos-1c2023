@@ -323,10 +323,10 @@ void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento
 
 // ------------------------------ SERIALIZACION DE TABLA POR PROCESO (COMPACTACION) ------------------------------ //
 
-void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por_proceso) {
+void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
     size_t size_segmentos_por_proceso;
     
-    void* stream_tabla_segmentos_por_proceso = serializar_tabla_segmentos_por_proceso(&size_segmentos_por_proceso, tabla_segmentos_por_proceso);
+    void* stream_tabla_segmentos_por_proceso = serializar_tabla_segmentos_por_proceso(&size_segmentos_por_proceso, tabla_segmentos_por_proceso, cant_segmentos);
 
     // stream completo
     *size = sizeof(size_t)         		       // size segmentos_por_proceso
@@ -346,12 +346,12 @@ void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por
 
 
 
-void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso) {
+void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
     
-    // El size de la tabla de segmentos por proceso incluye al size de la tabla en si + el tamanio de cada tabla de segmentos
+    // El size de la tabla de segmentos por proceso incluye al pid del proceso + el tamanio de cada tabla de segmentos
     // Esto se multiplica por la cantidad de entradas que tenga la tabla (size)
     
-    size_t size_tabla_segmentos = sizeof(t_segmento) * 16; //Hardcodeado el 16 -> se saca del config de memoria; 
+    size_t size_tabla_segmentos = sizeof(t_segmento) * cant_segmentos; 
     
     *size_segmentos_por_proceso = (sizeof(int) + size_tabla_segmentos) * list_size(tabla_segmentos_por_proceso);    
 
@@ -374,8 +374,6 @@ void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso,
         
         // La serialiacion queda PID | TABLA SEGMENTOS y esto se hace por cada elemento
 
-        // 
-
         free(stream_tabla_segmentos);
     }
     
@@ -384,14 +382,14 @@ void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso,
 }
 
 
-void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento) {
+void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento, int cant_segmentos) {
 
     // Tenemos todo el stream con los elementos y sus tamaños.
     
     size_t desplazamiento_inicial = *desplazamiento;
     
     // Una tabla de segmentos siempre va a pesar esto
-    size_t size_tabla = sizeof(t_segmento) * 16;   //16 esta hardcodeado porque se saca del config de memoria pero no puedo accedero en este .c
+    size_t size_tabla = sizeof(t_segmento) * cant_segmentos;  
 
 
     while(*desplazamiento < size_segmentos + desplazamiento_inicial){
@@ -411,9 +409,8 @@ void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_
 
 
 
-
-
 void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longitud){
+    
     // stream completo
     *size = sizeof(op_code) +
             sizeof(int) * 2;      // DIRECCION_FISICA, LONGITUD
@@ -432,6 +429,7 @@ void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longit
 }
 
 void* serializar_peticion_escritura(size_t* size, int direccion_fisica, int longitud, char* valor_leido){
+    
     // stream completo
     *size = sizeof(op_code) +
             sizeof(int) * 2 + // DIRECCION_FISICA, LONGITUD

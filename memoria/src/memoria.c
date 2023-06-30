@@ -26,6 +26,9 @@ int main(int argc, char** argv){
     // Recibimos el tamanio maximo de segmento indicado por CPU
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
 
+    // Mandamos a Kernel la cantidad de segmentos
+    SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
+
     log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);
 
     inicializar_estructuras_administrativas();

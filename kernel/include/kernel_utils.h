@@ -81,6 +81,7 @@ extern sem_t cpu_libre;
 // AUXILIARES
 extern t_list* lista_pids;
 extern int pid_counter;
+extern int cant_segmentos;
 
 // LISTA GLOBAL DE PROCESOS
 extern t_list* lista_global_procesos;

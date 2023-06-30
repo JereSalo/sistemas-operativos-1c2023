@@ -351,7 +351,7 @@ void leer_memoria() {
     // Acá elegimos hasta qué direccion de memoria queremos que lea
     for(int i = 0; i < 1220; i++) {
 
-        //if(char_ptr[i] != NULL)
+        if(char_ptr[i] != NULL)
             log_debug(logger, "El valor escrito en la posicion %d de memoria es: %c", i, (char)char_ptr[i]);
     }
 

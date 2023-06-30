@@ -217,7 +217,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     // Hay que recibir todas las listas de segmentos actualizadas
                    
                     
-                    if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados)) {
+                    if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados, cant_segmentos)) {
                         log_error(logger, "Hubo un problema al recibir el resultado de la compactacion \n");
                         break;
                     }
@@ -232,8 +232,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO DESPUES DE COMPACTAR: \n");
                     mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
-                    list_destroy_and_destroy_elements(lista_recepcion_segmentos_actualizados, free);
-                
+                    
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                                          
                     // Despues de esto hay que literalmente copypastear el case CREACION

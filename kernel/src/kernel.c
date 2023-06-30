@@ -64,7 +64,7 @@ int main(int argc, char** argv){
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
     server_memoria = conectar_con(MEMORIA, config, logger);
 
-
+    RECV_INT(server_memoria, cant_segmentos);
 
 
     /* ------------------------- PLANIFICADOR LARGO PLAZO -------------------------*/

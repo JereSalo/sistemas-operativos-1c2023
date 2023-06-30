@@ -143,7 +143,7 @@ void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_s
     size_t desplazamiento = 0;
     
     void copiar_y_desplazar_segmento_con_tamanio(void* segmento) {
-        size_t tamanio = 12;        //SI NO ES T_SEGMENTO ES SEGMENTO  //ESTA HARDCODEADO
+        size_t tamanio = sizeof(t_segmento);        
         copiar_variable_en_stream_y_desplazar(paquete, &tamanio, sizeof(size_t), &desplazamiento);
         copiar_variable_en_stream_y_desplazar(paquete, segmento, tamanio, &desplazamiento);
     }

@@ -143,7 +143,7 @@ void procesar_kernel_memoria() {
                 
                 
                 log_debug(logger, "Se va a mandar el resultado de la compactacion a Kernel \n");
-                send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso);
+                send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso, config_memoria.CANT_SEGMENTOS);
 
 
                 // Debug

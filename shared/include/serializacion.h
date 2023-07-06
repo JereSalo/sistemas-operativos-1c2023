@@ -50,4 +50,8 @@ void* serializar_peticion_escritura(size_t* size, int direccion_fisica, int long
 void* serializar_solicitud_eliminacion_segmento(size_t* size, int id_segmento, int pid);
 void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento, int* pid, size_t* desplazamiento);
 
+void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
+void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
+void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento, int cant_segmentos);
+
 #endif

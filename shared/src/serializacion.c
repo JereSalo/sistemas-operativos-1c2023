@@ -20,12 +20,12 @@ void* serializar_lista_instrucciones(size_t* size_instrucciones, t_list* lista_i
 }
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones) {
-     size_t size_instrucciones;
+    size_t size_instrucciones;
     
-     void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, instrucciones);
+    void* stream_instrucciones = serializar_lista_instrucciones(&size_instrucciones, instrucciones);
 
      // stream completo
-     *size =    sizeof(op_code)
+    *size =    sizeof(op_code)
                 + sizeof(size_t)        // size instrucciones
                 + size_instrucciones;   // instrucciones
     
@@ -202,17 +202,11 @@ void deserializar_string(void* stream, size_t stream_size, char* string, size_t*
 // ------------------------------ SERIALIZACION TABLA SEGMENTOS ------------------------------ //
 
 void* serializar_tabla_segmentos(size_t* size_tabla_segmentos, t_list* tabla_segmentos) {
-    
-    // Hay 3 pasos. Calcular size total, hacer malloc, hacer memcpy de los datos a un stream y devolverlo.
-    
-    // Paso 1: Calcular size de lo que se quiere mandar, en este caso los strings de la lista y sus respectivos tamaños
-    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); //ESTA HARDCODEADO -> SIZEOF(T_SEGMENTO)
-    
-    // Paso 2: Hacer malloc
+       
+    *size_tabla_segmentos = sizeof(t_segmento) * list_size(tabla_segmentos); 
+        
     void* stream = malloc(*size_tabla_segmentos);
 
-    // Paso 3: Guardar en stream los elementos de la lista con sus tamaños.
-    
     size_t desplazamiento = 0;
 
     t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
@@ -327,13 +321,96 @@ void deserializar_solicitud_eliminacion_segmento(void* payload, int* id_segmento
 }
 
 
+// ------------------------------ SERIALIZACION DE TABLA POR PROCESO (COMPACTACION) ------------------------------ //
+
+void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
+    size_t size_segmentos_por_proceso;
+    
+    void* stream_tabla_segmentos_por_proceso = serializar_tabla_segmentos_por_proceso(&size_segmentos_por_proceso, tabla_segmentos_por_proceso, cant_segmentos);
+
+    // stream completo
+    *size = sizeof(size_t)         		       // size segmentos_por_proceso
+            + size_segmentos_por_proceso;      // segmentos_por_proceso
+    
+   
+    void* paquete = malloc(*size);
+   
+    size_t desplazamiento = 0;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &size_segmentos_por_proceso, sizeof(size_t), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, stream_tabla_segmentos_por_proceso, size_segmentos_por_proceso, &desplazamiento);
+  
+    free(stream_tabla_segmentos_por_proceso);
+    return paquete;
+}
 
 
+
+void* serializar_tabla_segmentos_por_proceso(size_t* size_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
+    
+    // El size de la tabla de segmentos por proceso incluye al pid del proceso + el tamanio de cada tabla de segmentos
+    // Esto se multiplica por la cantidad de entradas que tenga la tabla (size)
+    
+    size_t size_tabla_segmentos = sizeof(t_segmento) * cant_segmentos; 
+    
+    *size_segmentos_por_proceso = (sizeof(int) + size_tabla_segmentos) * list_size(tabla_segmentos_por_proceso);    
+
+    void* stream = malloc(*size_segmentos_por_proceso);
+
+    size_t desplazamiento = 0;
+
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos_por_proceso);
+    
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_proceso* tabla_proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+           
+        // Aca reusamos la funcion de serializar una tabla en particular
+        size_t size_segmentos;    
+    
+        void* stream_tabla_segmentos = serializar_tabla_segmentos(&size_segmentos, tabla_proceso->lista_segmentos);
+        
+        copiar_variable_en_stream_y_desplazar(stream, &(tabla_proceso->pid), sizeof(int), &desplazamiento);
+        copiar_variable_en_stream_y_desplazar(stream, stream_tabla_segmentos, size_segmentos, &desplazamiento);
+        
+        // La serialiacion queda PID | TABLA SEGMENTOS y esto se hace por cada elemento
+
+        free(stream_tabla_segmentos);
+    }
+    
+    list_iterator_destroy(lista_it);
+    return stream; 
+}
+
+
+void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento, int cant_segmentos) {
+
+    // Tenemos todo el stream con los elementos y sus tamaños.
+    
+    size_t desplazamiento_inicial = *desplazamiento;
+    
+    // Una tabla de segmentos siempre va a pesar esto
+    size_t size_tabla = sizeof(t_segmento) * cant_segmentos;  
+
+
+    while(*desplazamiento < size_segmentos + desplazamiento_inicial){
+        
+        t_tabla_proceso* tabla_proceso = malloc(sizeof(t_tabla_proceso));
+
+        tabla_proceso->lista_segmentos = list_create();
+        
+        copiar_stream_en_variable_y_desplazar(&(tabla_proceso->pid), stream, sizeof(int), desplazamiento);
+        
+        deserializar_segmentos(stream, size_tabla, tabla_proceso->lista_segmentos, desplazamiento);
+
+        list_add(tabla_segmentos_por_proceso, tabla_proceso);
+    }
+}
 
 
 
 
 void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longitud){
+    
     // stream completo
     *size = sizeof(op_code) +
             sizeof(int) * 2;      // DIRECCION_FISICA, LONGITUD
@@ -352,6 +429,7 @@ void* serializar_peticion_lectura(size_t* size, int direccion_fisica, int longit
 }
 
 void* serializar_peticion_escritura(size_t* size, int direccion_fisica, int longitud, char* valor_leido){
+    
     // stream completo
     *size = sizeof(op_code) +
             sizeof(int) * 2 + // DIRECCION_FISICA, LONGITUD

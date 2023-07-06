@@ -7,7 +7,6 @@
 void procesar_cpu_kernel();
 void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_parametros);
 
-
 // Funciones usadas de otros modulos
 void mandar_a_ready(t_pcb* proceso);
 void volver_a_running();

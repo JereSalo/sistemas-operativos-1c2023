@@ -47,7 +47,7 @@ void procesar_kernel_memoria() {
                         SEND_INT(cliente_kernel, COMPACTACION);
                     }
                     else{
-                        log_debug(logger, "No hay memoria");
+                        log_debug(logger, "No hay suficiente espacio en memoria");
                         SEND_INT(cliente_kernel, OUT_OF_MEMORY);
                     }
                 }
@@ -60,10 +60,9 @@ void procesar_kernel_memoria() {
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
 
                     // Modificar base y tamaño de segmento, y modificar base y tamaño de hueco
-
                     segmento->direccion_base = hueco->direccion_base;
                     segmento->tamanio = tamanio_segmento;
-
+                                       
                     hueco->direccion_base += segmento->tamanio;
                     hueco->tamanio -= segmento->tamanio;
 
@@ -75,9 +74,13 @@ void procesar_kernel_memoria() {
                         free(hueco);
                     }
                   
+                    
+                    
                     // Mandarle a Kernel la base del nuevo segmento
+                    log_debug(logger, "Se le manda al Kernel la base del segmento creado \n");
                     SEND_INT(cliente_kernel, CREACION);
                     SEND_INT(cliente_kernel, segmento->direccion_base);
+                    
                     //send_base_segmento();
                     // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }
@@ -107,6 +110,7 @@ void procesar_kernel_memoria() {
                 // Creamos hueco con base y tamaño del segmento a eliminar. Si hay hueco aledaño consolidamos.
                 crear_y_consolidar_huecos(segmento->direccion_base, segmento->tamanio);
 
+                // Acá se produce la "eliminación" del segmento
                 segmento->direccion_base = -1;
                 segmento->tamanio = 0;
 
@@ -126,10 +130,8 @@ void procesar_kernel_memoria() {
                 // Recorrer la lista global de segmentos y mover todos al final de donde termina cada uno salvo el primero
                 t_segmento* ultimo_segmento = mover_segmentos();
 
-
                 // Liberamos (eliminamos) la lista de huecos libres
                 list_clean_and_destroy_elements(tabla_huecos, free);                
-                
                 
                 // Creamos el hueco libre resultante de la compactacion y lo agregamos a la lista
                 int direccion_base_hueco = ultimo_segmento->direccion_base + ultimo_segmento->tamanio;
@@ -137,8 +139,19 @@ void procesar_kernel_memoria() {
                 
                 crear_y_agregar_hueco(direccion_base_hueco, tamanio_hueco);
 
+                // Mandamos a Kernel las tablas actualizadas
+                
+                
+                log_debug(logger, "Se va a mandar el resultado de la compactacion a Kernel \n");
+                send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso, config_memoria.CANT_SEGMENTOS);
+
+
                 // Debug
-                mostrar_tabla_huecos(tabla_huecos);
+                //mostrar_tabla_huecos(tabla_huecos);
+
+                // Debug
+                //leer_memoria();
+
 
                 break;
             }

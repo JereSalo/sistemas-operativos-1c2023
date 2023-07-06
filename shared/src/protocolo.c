@@ -157,6 +157,7 @@ bool recv_tabla_segmentos(int fd, t_list* tabla_segmentos) {
 }
 
 
+
 bool send_solicitud_creacion_segmento(int fd, int pid, int id_segmento, int tamanio_segmento){
     size_t size_paquete = 0;
     void* paquete = serializar_solicitud_creacion_segmento(&size_paquete, pid, id_segmento, tamanio_segmento);
@@ -199,7 +200,36 @@ bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid) {
 }
 
 
+// ------------------------------ ENVIO Y RECEPCION DE TABLA POR PROCESO (COMPACTACION) ------------------------------ //
 
+bool send_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
+    size_t size_paquete = 0;
+    
+    void* paquete = serializar_segmentos_por_proceso(&size_paquete, tabla_segmentos_por_proceso, cant_segmentos);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+bool recv_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos) {
+    
+    // Recibimos el size del payload
+    size_t size_tabla_segmentos_por_proceso;
+
+    //printf("FALOPA1");
+
+    void* payload = recv_payload_con_size(fd, &size_tabla_segmentos_por_proceso);
+
+    //printf("FALOPA2");
+
+    size_t desplazamiento = 0;
+
+    deserializar_segmentos_por_proceso(payload, size_tabla_segmentos_por_proceso, tabla_segmentos_por_proceso, &desplazamiento, cant_segmentos);
+
+    //printf("RECIBI LA TABLA DE SEGMENTOS QUE ME MANDO MEMORIA");
+
+    free(payload);
+    return true;
+}
 
 
 

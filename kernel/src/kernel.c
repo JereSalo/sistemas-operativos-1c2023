@@ -9,6 +9,7 @@ void sigint_handler(int signum) {
     string_array_destroy(config_kernel->INSTANCIAS_RECURSOS);
     free(config_kernel);
     list_destroy(lista_pids);
+    list_destroy_and_destroy_elements(lista_global_procesos, free);
     
     exit(0);
 }
@@ -34,7 +35,9 @@ int main(int argc, char** argv){
     
     //Aca comienza a correr el clock global
     temporal = temporal_create();
-
+    
+    
+    lista_global_procesos = list_create();
 
     inicializar_recursos();
     
@@ -61,7 +64,7 @@ int main(int argc, char** argv){
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
     server_memoria = conectar_con(MEMORIA, config, logger);
 
-
+    RECV_INT(server_memoria, cant_segmentos);
 
 
     /* ------------------------- PLANIFICADOR LARGO PLAZO -------------------------*/

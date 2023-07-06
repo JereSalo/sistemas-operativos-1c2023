@@ -52,6 +52,17 @@ char* lista_pids_a_string(t_list* lista, char string[]) {
 
 }
 
+void mostrar_lista_global_procesos(t_list* lista) {
+    
+    t_list_iterator* lista_it = list_iterator_create(lista);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_pcb* proceso = (t_pcb*)list_iterator_next(lista_it);
+        
+        printf("PID: %d \n", proceso->pid);    
+    }
+    list_iterator_destroy(lista_it);
+}
 
 
 void mostrar_lista(t_list* lista) {
@@ -87,7 +98,7 @@ void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
         
         printf("ID Segmento: %d \n", segmento->id);
         printf("Base Segmento: %d \n", segmento->direccion_base);
-        printf("Tamanio Segmento: %d \n", segmento->tamanio);
+        printf("Tamanio Segmento: %d \n \n", segmento->tamanio);
     }
     
     list_iterator_destroy(lista_it);
@@ -132,7 +143,7 @@ void copiar_en_stream_y_desplazar_tabla_segmentos(void* paquete, t_list* tabla_s
     size_t desplazamiento = 0;
     
     void copiar_y_desplazar_segmento_con_tamanio(void* segmento) {
-        size_t tamanio = 12;        //SI NO ES T_SEGMENTO ES SEGMENTO  //ESTA HARDCODEADO
+        size_t tamanio = sizeof(t_segmento);        
         copiar_variable_en_stream_y_desplazar(paquete, &tamanio, sizeof(size_t), &desplazamiento);
         copiar_variable_en_stream_y_desplazar(paquete, segmento, tamanio, &desplazamiento);
     }
@@ -402,6 +413,7 @@ void liberar_proceso(t_pcb* proceso){
     list_destroy_and_destroy_elements(proceso->tabla_segmentos, free);
     list_destroy_and_destroy_elements(proceso->instrucciones, free);
     list_destroy_and_destroy_elements(proceso->tabla_archivos_abiertos, free);
+    list_destroy(proceso->recursos_asignados);
     free(proceso);
 }
 

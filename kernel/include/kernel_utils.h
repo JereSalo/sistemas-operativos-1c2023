@@ -81,12 +81,18 @@ extern sem_t cpu_libre;
 // AUXILIARES
 extern t_list* lista_pids;
 extern int pid_counter;
+extern int cant_segmentos;
+
+// LISTA GLOBAL DE PROCESOS
+extern t_list* lista_global_procesos;
 
 
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 void matar_proceso(char* motivo);
 void bloquear_proceso(args_io* argumentos_io);
 t_pcb* buscar_y_sacar_proceso(t_list* lista ,t_pcb* proceso_a_buscar);
+t_pcb* buscar_proceso_por_pid_en_lista_global_procesos(t_list* lista ,int pid);
+
 
 
 // ------------------------------ HRRN ------------------------------ //
@@ -97,6 +103,8 @@ t_pcb* proceso_con_mayor_tasa_de_respuesta() ;
 
 // ------------------------------ MANEJO DE RECURSOS ------------------------------ //
 t_recurso* recurso_en_lista(char* recurso_solicitado);
+void liberar_recursos_asignados(t_list* recursos_asignados);
+void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados);
 
 
 

@@ -145,6 +145,8 @@ t_pcb* crear_pcb(int pid, t_list* lista_instrucciones, int cliente_consola, t_li
     pcb->instrucciones = lista_instrucciones;
     pcb->registros_cpu = malloc(sizeof(t_registros_cpu));
     inicializar_registros(pcb->registros_cpu);
+    pcb->recursos_asignados = list_create();
+    
     pcb->tabla_segmentos = tabla_segmentos;   
     
     pcb->estimacion_prox_rafaga = config_kernel->ESTIMACION_INICIAL;            

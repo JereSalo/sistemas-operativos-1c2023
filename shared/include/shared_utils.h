@@ -42,6 +42,7 @@ typedef struct {
     int pc;                             // program counter: número de la próxima instrucción a ejecutar.
     t_registros_cpu* registros_cpu;
     t_list* instrucciones;              // lista de instrucciones a ejecutar. t_list*
+    t_list* recursos_asignados;         // esto sirve para despues cuando muera, liberar recursos
 	t_list* tabla_segmentos;            // va a contener elementos de tipo t_segmento
     double estimacion_prox_rafaga;      // Para HRRN
     double tiempo_llegada_ready;        // Para HRRN
@@ -51,6 +52,7 @@ typedef struct {
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
     int socket_consola;
 } t_pcb;
+
 
 typedef struct {
     int id;
@@ -63,6 +65,10 @@ typedef struct {
     int tamanio;
 } t_hueco;
 
+typedef struct {
+	int pid;
+	t_list* lista_segmentos;
+} t_tabla_proceso;
 
 typedef struct {
     int pid;  
@@ -130,5 +136,7 @@ void tabla_copypaste(t_list* lista_objetivo, t_list* lista_origen);
 t_segmento* duplicar_segmento(const t_segmento* original);
 
 t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
+
+void mostrar_lista_global_procesos(t_list* lista);
 
 #endif

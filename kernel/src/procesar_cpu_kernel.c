@@ -98,6 +98,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible--;
+                list_add(proceso_en_running->recursos_asignados, recurso);
+                log_debug(logger, "Recurso %s aniadido a la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
+
                 if(recurso->cantidad_disponible < 0)
                 {
                     log_info(logger, "Proceso %d bloqueado en cola de recurso %s", proceso_en_running->pid, recurso_solicitado);
@@ -130,6 +133,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             if(recurso != NULL) {
                 log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
                 recurso->cantidad_disponible++;
+                list_remove_element(proceso_en_running->recursos_asignados, recurso);
+                log_debug(logger, "Recurso %s eliminado de la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
+
                 log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
                 if(recurso->cantidad_disponible <= 0){
@@ -154,13 +160,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             argumentos_io->proceso = proceso_en_running;
             argumentos_io->tiempo = atoi((char*)list_get(lista_parametros, 0));
-
-            
+           
             pthread_t hilo_io;
 	        pthread_create(&hilo_io, NULL, (void*)bloquear_proceso, (args_io*) argumentos_io);
 	        pthread_detach(hilo_io);
-
-            
+           
             proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
             estimar_proxima_rafaga(proceso_en_running);
             
@@ -190,7 +194,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     RECV_INT(server_memoria, base_segmento);
 
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+                    
                     segmento->direccion_base = base_segmento;
+                    segmento->tamanio = tamanio_segmento; 
+
 
                     log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
                     volver_a_running();
@@ -200,14 +207,61 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 case COMPACTACION:
                 {
                     log_debug(logger, "Kernel solicitara compactacion a memoria \n");
+                    
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
-                    //t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    
+                    
+                    t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    
+                    
                     // Hay que recibir todas las listas de segmentos actualizadas
-                    // recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados);
-                    // Como minimo seria una lista que tenga: pid, id_segmento, nueva_base_segmento y con esos datos puedo actualizar las tablas de segmentos que ya tengo en los pcb
-                    // Se puede hacer de varias formas, todavia no se cual sería la mejor. El dilema es si hacer la serialización más compleja para facilitarnos la recepción de los datos o si hacemos lo contrario. (serialización simple y recepción más elaborada)
+                   
+                    
+                    if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados, cant_segmentos)) {
+                        log_error(logger, "Hubo un problema al recibir el resultado de la compactacion \n");
+                        break;
+                    }
+                    
+                    log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
+                    
+                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
+                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
-                    // Termina con: send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+                    actualizar_tablas_segmentos(lista_recepcion_segmentos_actualizados);
+
+                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO DESPUES DE COMPACTAR: \n");
+                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+
+                    
+                    send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
+                                         
+                    // Despues de esto hay que literalmente copypastear el case CREACION
+                    // Capaz que hay una forma de hacerlo mejor que copypasteando -> no se puede salir de este case y que caiga de nuevo en creacion?
+
+                    op_respuesta_memoria respuesta;
+
+                    RECV_INT(server_memoria, respuesta);
+
+                    if(respuesta == CREACION) {
+
+                        log_debug(logger, "Se creara segmento");
+                        int base_segmento;
+                        RECV_INT(server_memoria, base_segmento);
+
+                        t_segmento* segmento = buscar_segmento_por_id(id_segmento, proceso_en_running->tabla_segmentos);
+                        
+                        segmento->direccion_base = base_segmento;
+                        segmento->tamanio = tamanio_segmento; 
+
+                        // Mostramos la tabla con el segmento creado con la compactacion
+                        log_debug(logger, "Mostrando tabla actualizada recibida de memoria en la compactacion \n");
+                        mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+
+                        log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+                        volver_a_running();
+
+                    }
+
                     break;
                 }
                 case OUT_OF_MEMORY:
@@ -239,12 +293,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_debug(logger, "Se recibio la tabla de segmentos actualizada del proceso %d", proceso_en_running->pid);
 
-            mostrar_tabla_segmentos(tabla_segmentos_actualizada);
+            // Debug -> mostramos la tabla cada vez que se hace un delete para chequear que se borre bien
+            //mostrar_tabla_segmentos(tabla_segmentos_actualizada);
             
             list_destroy_and_destroy_elements(proceso_en_running->tabla_segmentos, free);
-            
             proceso_en_running->tabla_segmentos = tabla_segmentos_actualizada;
-
+            
             volver_a_running();
    
             break;

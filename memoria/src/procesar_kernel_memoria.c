@@ -13,6 +13,8 @@ void procesar_kernel_memoria() {
 
                 int pid;
                 RECV_INT(cliente_kernel, pid);
+                
+                log_warning(logger, "Creacion de proceso PID: %d \n", pid); //LOG CREACION DE PROCESO
 
                 // Crear estructura t_tabla_proceso (con pid y lista de tabla de segmentos del proceso)
                 // Cargarle a la estructura el pid del proceso y crear la lista que va a tener adentro
@@ -33,7 +35,7 @@ void procesar_kernel_memoria() {
                 int pid;
                 int id_segmento;
                 int tamanio_segmento;
-
+                
                 recv_solicitud_creacion_segmento(cliente_kernel, &pid, &id_segmento, &tamanio_segmento);
 
                 // log_debug(logger, "PID %d", pid);
@@ -55,6 +57,7 @@ void procesar_kernel_memoria() {
                     log_debug(logger, "Se realizara la creacion \n");
                     // Es una vil mentira la creacion, solo modifica un segmento existente
 
+                    
                     // Tengo que obtener un segmento en particular dado PID y ID_SEGMENTO y modificar su BASE y TAMAÑO
                     t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
                     t_segmento* segmento = buscar_segmento_por_id(id_segmento, tabla_proceso->lista_segmentos);
@@ -62,6 +65,8 @@ void procesar_kernel_memoria() {
                     // Modificar base y tamaño de segmento, y modificar base y tamaño de hueco
                     segmento->direccion_base = hueco->direccion_base;
                     segmento->tamanio = tamanio_segmento;
+                    
+                    log_warning(logger, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d \n", pid, segmento->id, segmento->direccion_base, segmento->tamanio); //LOG CREACION DE SEGMENTO
                                        
                     hueco->direccion_base += segmento->tamanio;
                     hueco->tamanio -= segmento->tamanio;
@@ -110,6 +115,8 @@ void procesar_kernel_memoria() {
                 // Creamos hueco con base y tamaño del segmento a eliminar. Si hay hueco aledaño consolidamos.
                 crear_y_consolidar_huecos(segmento->direccion_base, segmento->tamanio);
 
+                log_warning(logger, "PID: %d - Eliminar Segmento: %d - Base: %d - Tamanio: %d \n", pid, segmento->id, segmento->direccion_base, segmento->tamanio); //LOG ELIMINACION DE SEGMENTO
+                
                 // Acá se produce la "eliminación" del segmento
                 segmento->direccion_base = -1;
                 segmento->tamanio = 0;
@@ -125,7 +132,7 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_COMPACTACION:
             {
-                log_debug(logger, "Solicitud de compactacion recibida \n");
+                log_warning(logger, "Solicitud de compactacion \n"); //LOG INICIO COMPACTACION
                 
                 // Recorrer la lista global de segmentos y mover todos al final de donde termina cada uno salvo el primero
                 t_segmento* ultimo_segmento = mover_segmentos();
@@ -146,6 +153,11 @@ void procesar_kernel_memoria() {
                 send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso, config_memoria.CANT_SEGMENTOS);
 
 
+                mostrar_resultado_compactacion(tabla_segmentos_por_proceso);
+                
+                
+                
+                
                 // Debug
                 //mostrar_tabla_huecos(tabla_huecos);
 
@@ -157,9 +169,11 @@ void procesar_kernel_memoria() {
             }
             case SOLICITUD_LIBERAR_MEMORIA:
             {
-                log_debug(logger,"\nRecibi solicitud para Liberar Memoria de un proceso \n");
                 int pid;
                 RECV_INT(cliente_kernel, pid);
+
+                log_warning(logger, "Eliminacion de proceso PID: %d \n", pid); //LOG ELIMINACION DE PROCESO
+
 
                 t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
 

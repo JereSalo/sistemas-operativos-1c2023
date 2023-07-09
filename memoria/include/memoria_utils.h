@@ -66,6 +66,10 @@ t_segmento* buscar_segmento_en_tabla_por_proceso(t_list* tabla_segmentos, t_tabl
 t_segmento* buscar_segmento_en_tabla_global(t_list* tabla_segmentos, int direccion_base);
 void eliminar_segmento_de_tabla(t_list* tabla_segmentos, t_segmento* segmento, char* tipo_tabla, int pid);
 t_segmento* mover_segmentos();
+void mostrar_tabla_segmentos_proceso(t_list* tabla_segmentos, int pid);
+void mostrar_resultado_compactacion(t_list* tabla_proceso);
+
+
 
 // ------------------------------ OTROS ------------------------------ // 
 int espacio_restante_memoria();

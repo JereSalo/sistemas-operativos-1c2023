@@ -13,6 +13,7 @@ void procesar_cpu_memoria() {
                 int longitud;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
+                //Falta RECV del PID?
 
                 char* datos_leidos = malloc(longitud + 1);
 
@@ -21,6 +22,8 @@ void procesar_cpu_memoria() {
                 
                 datos_leidos[longitud] = '\0';
 
+                printf("DATOS LEIDOS DE MEMORIA: %s", datos_leidos);
+                
                 send_string(cliente_cpu, datos_leidos);
 
                 free(datos_leidos);
@@ -33,12 +36,22 @@ void procesar_cpu_memoria() {
                 int longitud;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
+                //Falta RECV del PID?
+
+
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
 
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
 
+                
+                //printf("DATOS ESCRITOS EN MEMORIA: %s", valor_a_escribir);
+                
                 free(valor_a_escribir);
+
+                //Debug
+                //leer_memoria();
+
 
                 send_string(cliente_cpu, "OK");
 

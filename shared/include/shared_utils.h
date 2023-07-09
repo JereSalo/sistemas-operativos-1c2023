@@ -139,4 +139,5 @@ t_segmento* buscar_segmento_por_id(int id_segmento, t_list* tabla_segmentos);
 
 void mostrar_lista_global_procesos(t_list* lista);
 
+
 #endif

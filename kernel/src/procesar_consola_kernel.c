@@ -23,7 +23,7 @@ void procesar_consola(void* void_cliente_consola) {
                 queue_push(procesos_en_new, pcb);
                 pthread_mutex_unlock(&mutex_new);
 
-                log_warning(logger, "Se crea el proceso %d en NEW \n", pcb->pid); //log obligatorio
+                log_warning(logger, "Se crea el proceso %d en NEW \n", pcb->pid); //LOG CREACION DE PROCESO
 
                 // Avisamos que agregamos un nuevo proceso a NEW
                 sem_post(&cant_procesos_new);   

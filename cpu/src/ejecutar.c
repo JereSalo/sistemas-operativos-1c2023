@@ -44,9 +44,9 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
 
 
 void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion* contexto) {
-    char* nemonico_instruccion = instruccion_decodificada[0];  //PELADO BOTON QUE TE CREES DE LA RAE GIL, nemonico: palabra que sustituye a un codigo de operacion. pertenece a la memoria.
+    char* nemonico_instruccion = instruccion_decodificada[0];  //nemonico: palabra que sustituye a un codigo de operacion. pertenece a la memoria.
 
-    log_warning(logger, "PID: %d - Ejecutando %s", contexto->pid, nemonico_instruccion); //logger obligatorio
+    log_warning(logger, "PID: %d - Ejecutando %s \n", contexto->pid, nemonico_instruccion); //LOG INSTRUCCION EJECUTADA
 
     int op_instruccion = (intptr_t) dictionary_get(diccionario_instrucciones, nemonico_instruccion);
 
@@ -60,18 +60,20 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
-            // printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
+            //printf("EL REGISTRO %s QUEDO CON EL SIGUIENTE VALOR: %.*s \n", "AX", 4, contexto->registros_cpu->AX);
             
 
             break;
         }
-        case MOV_IN: // MOV_IN (Registro, Dirección Lógica)
+        case MOV_IN: // MOV_IN (Registro, Dirección Lógica) -> LECTURA DE MEMORIA
         {
             char* registro = instruccion_decodificada[1];
             int direccion_logica = atoi(instruccion_decodificada[2]);
+            int num_segmento;
+
 
             // int direccion_fisica = obtener_direccion(direccion_logica);
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro, &num_segmento);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
@@ -87,19 +89,20 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char valor[64];
 
             recv_string(server_memoria, valor);
-
-            log_debug(logger, "Valor leido de memoria: %s", valor);
-
+            
+            log_warning(logger, "PID: %d - Accion: LEER - Segmento: %d - Direccion fisica: %d - Valor leido: %s",contexto->pid, num_segmento, direccion_fisica, valor); //LOG ACCESO A MEMORIA
+            
             asignar_a_registro(registro, valor, contexto->registros_cpu);
 
             break;
         }
-        case MOV_OUT: // MOV_OUT (Dirección Lógica, Registro)
+        case MOV_OUT: // MOV_OUT (Dirección Lógica, Registro) -> ESCRITURA DE REGISTRO A MEMORIA
         {
             int direccion_logica = atoi(instruccion_decodificada[1]);
             char* registro = instruccion_decodificada[2];
+            int num_segmento;
 
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro, &num_segmento);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
@@ -112,10 +115,15 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             send_peticion_escritura(server_memoria, direccion_fisica, longitud, valor_leido);
 
-            free(valor_leido);
-
             char confirmacion[5];
             recv_string(server_memoria, confirmacion);
+            
+            if(string_equals_ignore_case(confirmacion, "OK")) 
+            {
+                log_warning(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion fisica: %d - Valor escrito: %s",contexto->pid, num_segmento, direccion_fisica, valor_leido); //LOG ACCESO A MEMORIA
+            }
+            
+            free(valor_leido);
             
             break;
         }

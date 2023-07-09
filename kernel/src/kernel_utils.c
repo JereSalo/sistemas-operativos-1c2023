@@ -50,7 +50,7 @@ t_list* lista_global_procesos;
 
 void matar_proceso(char* motivo) {
     
-    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo);       //log obligatorio 
+    log_warning(logger, "Finaliza el proceso %d - Motivo: %s \n", proceso_en_running->pid, motivo); //LOG FIN DE PROCESO
 
     int socket_consola = proceso_en_running->socket_consola;
     int pid = proceso_en_running->pid;
@@ -85,7 +85,7 @@ void bloquear_proceso(args_io* argumentos_io){
 
     free(argumentos_io);
 
-    log_info(logger, "Proceso %d se bloqueara %d segundos por I/O", proceso->pid, tiempo);
+    log_warning(logger, "PID: %d - Ejecuta IO: %d \n", proceso->pid, tiempo);  //LOG I/O
 
     sleep(tiempo);
 

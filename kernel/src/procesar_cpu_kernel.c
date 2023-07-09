@@ -98,12 +98,16 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             if(recurso != NULL) {
                 recurso->cantidad_disponible--;
+                
                 list_add(proceso_en_running->recursos_asignados, recurso);
                 log_debug(logger, "Recurso %s aniadido a la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
+                
+                log_warning(logger, "PID: %d - Wait: %s - Instancias: %d \n", proceso_en_running->pid, recurso->dispositivo, recurso->cantidad_disponible); //LOG WAIT
 
                 if(recurso->cantidad_disponible < 0)
                 {
-                    log_info(logger, "Proceso %d bloqueado en cola de recurso %s", proceso_en_running->pid, recurso_solicitado);
+                    log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid); //LOG CAMBIO DE ESTADO
+                    log_warning(logger,"PID: %d - Bloqueado por: %s \n", proceso_en_running->pid, recurso_solicitado);             //LOG MOTIVO DE BLOQUEO     
                     
                     proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
                     estimar_proxima_rafaga(proceso_en_running);
@@ -131,12 +135,15 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
 
             if(recurso != NULL) {
-                log_info(logger, "RECURSO LIBERADO ES %s\n", recurso_solicitado);
+                
                 recurso->cantidad_disponible++;
+                
                 list_remove_element(proceso_en_running->recursos_asignados, recurso);
                 log_debug(logger, "Recurso %s eliminado de la lista de recursos del proceso %d \n", recurso->dispositivo, proceso_en_running->pid);
 
-                log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
+                log_warning(logger, "PID: %d - Signal: %s - Instancias: %d \n", proceso_en_running->pid, recurso->dispositivo, recurso->cantidad_disponible); //LOG SIGNAL
+
+                //log_info(logger, "Cantidad disponible %d", recurso->cantidad_disponible);   // prueba
                  
                 if(recurso->cantidad_disponible <= 0){
                     log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
@@ -167,6 +174,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
            
             proceso_en_running->tiempo_salida_running = (double)temporal_gettime(temporal);
             estimar_proxima_rafaga(proceso_en_running);
+
+            log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
+            log_warning(logger,"PID: %d - Bloqueado por: I/O \n", proceso_en_running->pid);                                 //LOG MOTIVO DE BLOQUEO     
             
             sem_post(&cpu_libre); // A pesar de que el proceso se bloquee la CPU estará libre, así pueden seguir ejecutando otros procesos.
             
@@ -199,6 +209,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     segmento->tamanio = tamanio_segmento; 
 
 
+                    log_warning(logger, "PID: %d - Crear Segmento - ID: %d - Tamanio: %d \n", proceso_en_running->pid, segmento->id, segmento->tamanio); //LOG CREAR SEGMENTO
+                    
                     log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
                     volver_a_running();
 
@@ -206,12 +218,14 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 }
                 case COMPACTACION:
                 {
-                    log_debug(logger, "Kernel solicitara compactacion a memoria \n");
-                    
+                    log_warning(logger, "Compactacion: Se solicito compactacion \n"); //LOG INICIO COMPACTACION
+
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     
                     
                     t_list* lista_recepcion_segmentos_actualizados = list_create();
+                    
+                    
                     
                     
                     // Hay que recibir todas las listas de segmentos actualizadas
@@ -233,6 +247,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                     
+                    log_warning(logger, "Se finalizo el proceso de compactacion \n"); //LOG FIN COMPACTACION
+
+
                     send_solicitud_creacion_segmento(server_memoria, pid, id_segmento, tamanio_segmento);
                                          
                     // Despues de esto hay que literalmente copypastear el case CREACION
@@ -283,6 +300,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             send_solicitud_eliminacion_segmento(server_memoria, id_segmento, proceso_en_running->pid);
             
+            log_warning(logger, "PID: %d - Eliminar Segmento - ID Segmento: %d \n", proceso_en_running->pid, id_segmento); //LOG ELIMINAR SEGMENTO
+           
             t_list* tabla_segmentos_actualizada = list_create();
             
             // Recibimos la tabla actualizada

@@ -21,7 +21,7 @@ void planificador_largo_plazo() {
         
         mandar_a_ready(proceso);
         
-        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: NEW - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
     }
 }
 
@@ -73,7 +73,7 @@ void planificador_corto_plazo() {
 
         mandar_a_running(proceso_en_running);
         
-        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //log obligatorio
+        log_warning(logger,"PID: %d - Estado anterior: READY - Estado actual: RUNNING \n", proceso_en_running->pid); //LOG CAMBIO DE ESTADO
     }  
 }
 
@@ -94,18 +94,27 @@ void volver_a_running() {
 void mandar_a_ready(t_pcb* proceso) {
     proceso->tiempo_llegada_ready = (double)temporal_gettime(temporal);
     pthread_mutex_lock(&mutex_ready);
+    
     list_add(procesos_en_ready, proceso);
+    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
     
     list_add(lista_pids, &proceso->pid);
+
+    char pids[100];
+    log_warning(logger, "Cola Ready %s: [%s] \n", config_get_string_value(config, "ALGORITMO_PLANIFICACION"), lista_pids_a_string(lista_pids, pids));   //LOG INGRESO A READY    
+
+
     pthread_mutex_unlock(&mutex_ready);
     
-    char pids[100];
-    log_warning(logger, "Cola Ready %s: [%s] \n", config_get_string_value(config, "ALGORITMO_PLANIFICACION"), lista_pids_a_string(lista_pids, pids));    
+    
+    char pids_2[100];
+    log_warning(logger, "Cola Ready %s: [%s] \n", config_get_string_value(config, "ALGORITMO_PLANIFICACION"), lista_pids_a_string(lista_pids, pids_2));   //LOG INGRESO A READY    
 
     // Avisamos que agregamos un nuevo proceso a READY
     sem_post(&cant_procesos_ready);
+
 }
 
 

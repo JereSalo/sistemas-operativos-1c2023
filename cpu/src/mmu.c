@@ -20,8 +20,8 @@ t_segmento* buscar_segmento(t_contexto_ejecucion* proceso, int num_segmento) {
     return NULL;
 }
 
-// Retorna la direccion si no hay seg fault, sino retorna -1
-int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char* nombre_registro){
+// Retorna la direccion si no hay seg fault, sino retorna -1. Ademas retorna el numero de segmento del proceso
+int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char* nombre_registro, int* numero_segmento){
     int tam_max_segmento = config_cpu.TAM_MAX_SEGMENTO;
     int longitud_registro = obtener_longitud_registro(nombre_registro);
 
@@ -31,7 +31,7 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
     t_segmento* segmento = buscar_segmento(proceso, num_segmento); //busca por id
 
     //if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
-    //    log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
+    //    log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);   //LOG ERROR SEGMENTATION FAULT
     //    return -1;
     //}
 
@@ -43,5 +43,7 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
     //log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);
 
+    
+    *numero_segmento = num_segmento;   //Esto lo hago porque un log obligatorio requiere que sepamos a que segmento accedemos
     return direccion_fisica;
 }

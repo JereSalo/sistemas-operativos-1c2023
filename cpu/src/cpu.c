@@ -22,6 +22,18 @@ int main(int argc, char** argv){
     // CLIENTE -> Memoria
     server_memoria = conectar_con(MEMORIA, config, logger);
 
+    // Mandamos handshake
+    //SEND_INT(server_memoria, 1);
+
+    // Recibimos respuesta del handshake
+    //int respuesta_handshake;
+    //RECV_INT(server_memoria, respuesta_handshake);
+
+    //if(respuesta_handshake == 2) {
+    //   log_info(logger, "Handshake exitoso \n");
+    //}
+
+    // Mandamos a memoria el tamanio maximo de segmento permitido por CPU
     SEND_INT(server_memoria, config_cpu.TAM_MAX_SEGMENTO);
 
     // SERVER -> Kernel

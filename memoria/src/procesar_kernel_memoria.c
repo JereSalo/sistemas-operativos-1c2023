@@ -43,6 +43,11 @@ void procesar_kernel_memoria() {
                 // log_debug(logger, "TAMANIO SEGMENTO %d", tamanio_segmento);
                 // Mandarle tamanio al algoritmo de busqueda y ver si encuentra hueco o devuelve NULL.
                 t_hueco* hueco = obtener_hueco_libre(tamanio_segmento);
+                
+                
+                if(hueco != NULL)
+                    log_debug(logger, "Obtuve hueco - Base: %d - Tamanio: %d \n", hueco->direccion_base, hueco->tamanio);
+                
                 if(hueco == NULL){
                     if(espacio_restante_memoria() >= tamanio_segmento){
                         log_debug(logger, "Se necesita compactacion");

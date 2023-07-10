@@ -121,7 +121,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             }
             else {
                 log_error(logger, "Recurso '%s' no encontrado", recurso_solicitado);
-                matar_proceso("FILE_NOT_FOUND");
+                matar_proceso("RESOURCE_NOT_FOUND");
             }
             break;
         }
@@ -155,7 +155,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             } 
             else {
                 log_error(logger, "Recurso '%s' no encontrado", recurso_solicitado);
-                matar_proceso("FILE_NOT_FOUND");
+                matar_proceso("RESOURCE_NOT_FOUND");
             }
             break;
         }

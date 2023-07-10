@@ -30,15 +30,15 @@ int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char*
 
     t_segmento* segmento = buscar_segmento(proceso, num_segmento); //busca por id
 
-    //if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
-    //    log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);   //LOG ERROR SEGMENTATION FAULT
-    //    return -1;
-    //}
+    if(desplazamiento_segmento + longitud_registro > segmento->tamanio){
+        log_error(logger, "%d - Error SEG_FAULT- Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);   //LOG ERROR SEGMENTATION FAULT
+        return -1;
+    }
 
-    //int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
+    int direccion_fisica = segmento->direccion_base + desplazamiento_segmento;
 
     // Esto de aca abajo es una falopeada para hacer pruebas sin tener que hacer calculos
-    int direccion_fisica = direccion_logica;
+    //int direccion_fisica = direccion_logica;
 
     log_debug(logger, "Direccion Fisica: %d", direccion_fisica);
     //log_debug(logger, "%d - Segmento: %d - Offset: %d - Tamanio: %d", proceso->pid, num_segmento, desplazamiento_segmento, segmento->tamanio);

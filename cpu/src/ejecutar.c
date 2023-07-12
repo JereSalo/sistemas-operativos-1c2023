@@ -70,19 +70,17 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* registro = instruccion_decodificada[1];
             int direccion_logica = atoi(instruccion_decodificada[2]);
 
-            // int direccion_fisica = obtener_direccion(direccion_logica);
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+            int longitud_registro = obtener_longitud_registro(registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, longitud_registro);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
                 break;
             }
-
-            int longitud = obtener_longitud_registro(registro);
             
             // Leer valor de memoria correspondiente a direccion_fisica
 
-            send_peticion_lectura(server_memoria, direccion_fisica, longitud);
+            send_peticion_lectura(server_memoria, direccion_fisica, longitud_registro);
 
             char valor[64];
 
@@ -99,18 +97,17 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             int direccion_logica = atoi(instruccion_decodificada[1]);
             char* registro = instruccion_decodificada[2];
 
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro);
+            int longitud_registro = obtener_longitud_registro(registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, longitud_registro);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
                 break;
             }
-                
-            int longitud = obtener_longitud_registro(registro);
 
             char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
-            send_peticion_escritura(server_memoria, direccion_fisica, longitud, valor_leido);
+            send_peticion_escritura(server_memoria, direccion_fisica, longitud_registro, valor_leido);
 
             free(valor_leido);
 
@@ -129,6 +126,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
         case WAIT: // WAIT (Recurso)
         case SIGNAL: // SIGNAL (Recurso)
         case DELETE_SEGMENT: // DELETE_SEGMENT (Id Segmento)
+        case F_OPEN: // F_OPEN (Nombre Archivo)
+        case F_CLOSE: // F_CLOSE (Nombre Archivo)
         {
             list_add(lista_parametros, strdup(instruccion_decodificada[1]));   
 
@@ -137,6 +136,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             break;   
         }
         case CREATE_SEGMENT: // CREATE_SEGMENT (Id del Segmento, Tamaño)
+        case F_SEEK: // F_SEEK (Nombre Archivo, Posición)
+        case F_TRUNCATE: // F_TRUNCATE (Nombre Archivo, Tamaño)
         {
             list_add(lista_parametros, strdup(instruccion_decodificada[1]));
             list_add(lista_parametros, strdup(instruccion_decodificada[2]));
@@ -145,27 +146,27 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             break;
         }
-        case F_OPEN: // F_OPEN (Nombre Archivo)
-        {
-            break;
-        }
-        case F_CLOSE: // F_CLOSE (Nombre Archivo)
-        {
-            break;
-        }
-        case F_SEEK: // F_SEEK (Nombre Archivo, Posición)
-        {
-            break;
-        }
         case F_READ: // F_READ (Nombre Archivo, Dirección Lógica, Cantidad de Bytes)
         {
+            int direccion_logica = atoi(instruccion_decodificada[2]);
+            char* nombre_archivo = instruccion_decodificada[1];
+            int cantidad_bytes = atoi(instruccion_decodificada[3]);
+
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, cantidad_bytes);
+
+            if(direccion_fisica == -1){
+                desalojado = 1;
+                break;
+            }
+
+            list_add(lista_parametros, strdup(nombre_archivo));
+            list_add(lista_parametros, strdup(instruccion_decodificada[2]));
+            list_add(lista_parametros, strdup(instruccion_decodificada[3]));
+
+
             break;
         }
         case F_WRITE: // F_WRITE (Nombre Archivo, Dirección Lógica, Cantidad de bytes)
-        {
-            break;
-        }
-        case F_TRUNCATE: // F_TRUNCATE (Nombre Archivo, Tamaño)
         {
             break;
         }

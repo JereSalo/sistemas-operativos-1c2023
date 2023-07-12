@@ -34,6 +34,8 @@ int main(int argc, char** argv){
     cliente_kernel = esperar_cliente(server_fd, logger, "fileSystem");
 
 
+    procesar_kernel_filesystem();
+
 
     liberar_conexion(&server_fd);
     cerrar_programa(logger,config);

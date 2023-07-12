@@ -305,30 +305,53 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case F_OPEN:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            
             break;
         }
         case F_CLOSE:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+
+
             break;
         }
         case F_SEEK:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            int posicion = atoi((char*)list_get(lista_parametros, 1));
+
             break;
         }
         case F_READ:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
+            int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
+            
+
             break;
         }
         case F_WRITE:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
+            int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
+
+
+
             break;
         }
         case F_TRUNCATE:
         {
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            int tamanio = atoi((char*)list_get(lista_parametros, 1));
+
+            
+
             break;
         }
-        case MOV_IN:
-        case MOV_OUT:
+        case SEG_FAULT:
         {
             matar_proceso("SEG_FAULT");
             break;

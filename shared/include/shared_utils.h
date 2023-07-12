@@ -94,7 +94,8 @@ typedef enum {
     CREATE_SEGMENT,
     DELETE_SEGMENT,
     YIELD,
-    EXIT
+    EXIT,
+    SEG_FAULT // No es una instruccion pero no me cabe una
 } op_instruccion;
 
 typedef enum {

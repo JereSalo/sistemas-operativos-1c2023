@@ -159,38 +159,20 @@ int obtener_longitud_registro(char* registro){
 
     switch(reg) {
         case AX: 
-            longitud = 4;
-            break;
         case BX: 
-            longitud = 4;
-            break;
         case CX: 
-            longitud = 4;
-            break;
         case DX: 
             longitud = 4;
             break;
         case EAX: 
-            longitud = 8;
-            break;
         case EBX: 
-            longitud = 8;
-            break;
         case ECX: 
-            longitud = 8;
-            break;
         case EDX: 
             longitud = 8;
             break;
         case RAX: 
-            longitud = 16;
-            break;
         case RBX: 
-            longitud = 16;
-            break;
         case RCX: 
-            longitud = 16;
-            break;
         case RDX: 
             longitud = 16;
             break;

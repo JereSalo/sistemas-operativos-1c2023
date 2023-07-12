@@ -5,6 +5,6 @@
 
 // ------------------------------ TRADUCCION DE DIRECCIONES ------------------------------ //
 t_segmento* buscar_segmento(t_contexto_ejecucion* proceso, int num_segmento);
-int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, char* nombre_registro);
+int obtener_direccion(int direccion_logica, t_contexto_ejecucion* proceso, int cantidad_bytes);
 
 #endif

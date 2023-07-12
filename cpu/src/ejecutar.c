@@ -4,6 +4,7 @@
 
 t_list* lista_parametros;
 int desalojado = 0;
+int seg_fault = 0;
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto) {
     char* instruccion;
@@ -31,12 +32,20 @@ void ejecutar_proceso(t_contexto_ejecucion* contexto) {
 
     // Si es desalojado =>
     desalojado = 0;
+    int motivo_desalojo;
 
-    // Si pero no, en realidad cuando es MOV_IN o MOV_OUT es porque hay un seg fault
-    log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
+    if(seg_fault){
+        log_info(logger, "PID: %d - Instruccion %s ha producido un SEG_FAULT, desalojando proceso... \n", contexto->pid, instruccion);
+        motivo_desalojo = SEG_FAULT;
+        seg_fault = 0;
+    }
+    else{
+        log_info(logger, "PID: %d - Instruccion %s a ejecutar por parte del Kernel \n", contexto->pid, instruccion);
+        motivo_desalojo = (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]); 
+    }
 
     send_contexto(cliente_kernel, contexto);
-    send_desalojo(cliente_kernel, (intptr_t)dictionary_get(diccionario_instrucciones, instruccion_decodificada[0]), lista_parametros);
+    send_desalojo(cliente_kernel, motivo_desalojo, lista_parametros);
 
     list_destroy_and_destroy_elements(lista_parametros, free);
     string_array_destroy(instruccion_decodificada);
@@ -75,6 +84,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             if(direccion_fisica == -1){
                 desalojado = 1;
+                seg_fault = 1;
                 break;
             }
             
@@ -102,6 +112,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             if(direccion_fisica == -1){
                 desalojado = 1;
+                seg_fault = 1;
                 break;
             }
 
@@ -147,27 +158,28 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             break;
         }
         case F_READ: // F_READ (Nombre Archivo, Dirección Lógica, Cantidad de Bytes)
+        case F_WRITE: // F_WRITE (Nombre Archivo, Dirección Lógica, Cantidad de bytes)
         {
-            int direccion_logica = atoi(instruccion_decodificada[2]);
             char* nombre_archivo = instruccion_decodificada[1];
+            int direccion_logica = atoi(instruccion_decodificada[2]);
             int cantidad_bytes = atoi(instruccion_decodificada[3]);
 
             int direccion_fisica = obtener_direccion(direccion_logica, contexto, cantidad_bytes);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
+                seg_fault = 1;
                 break;
             }
 
+            char* direccion_fisica_string = string_itoa(direccion_fisica);
+
             list_add(lista_parametros, strdup(nombre_archivo));
-            list_add(lista_parametros, strdup(instruccion_decodificada[2]));
+            list_add(lista_parametros, direccion_fisica_string);
             list_add(lista_parametros, strdup(instruccion_decodificada[3]));
 
+            desalojado = 1;
 
-            break;
-        }
-        case F_WRITE: // F_WRITE (Nombre Archivo, Dirección Lógica, Cantidad de bytes)
-        {
             break;
         }
         default: {

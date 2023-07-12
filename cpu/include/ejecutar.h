@@ -7,6 +7,7 @@
 // ------------------------------ EJECUCION DE PROCESOS ------------------------------ //
 
 extern int desalojado;
+extern int seg_fault;
 extern t_list* lista_parametros;
 
 void ejecutar_proceso(t_contexto_ejecucion* contexto);

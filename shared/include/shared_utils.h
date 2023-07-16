@@ -1,6 +1,9 @@
 #ifndef SHARED_UTILS_H_
 #define SHARED_UTILS_H_
 
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -22,6 +25,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <math.h>
+
 
 
 typedef struct{

@@ -14,16 +14,29 @@ typedef struct {
     int RETARDO_ACCESO_BLOQUE;
 } t_filesystem_config;
 
+typedef struct {
+    int BLOCK_COUNT;
+    int BLOCK_SIZE;
+} t_superbloque;
+
 extern t_log* logger;
 extern t_config *config;
+extern t_superbloque info_superbloque;
 extern t_filesystem_config config_filesystem;
 extern int cliente_kernel;
 extern int server_memoria;
-extern FILE* archivo_superbloque;
-extern FILE* archivo_bitmap;
-extern FILE* archivo_bloques;
+extern t_config* archivo_superbloque;
+extern int archivo_bitmap;
+extern int archivo_bloques;
+
+//extern FILE* archivo_bitmap;
+//extern FILE* archivo_bloques;
 
 void cargar_config_filesystem(t_config* config);
+void cargar_info_superbloque(t_config* archivo_superbloque);
+int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* tipo_archivo);
+
+
 FILE* abrir_archivo_superbloque();
 FILE* abrir_archivo_bitmap();
 FILE* abrir_archivo_bloques();

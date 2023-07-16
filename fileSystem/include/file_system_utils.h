@@ -47,6 +47,8 @@ int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* ti
 void mostrar_contenido_archivo(char* path_archivo);
 void mapear_archivo(char* tipo_archivo);
 void mostrar_bitarray();
+void desmapear_archivo(void* archivo_mapeado, size_t tamanio_archivo);
+void sincronizar_archivo(void* archivo_mapeado, size_t tamanio_archivo);
 
 FILE* abrir_archivo_superbloque();
 FILE* abrir_archivo_bitmap();

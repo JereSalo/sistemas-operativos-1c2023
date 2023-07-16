@@ -38,7 +38,9 @@ void cargar_config_filesystem(t_config* config){
 
 void cargar_info_superbloque(t_config* archivo_superbloque) {
     info_superbloque.BLOCK_COUNT = config_get_int_value(archivo_superbloque, "BLOCK_COUNT");
-    info_superbloque.BLOCK_SIZE = config_get_int_value(archivo_superbloque, "BLOCK_SIZE"); 
+    info_superbloque.BLOCK_SIZE = config_get_int_value(archivo_superbloque, "BLOCK_SIZE");
+
+    log_debug(logger, "Info del superbloque cargada - BLOCK_SIZE: %d   BLOCK_COUNT: %d \n", info_superbloque.BLOCK_SIZE, info_superbloque.BLOCK_COUNT); 
 }
 
 
@@ -107,6 +109,7 @@ int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* ti
 
 void mapear_archivo(char* tipo_archivo) {
 
+    log_debug(logger, "Mapeando archivo a memoria \n");
     
     if(string_equals_ignore_case(tipo_archivo, "bloques")) {
         
@@ -114,6 +117,7 @@ void mapear_archivo(char* tipo_archivo) {
         if (archivo_bloques_mapeado == MAP_FAILED) {
             perror("Error mapeando el archivo a memoria");
             close(archivo_bloques);
+            exit(1);
         }
 
     }
@@ -123,24 +127,42 @@ void mapear_archivo(char* tipo_archivo) {
         if (archivo_bloques_mapeado == MAP_FAILED) {
             perror("Error mapeando el archivo a memoria");
             close(archivo_bitmap);
+            exit(1);
         }
 
         //Creamos el bitarray
-        
-        //bitarray_destroy(bitarray_bloques);
-        
+                
         bitarray_bloques = bitarray_create_with_mode(archivo_bitmap_mapeado, info_superbloque.BLOCK_COUNT, LSB_FIRST);
     
     }
 
 }
 
+void desmapear_archivo(void* archivo_mapeado, size_t tamanio_archivo) {
+    
+    log_debug(logger, "Desmapeando archivo de memoria \n");
+    
+    if (munmap(archivo_mapeado, tamanio_archivo) == -1) {
+        perror("Error unmapping the file");
+        exit(1);
+    }    
+}
+
+void sincronizar_archivo(void* archivo_mapeado, size_t tamanio_archivo) {
+
+    log_debug(logger, "Sincronizando archivo mapeado a memoria con disco \n");
+    
+    if (msync(archivo_mapeado, tamanio_archivo, MS_SYNC) == -1) {
+        perror("Error synchronizing data with file");
+        exit(1);
+    }   
+}
 
 void mostrar_bitarray() {
 
     int valor;
     
-    log_info(logger, "Mostrando bitarray en memoria: \n");
+    log_debug(logger, "Mostrando bitarray en memoria: \n");
     
     for(int i = 0; i < bitarray_bloques->size; i++) {
         valor = bitarray_test_bit(bitarray_bloques, i);
@@ -148,8 +170,7 @@ void mostrar_bitarray() {
     }
 }
 
-
-
+// Este sirve solo para ver el contenido del archivo de bloques
 void mostrar_contenido_archivo(char* path_archivo) {
 
     log_info(logger, "Mostrando data del archivo mapeado en el archivo original: \n");
@@ -175,6 +196,8 @@ void mostrar_contenido_archivo(char* path_archivo) {
 
 void crear_estructuras_administrativas() {
 
+    // hay que recorrer el directorio de FCB y si hay archivos dentro, vamos creando la lista de FCBs
+    // si no hay FCBs, simplemente creamos una lista vacia -> se ira llenando a medida que se ejecuten instrucciones
 
 }
 

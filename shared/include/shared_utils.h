@@ -60,6 +60,15 @@ typedef struct {
 
 
 typedef struct {
+    char* nombre;
+    size_t tamanio;
+    uint32_t puntero_directo;     // apunta al primer bloque de datos del archivo
+    uint32_t puntero_indirecto;   // apunta al primer bloque de datos del archivo
+} t_fcb;
+
+
+
+typedef struct {
     int id;
     int direccion_base;    
     int tamanio;

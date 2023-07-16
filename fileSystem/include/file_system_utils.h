@@ -25,9 +25,18 @@ extern t_superbloque info_superbloque;
 extern t_filesystem_config config_filesystem;
 extern int cliente_kernel;
 extern int server_memoria;
+
+
 extern t_config* archivo_superbloque;
 extern int archivo_bitmap;
 extern int archivo_bloques;
+extern size_t tamanio_archivo_bloques;
+extern size_t tamanio_archivo_bitmap;
+extern void* archivo_bloques_mapeado;
+extern void* archivo_bitmap_mapeado;
+extern t_bitarray* bitarray_bloques;
+
+
 
 //extern FILE* archivo_bitmap;
 //extern FILE* archivo_bloques;
@@ -35,7 +44,9 @@ extern int archivo_bloques;
 void cargar_config_filesystem(t_config* config);
 void cargar_info_superbloque(t_config* archivo_superbloque);
 int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* tipo_archivo);
-
+void mostrar_contenido_archivo(char* path_archivo);
+void mapear_archivo(char* tipo_archivo);
+void mostrar_bitarray();
 
 FILE* abrir_archivo_superbloque();
 FILE* abrir_archivo_bitmap();

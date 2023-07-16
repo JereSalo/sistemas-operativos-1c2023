@@ -21,6 +21,7 @@
 #include <semaphore.h>
 #include <stdint.h>
 #include <commons/collections/dictionary.h>
+#include <commons/bitarray.h>
 #include <commons/temporal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

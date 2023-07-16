@@ -16,15 +16,7 @@ int main(int argc, char** argv){
 
     cargar_config_filesystem(config);
 
-    // Ojo: El path del config es absoluto, si no tenes la carpeta 'fs' creada entonces el fopen() va a tirar error.
-    //archivo_bitmap = abrir_archivo_bitmap();
-    //archivo_superbloque = abrir_archivo_superbloque();
-    //archivo_bloques = abrir_archivo_bloques();
-
-    //if(archivo_superbloque == NULL || archivo_bitmap == NULL || archivo_bloques == NULL)
-    //    return EXIT_FAILURE;
-
-
+    
     // CLIENTE -> Memoria
     server_memoria = conectar_con(MEMORIA, config, logger);
     
@@ -39,21 +31,61 @@ int main(int argc, char** argv){
 
     
     // Levantamos el bitmap de bloques -> si no existe, lo creamos -> revisar como lo acoplamos con el bitarray
-    size_t tamanio_bitmap;
-    levantar_archivo(config_filesystem.PATH_BITMAP, &archivo_bitmap, &tamanio_bitmap , "bitmap");
+    levantar_archivo(config_filesystem.PATH_BITMAP, &archivo_bitmap, &tamanio_archivo_bitmap , "bitmap");
     
-    
-    
-    //mapear_archivo(fd, tamanio_archivo, tipo_archivo); -> el tipo lo agrego porque si es bitmap tenemos que acoplarlo con el bitarray
+    mapear_archivo("bitmap");
+
+
+    //Se supone que cuando modificamos el array se esta modificando el espacio de memoria tambien
+    //Asi que cuando sincronizamos con el archivo deberia ser lo mismo
+
+    bitarray_set_bit(bitarray_bloques, 0);
+
+    mostrar_bitarray();
+
+    if (msync(archivo_bitmap_mapeado, tamanio_archivo_bitmap, MS_SYNC) == -1) {
+        perror("Error synchronizing data with file");
+    }
+
+    if (munmap(archivo_bitmap_mapeado, tamanio_archivo_bitmap) == -1) {
+        perror("Error unmapping the file");
+    }
+
+
+    // Para chequear que este todo OK volvemos a mapear el archivo y volvemos a mostrar el bitarray
+    //mapear_archivo("bitmap");
+    //mostrar_bitarray();
+
 
     // Idem con el archivo de bloques
-    size_t tamanio_archivo_bloques;
     levantar_archivo(config_filesystem.PATH_BLOQUES, &archivo_bloques, &tamanio_archivo_bloques , "bloques");
-    //lol
     
-    
-    //mapear_archivo();
+    mapear_archivo("bloques");
 
+
+
+    // Accedemos al archivo mapeado y lo manejamos como un char*
+    char* data_as_chars = (char*)archivo_bloques_mapeado;
+    for (int i = 0; i < tamanio_archivo_bloques; i++) {
+        data_as_chars[i] = 'C'; // You can modify the data here as needed
+    }
+
+
+    log_info(logger, "Mostrando data del archivo mapeado en memoria: %s \n", data_as_chars);
+
+    if (msync(archivo_bloques_mapeado, tamanio_archivo_bloques, MS_SYNC) == -1) {
+        perror("Error synchronizing data with file");
+    }
+
+    if (munmap(archivo_bloques_mapeado, tamanio_archivo_bloques) == -1) {
+        perror("Error unmapping the file");
+    }
+
+
+    //Ahora quiero leer el archivo para chequear que este todo OK
+    mostrar_contenido_archivo("bloques.dat");
+    
+    
     // Entre ellas estan lista_fcbs
     //crear_estructuras_administrativas();
 

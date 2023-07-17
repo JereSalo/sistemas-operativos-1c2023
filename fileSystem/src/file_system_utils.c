@@ -128,7 +128,7 @@ void mapear_archivo(char* tipo_archivo) {
     else if(string_equals_ignore_case(tipo_archivo, "bitmap")) {
 
         archivo_bitmap_mapeado = mmap(NULL, tamanio_archivo_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, archivo_bitmap, 0);  //Con PROT_READ y PROT_WRITE estamos permitiendo que el archivo sea leido y escrito
-        if (archivo_bloques_mapeado == MAP_FAILED) {
+        if (archivo_bitmap_mapeado == MAP_FAILED) {
             perror("Error mapeando el archivo a memoria");
             close(archivo_bitmap);
             exit(1);

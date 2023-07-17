@@ -69,6 +69,20 @@ typedef struct {
 } t_fcb;
 
 
+typedef struct {
+    char* nombre;
+    int cantidad_disponible;
+    t_queue* cola_bloqueados;
+} t_tabla_global_archivos_abiertos;
+
+
+
+typedef struct {
+    char* nombre;
+    uint32_t puntero_archivo;
+} t_tabla_archivos_abiertos_proceso;
+
+
 
 typedef struct {
     int id;

@@ -43,6 +43,8 @@ int cant_segmentos;
 // LISTA GLOBAL DE PROCESOS
 t_list* lista_global_procesos;
 
+// TABLA GLOBAL DE ARCHIVO
+t_list* tabla_global_archivos_abiertos;
 
 
 
@@ -245,6 +247,28 @@ t_recurso* recurso_en_lista(char* recurso_solicitado) {
     list_iterator_destroy(lista_it);
     return NULL;
 }
+
+
+// ------------------------------ MANEJO DE ARCHIVOS ------------------------------ //
+
+t_tabla_global_archivos_abiertos* buscar_archivo_en_tabla_global(char* archivo_solicitado) {
+    t_list_iterator* lista_it = list_iterator_create(tabla_global_archivos_abiertos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_global_archivos_abiertos* archivo = (t_tabla_global_archivos_abiertos*)list_iterator_next(lista_it);
+        
+        if (string_equals_ignore_case(archivo->nombre, archivo_solicitado)) {
+            list_iterator_destroy(lista_it);
+            return archivo;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+
+
 
 
 

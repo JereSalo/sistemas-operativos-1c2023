@@ -306,6 +306,17 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         case F_OPEN:
         {
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+
+            //Buscar si existe el archivo en la TGAA
+            t_tabla_global_archivos_abiertos* archivo = buscar_archivo_en_tabla_global(nombre_archivo);
+
+            
+
+
+
+
+
+
             
             break;
         }

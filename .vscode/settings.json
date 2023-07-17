@@ -37,7 +37,8 @@
         "algoritmos.h": "c",
         "mmu.h": "c",
         "procesar_cpu_memoria.h": "c",
-        "serializacion.h": "c"
+        "serializacion.h": "c",
+        "bitarray.h": "c"
     },
 	
 }

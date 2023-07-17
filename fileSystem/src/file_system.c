@@ -39,9 +39,9 @@ int main(int argc, char** argv){
     //Se supone que cuando modificamos el array se esta modificando el espacio de memoria tambien
     //Asi que cuando sincronizamos con el archivo deberia ser lo mismo
 
-    //bitarray_set_bit(bitarray_bloques, 0);
+    bitarray_set_bit(bitarray_bloques, 0);
 
-    //mostrar_bitarray();
+    mostrar_bitarray();
 
     sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
@@ -49,8 +49,8 @@ int main(int argc, char** argv){
     
 
     // Para chequear que este todo OK volvemos a mapear el archivo y volvemos a mostrar el bitarray
-    //mapear_archivo("bitmap");
-    //mostrar_bitarray();
+    mapear_archivo("bitmap");
+    mostrar_bitarray();
 
 
     // Idem con el archivo de bloques
@@ -59,13 +59,13 @@ int main(int argc, char** argv){
     mapear_archivo("bloques");
 
     // Accedemos al archivo mapeado y lo manejamos como un char*
-    //char* data_as_chars = (char*)archivo_bloques_mapeado;
-    //for (int i = 0; i < tamanio_archivo_bloques; i++) {
-    //    data_as_chars[i] = 'C'; // You can modify the data here as needed
-    //}
+    char* data_as_chars = (char*)archivo_bloques_mapeado;
+    for (int i = 0; i < tamanio_archivo_bloques; i++) {
+        data_as_chars[i] = 'C'; // You can modify the data here as needed
+    }
 
 
-    //log_debug(logger, "Mostrando data del archivo mapeado en memoria: %s \n", data_as_chars);
+    log_debug(logger, "Mostrando data del archivo mapeado en memoria: %s \n", data_as_chars);
 
     sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
 
@@ -73,7 +73,7 @@ int main(int argc, char** argv){
 
 
     //Ahora quiero leer el archivo para chequear que este todo OK
-    //mostrar_contenido_archivo("bloques.dat");
+    mostrar_contenido_archivo("bloques.dat");
     
     
     // Entre ellas estan lista_fcbs

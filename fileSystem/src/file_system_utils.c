@@ -1,4 +1,5 @@
 #include "file_system_utils.h"
+#define FILE_PATH_MAX 4096
 
 t_log* logger;
 t_config* config;
@@ -16,6 +17,9 @@ size_t tamanio_archivo_bitmap;
 void* archivo_bloques_mapeado;
 void* archivo_bitmap_mapeado;
 t_bitarray* bitarray_bloques;
+
+t_list* lista_fcbs;
+
 
 
 
@@ -67,7 +71,7 @@ int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* ti
         // Guardamos el tamanio para despues hacer mmap afuera
         *tamanio_archivo = file_stat.st_size;
 
-        // Ahora viene todo el tema del mmap -> lo vamos a hacer afuera de esta funcion
+    
     }
     else {
 
@@ -99,7 +103,7 @@ int levantar_archivo(char* path, int* archivo, size_t* tamanio_archivo, char* ti
             return EXIT_FAILURE;
         }
 
-        // Ahora viene todo el tema del mmap
+        
 
     }
 
@@ -192,13 +196,56 @@ void mostrar_contenido_archivo(char* path_archivo) {
 }
 
 
-
-
 void crear_estructuras_administrativas() {
 
+    lista_fcbs = list_create();
+    
+    
     // hay que recorrer el directorio de FCB y si hay archivos dentro, vamos creando la lista de FCBs
     // si no hay FCBs, simplemente creamos una lista vacia -> se ira llenando a medida que se ejecuten instrucciones
 
+    DIR* dir;
+    struct dirent* entry;
+
+    dir = opendir(config_filesystem.PATH_FCB);
+    if (dir == NULL) {
+        perror("Error al abrir el directorio.");
+        exit(1);
+    }
+
+
+    while((entry = readdir(dir)) != NULL) {
+        if (strstr(entry->d_name, ".dat") != NULL) {
+            // Process only regular files with .dat extension
+
+            // Create the full file path
+            char file_path[FILE_PATH_MAX];
+
+            // Concatena en una variable e imprime dicha variable
+            snprintf(file_path, FILE_PATH_MAX, "%s/%s", config_filesystem.PATH_FCB, entry->d_name);
+
+            
+            // Accedemos como al config y creamos una entrada del tipo t_fcb, y la guardamos en la lista
+
+
+            // Read the .dat file and process key-value pairs
+            t_fcb* fcb = malloc(sizeof(t_fcb));
+            
+            t_config* archivo_fcb = config_create(file_path);
+
+            fcb->nombre = config_get_string_value(archivo_fcb, "NOMBRE_ARCHIVO");
+            fcb->tamanio = config_get_int_value(archivo_fcb, "TAMANIO_ARCHIVO");
+            fcb->puntero_directo = config_get_int_value(archivo_fcb, "PUNTERO_DIRECTO");
+            fcb->puntero_indirecto = config_get_int_value(archivo_fcb, "PUNTERO_INDIRECTO");
+
+            // Hacer funcion de mostrar lista afuera de esta funcion para chequear que este todo OK
+            
+            log_debug(logger, "Se creo un FCB - Nombre: %s - Tamanio: %d - PD: %d - PI: %d", fcb->nombre, fcb->tamanio, fcb->puntero_directo, fcb->puntero_indirecto);
+
+            list_add(lista_fcbs, fcb);
+        }
+
+    }
 }
 
 

@@ -36,6 +36,7 @@ extern void* archivo_bloques_mapeado;
 extern void* archivo_bitmap_mapeado;
 extern t_bitarray* bitarray_bloques;
 
+extern t_list* lista_fcbs;
 
 
 //extern FILE* archivo_bitmap;
@@ -49,6 +50,7 @@ void mapear_archivo(char* tipo_archivo);
 void mostrar_bitarray();
 void desmapear_archivo(void* archivo_mapeado, size_t tamanio_archivo);
 void sincronizar_archivo(void* archivo_mapeado, size_t tamanio_archivo);
+void crear_estructuras_administrativas();
 
 FILE* abrir_archivo_superbloque();
 FILE* abrir_archivo_bitmap();

@@ -26,6 +26,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <math.h>
+#include <dirent.h>
+#include <limits.h>
 
 
 
@@ -61,7 +63,7 @@ typedef struct {
 
 typedef struct {
     char* nombre;
-    size_t tamanio;
+    int tamanio;
     uint32_t puntero_directo;     // apunta al primer bloque de datos del archivo
     uint32_t puntero_indirecto;   // apunta al primer bloque de datos del archivo
 } t_fcb;

@@ -112,7 +112,8 @@ void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados)
 
 // ------------------------------ MANEJO DE ARCHIVOS ------------------------------ //
 t_tabla_global_archivos_abiertos* buscar_archivo_en_tabla_global(char* archivo_solicitado);
-
+t_tabla_archivos_abiertos_proceso* buscar_archivo_en_tabla_archivos_por_proceso(t_pcb* proceso, char* archivo_solicitado);
+void mostrar_tabla_archivos_por_proceso(t_list* tabla);
 
 // Funciones de otros modulos
 void mandar_a_ready(t_pcb* proceso);

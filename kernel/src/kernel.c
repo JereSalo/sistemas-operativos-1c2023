@@ -10,6 +10,8 @@ void sigint_handler(int signum) {
     free(config_kernel);
     list_destroy(lista_pids);
     list_destroy_and_destroy_elements(lista_global_procesos, free);
+    list_destroy_and_destroy_elements(tabla_global_archivos_abiertos, free); //VER ESTO -> POSIBLE LEAK
+
     
     exit(0);
 }

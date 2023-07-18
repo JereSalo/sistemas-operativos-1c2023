@@ -1,2 +1,4 @@
 F_OPEN hola
+F_SEEK hola 10
+F_CLOSE hola
 EXIT

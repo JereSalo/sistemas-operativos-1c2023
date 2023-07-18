@@ -402,7 +402,18 @@ void liberar_proceso(t_pcb* proceso){
     free(proceso->registros_cpu);
     list_destroy_and_destroy_elements(proceso->tabla_segmentos, free);
     list_destroy_and_destroy_elements(proceso->instrucciones, free);
+
+    t_list_iterator* lista_it = list_iterator_create(proceso->tabla_archivos_abiertos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_archivos_abiertos_proceso* tabla = (t_tabla_archivos_abiertos_proceso*)list_iterator_next(lista_it);
+        free(tabla->nombre);
+    }
+    
+    list_iterator_destroy(lista_it);
+
     list_destroy_and_destroy_elements(proceso->tabla_archivos_abiertos, free);
+
     list_destroy(proceso->recursos_asignados);
     free(proceso);
 }

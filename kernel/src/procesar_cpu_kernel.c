@@ -335,11 +335,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             t_tabla_archivos_abiertos_proceso* archivo_proceso = malloc(sizeof(t_tabla_archivos_abiertos_proceso));
 
-            archivo_proceso->nombre = nombre_archivo;
+            archivo_proceso->nombre = strdup(nombre_archivo);
             archivo_proceso->puntero_archivo = 0;
             
             log_debug(logger, "Se agrega la entrada del archivo %s a la TAAP \n", nombre_archivo);
             list_add(proceso_en_running->tabla_archivos_abiertos, archivo_proceso);
+            mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
 
             if(archivo != NULL) {
 
@@ -371,7 +372,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                 t_tabla_global_archivos_abiertos* archivo_abierto = malloc(sizeof(t_tabla_global_archivos_abiertos));
 
-                archivo_abierto->nombre = nombre_archivo;
+                archivo_abierto->nombre = strdup(nombre_archivo);
                 archivo_abierto->esta_abierto = 1;
                 archivo_abierto->cola_bloqueados = queue_create();
                 
@@ -380,20 +381,77 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 volver_a_running();
             }
 
-            
-
-
-
-
-
-
-            
             break;
         }
         case F_CLOSE:
         {
-            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            log_info(logger, "Motivo desalojo es F_CLOSE \n");
 
+            char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+ 
+            // buscamos si el proceso realmente abrio el archivo que quiere cerrar
+            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+            
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+
+            log_debug(logger, "Encontre el archivo %s ", archivo->nombre);
+
+
+            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+
+            if(archivo == NULL){
+                log_error(logger, "El archivo no fue abierto por este proceso");
+                //break;
+                
+                //NO SABEMOS QUE HACER ACA, SI MANDARLO A READY O MATARLO
+
+                // probamos con mandarlo a ready
+                mandar_a_ready(proceso_en_running);
+                sem_post(&cpu_libre);
+            }
+            
+            // Si esta abierto, lo sacamos de la tabla de archivos de ese proceso
+            else {
+                log_debug(logger, "El archivo fue abierto por este proceso anteriormente y se va a cerrar \n");
+                list_remove_element(proceso_en_running->tabla_archivos_abiertos, archivo);
+
+                //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+                
+                // Ahora hay que ver si hay otros procesos esperando para abrir ese archivo
+                // Para eso lo buscamos en la TGAA
+
+                t_tabla_global_archivos_abiertos* archivo_global = buscar_archivo_en_tabla_global(nombre_archivo);
+
+                //log_debug(logger, "Encontre este archivo en la TGAA: %s", archivo_global->nombre);
+
+                log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
+
+
+                if(queue_is_empty(archivo_global->cola_bloqueados))
+                {
+                    log_debug(logger, "La cola de bloqueados del archivo esta vacia");
+                    
+                    // Si no hay ningun proceso esperando para abrir el archivo (cola vacia) lo sacamos de la la TGGA
+                    list_remove_element(tabla_global_archivos_abiertos, archivo_global);
+                    
+                    log_debug(logger, "Entrada de archivo de la TGAA eliminada");
+                }
+                else {
+                    log_debug(logger, "La cola de bloqueados del archivo no esta vacia");
+                    
+                    // Si hay procesos esperando, desbloqueamos al primero de la cola (lo ponemos en ready)
+                    
+                    t_pcb* proceso = queue_pop(archivo_global->cola_bloqueados);
+    
+                    log_debug(logger, "Primer proceso de la cola ha sido desbloqueado");
+
+                    mandar_a_ready(proceso);
+                }
+
+                volver_a_running();
+            }
+
+            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
 
             break;
         }
@@ -402,6 +460,34 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int posicion = atoi((char*)list_get(lista_parametros, 1));
 
+            // buscamos si el archivo esta abierto por el proceso
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+            
+            if(archivo == NULL){
+                log_error(logger, "El archivo no fue abierto por este proceso");
+                mandar_a_ready(proceso_en_running);
+                sem_post(&cpu_libre);
+            }
+            else{
+                //send_opcode(server_fs, VERIFICACION_TAMANIO);
+                //SEND_INT(server_fs, posicion);
+                //int respuesta_fs;
+                //RECV_INT(server_fs, respuesta_fs);
+
+                /* if(respuesta_fs) {
+                    archivo->puntero_archivo = posicion;
+                }
+                else{
+                    log_error(logger, "El puntero excede el tamanio maximo del archivo");
+                } */
+
+                // Actualizamos el puntero -> que pasa si excede al tamanio del archivo???? 
+                archivo->puntero_archivo = posicion;
+
+                log_warning(logger, "PID: %d - Actualizar puntero Archivo: %s - Puntero: %d \n", proceso_en_running->pid, nombre_archivo, archivo->puntero_archivo); //LOG ACTUALIZAR PUNTERO ARCHIVO
+                
+                volver_a_running();
+            }
             break;
         }
         case F_READ:
@@ -410,6 +496,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
             
+            send_opcode(server_fs, SOLICITUD_LECTURA);
+            send_string(server_fs, nombre_archivo);
+            SEND_INT(server_fs, cantidad_bytes);
+            SEND_INT(server_fs, direccion_fisica);
+
 
             break;
         }

@@ -58,8 +58,8 @@ void matar_proceso(char* motivo) {
     int pid = proceso_en_running->pid;
 
     list_remove_element(lista_global_procesos, proceso_en_running); //add
-
-    mostrar_lista_global_procesos(lista_global_procesos);
+    
+    //mostrar_lista_global_procesos(lista_global_procesos);
 
     // Liberamos los recursos que tenia asignado el proceso
     // Iteramos la lista de recursos asignados del proceso, le sumamos 1 a todas las instancias y eliminamos el elemento de la lista
@@ -267,7 +267,38 @@ t_tabla_global_archivos_abiertos* buscar_archivo_en_tabla_global(char* archivo_s
     return NULL;
 }
 
+t_tabla_archivos_abiertos_proceso* buscar_archivo_en_tabla_archivos_por_proceso(t_pcb* proceso, char* archivo_solicitado) {
+    t_list_iterator* lista_it = list_iterator_create(proceso->tabla_archivos_abiertos);
 
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_archivos_abiertos_proceso* archivo = (t_tabla_archivos_abiertos_proceso*)list_iterator_next(lista_it);
+        
+        if (string_equals_ignore_case(archivo->nombre, archivo_solicitado)) {
+            list_iterator_destroy(lista_it);
+            return archivo;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+
+void mostrar_tabla_archivos_por_proceso(t_list* tabla){
+    
+    log_debug(logger, "Mostrando tabla de archivos abiertos por proceso: \n");
+
+    t_list_iterator* lista_it = list_iterator_create(tabla);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_tabla_archivos_abiertos_proceso* archivo = (t_tabla_archivos_abiertos_proceso*) list_iterator_next(lista_it);
+
+        log_debug(logger, "Nombre archivo: %s - Puntero archivo: %d", archivo->nombre, archivo->puntero_archivo);
+
+    }
+    
+    list_iterator_destroy(lista_it);
+}
 
 
 

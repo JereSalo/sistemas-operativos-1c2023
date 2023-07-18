@@ -80,10 +80,10 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             int direccion_logica = atoi(instruccion_decodificada[2]);
             int num_segmento;
 
+            int longitud_registro = obtener_longitud_registro(registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, longitud_registro, &num_segmento);
 
 
-            // int direccion_fisica = obtener_direccion(direccion_logica);
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro, &num_segmento);
 
             if(direccion_fisica == -1){
                 desalojado = 1;
@@ -91,7 +91,9 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
                 break;
             }
             
-            // Leer valor de memoria correspondiente a direccion_fisica
+           
+	 
+	        // Leer valor de memoria correspondiente a direccion_fisica
 
             send_peticion_lectura(server_memoria, direccion_fisica, longitud_registro);
 
@@ -111,7 +113,8 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* registro = instruccion_decodificada[2];
             int num_segmento;
 
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, registro, &num_segmento);
+            int longitud_registro = obtener_longitud_registro(registro);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, longitud_registro, &num_segmento);
 
 
             if(direccion_fisica == -1){
@@ -172,8 +175,9 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* nombre_archivo = instruccion_decodificada[1];
             int direccion_logica = atoi(instruccion_decodificada[2]);
             int cantidad_bytes = atoi(instruccion_decodificada[3]);
+            int num_segmento;
 
-            int direccion_fisica = obtener_direccion(direccion_logica, contexto, cantidad_bytes);
+            int direccion_fisica = obtener_direccion(direccion_logica, contexto, cantidad_bytes, &num_segmento);
 
             if(direccion_fisica == -1){
                 desalojado = 1;

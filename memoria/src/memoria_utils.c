@@ -316,6 +316,37 @@ t_segmento* mover_segmentos() {
     return segmento;
 }
 
+void mostrar_tabla_segmentos_proceso(t_list* tabla_segmentos, int pid) {
+    
+    t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_segmento* segmento = (t_segmento*)list_iterator_next(lista_it);
+
+        if(segmento->tamanio != 0)
+            log_warning(logger, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d \n", pid, segmento->id, segmento->direccion_base, segmento->tamanio);  //LOG RESULTADO COMPACTACION
+    }
+    
+    list_iterator_destroy(lista_it);
+}
+
+
+void mostrar_resultado_compactacion(t_list* tabla_proceso) {
+    
+    t_list_iterator* iterador_tabla_proceso = list_iterator_create(tabla_proceso);
+
+    while (list_iterator_has_next(iterador_tabla_proceso)) {
+        t_tabla_proceso* tabla = (t_tabla_proceso*)list_iterator_next(iterador_tabla_proceso);
+        
+        mostrar_tabla_segmentos_proceso(tabla->lista_segmentos, tabla->pid);
+    }
+    
+    list_iterator_destroy(iterador_tabla_proceso);
+}
+
+
+
+
 
 
 

@@ -104,6 +104,8 @@ void mostrar_tabla_segmentos(t_list* tabla_segmentos) {
     list_iterator_destroy(lista_it);
 }
 
+
+
 void copiar_stream_en_variable_y_desplazar(void* variable, void* stream, size_t tamanio_elemento, size_t* desplazamiento){
     
     memcpy(variable, stream + *desplazamiento, tamanio_elemento);
@@ -190,7 +192,7 @@ char* obtener_registro_objetivo(t_registros_cpu* registros, char* nombre_registr
 
     switch(reg) {
         case AX: 
-            registro_objetivo = registros->AX;
+            registro_objetivo = registros->AX;  //hacemos que apunte al registro AX
             break;
         case BX: 
             registro_objetivo = registros->BX;
@@ -233,6 +235,9 @@ char* obtener_registro_objetivo(t_registros_cpu* registros, char* nombre_registr
 }
 
 
+
+
+
 void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros){ // CUIDADO, SI EL VALOR ES MAS GRANDE QUE EL REGISTRO TE SOBREESCRIBE LOS OTROS.
     char* registro_objetivo = obtener_registro_objetivo(registros, registro);
     int longitud = obtener_longitud_registro(registro);
@@ -242,15 +247,18 @@ void asignar_a_registro(char* registro, char* valor, t_registros_cpu* registros)
 
 
 
-//TODO
+
 char* leer_de_registro(char* registro, t_registros_cpu* registros){
     char* registro_objetivo = obtener_registro_objetivo(registros, registro);
     int longitud = obtener_longitud_registro(registro);
 
-    char* valor = malloc(longitud);
+    char* valor = malloc(longitud + 1);
 
+    // Registro objetivo contiene el valor de lo que esta escrito en el registro
     strncpy(valor, registro_objetivo, longitud);
 
+    valor[longitud] = '\0';
+    
     return valor;
 }
 

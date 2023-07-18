@@ -22,6 +22,17 @@ int main(int argc, char** argv){
     cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
     cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
     
+    // Recibimos el handshake
+    //int handshake_cpu;
+    //RECV_INT(cliente_cpu, handshake_cpu);
+
+    // Respuesta handshake
+    //if(handshake_cpu == 1) {
+    //    SEND_INT(cliente_cpu, 2); 
+   // }
+
+    
+    
     // Recibimos el tamanio maximo de segmento indicado por CPU
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
     log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);

@@ -58,3 +58,5 @@ dkms.conf
 /cpu/cpu
 /fileSystem/fileSystem
 /memoria/memoria
+/fileSystem/fileSystem/bitmap.dat
+/fileSystem/fileSystem/bloques.dat

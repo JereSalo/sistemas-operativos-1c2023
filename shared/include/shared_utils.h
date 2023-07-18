@@ -1,6 +1,9 @@
 #ifndef SHARED_UTILS_H_
 #define SHARED_UTILS_H_
 
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -18,10 +21,14 @@
 #include <semaphore.h>
 #include <stdint.h>
 #include <commons/collections/dictionary.h>
+#include <commons/bitarray.h>
 #include <commons/temporal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <math.h>
+#include <dirent.h>
+#include <limits.h>
+
 
 
 typedef struct{
@@ -52,6 +59,29 @@ typedef struct {
     t_list* tabla_archivos_abiertos;    // va a contener elementos de tipo FILE*
     int socket_consola;
 } t_pcb;
+
+
+typedef struct {
+    char* nombre;
+    int tamanio;
+    uint32_t puntero_directo;     // apunta al primer bloque de datos del archivo
+    uint32_t puntero_indirecto;   // apunta al primer bloque de datos del archivo
+} t_fcb;
+
+
+typedef struct {
+    char* nombre;
+    bool esta_abierto;
+    t_queue* cola_bloqueados;
+} t_tabla_global_archivos_abiertos;
+
+
+
+typedef struct {
+    char* nombre;
+    uint32_t puntero_archivo;
+} t_tabla_archivos_abiertos_proceso;
+
 
 
 typedef struct {
@@ -94,7 +124,8 @@ typedef enum {
     CREATE_SEGMENT,
     DELETE_SEGMENT,
     YIELD,
-    EXIT
+    EXIT,
+    SEG_FAULT // No es una instruccion pero no me cabe una
 } op_instruccion;
 
 typedef enum {

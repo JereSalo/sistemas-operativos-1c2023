@@ -35,6 +35,7 @@ int main(int argc, char** argv){
 
     // Mandamos a memoria el tamanio maximo de segmento permitido por CPU
     SEND_INT(server_memoria, config_cpu.TAM_MAX_SEGMENTO);
+    log_debug(logger, "Envie a memoria el tamanio maximo de segmento");
 
     // SERVER -> Kernel
     int server_fd = preparar_servidor("CPU", config, logger);

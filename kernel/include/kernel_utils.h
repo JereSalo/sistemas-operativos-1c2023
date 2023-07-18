@@ -86,6 +86,9 @@ extern int cant_segmentos;
 // LISTA GLOBAL DE PROCESOS
 extern t_list* lista_global_procesos;
 
+// TABLA GLOBAL DE ARCHIVOS ABIERTOS
+extern t_list* tabla_global_archivos_abiertos;
+
 
 // ------------------------------ MANEJO DE PROCESOS ------------------------------ //
 void matar_proceso(char* motivo);
@@ -106,6 +109,9 @@ t_recurso* recurso_en_lista(char* recurso_solicitado);
 void liberar_recursos_asignados(t_list* recursos_asignados);
 void actualizar_tablas_segmentos(t_list* lista_recepcion_segmentos_actualizados);
 
+
+// ------------------------------ MANEJO DE ARCHIVOS ------------------------------ //
+t_tabla_global_archivos_abiertos* buscar_archivo_en_tabla_global(char* archivo_solicitado);
 
 
 // Funciones de otros modulos

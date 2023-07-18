@@ -19,9 +19,8 @@ int main(int argc, char** argv){
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);
 
-    //cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
+    cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
     cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
-    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
     
     // Recibimos el handshake
     //int handshake_cpu;
@@ -36,11 +35,14 @@ int main(int argc, char** argv){
     
     // Recibimos el tamanio maximo de segmento indicado por CPU
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
+    log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);
 
+    
+    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
+    
     // Mandamos a Kernel la cantidad de segmentos
     SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
 
-    log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);
 
     inicializar_estructuras_administrativas();
     
@@ -51,6 +53,8 @@ int main(int argc, char** argv){
     pthread_t hilo_procesar_cpu_memoria;
     pthread_create(&hilo_procesar_cpu_memoria, NULL, (void*)procesar_cpu_memoria, NULL);
     pthread_detach(hilo_procesar_cpu_memoria);
+
+    //hilo procesar fs
 
     while(1); // Memoria solo termina con Ctrl + C. Este while(1) hace que no termine por causas naturales.
     return 0;

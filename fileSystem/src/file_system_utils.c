@@ -224,6 +224,8 @@ void crear_estructuras_administrativas() {
             // Concatena en una variable e imprime dicha variable
             snprintf(file_path, FILE_PATH_MAX, "%s/%s", config_filesystem.PATH_FCB, entry->d_name);
 
+            log_debug(logger, "PATH: %s", file_path);
+
             
             // Accedemos como al config y creamos una entrada del tipo t_fcb, y la guardamos en la lista
 
@@ -271,4 +273,54 @@ FILE* abrir_archivo_bloques(){
         return NULL;
     }
     return archivo_bloques;
+}
+
+
+
+// ------------------------------ MANEJO DE ARCHIVOS ------------------------------ //
+
+t_fcb* buscar_archivo_en_lista_fcbs(char* archivo_solicitado) {
+    t_list_iterator* lista_it = list_iterator_create(lista_fcbs);
+
+    while (list_iterator_has_next(lista_it)) {
+        t_fcb* archivo = (t_fcb*)list_iterator_next(lista_it);
+        
+        if (string_equals_ignore_case(archivo->nombre, archivo_solicitado)) {
+            list_iterator_destroy(lista_it);
+            return archivo;
+        }
+    }
+    
+    list_iterator_destroy(lista_it);
+    return NULL;
+}
+
+void crear_entrada_directorio(char* nombre_archivo) {
+
+        char path_archivo[FILE_PATH_MAX];
+        char nombre_concatenado[FILE_PATH_MAX];
+
+        snprintf(path_archivo, FILE_PATH_MAX, "%s/%s.dat", config_filesystem.PATH_FCB, nombre_archivo);
+        snprintf(nombre_concatenado, FILE_PATH_MAX, "NOMBRE_ARCHIVO=%s", nombre_archivo);
+
+        write_to_dat_file(path_archivo, nombre_concatenado);
+        write_to_dat_file(path_archivo, "TAMANIO_ARCHIVO=0");
+        write_to_dat_file(path_archivo, "PUNTERO_DIRECTO=-1");
+        write_to_dat_file(path_archivo, "PUNTERO_INDIRECTO=-1");
+
+}
+
+
+void write_to_dat_file(const char* filename, const char* data) {
+    FILE* file = fopen(filename, "a"); // Open the file in append mode
+
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    // Write the data to the file as text
+    fprintf(file, "%s\n", data);
+
+    fclose(file); // Close the file when done
 }

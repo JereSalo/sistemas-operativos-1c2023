@@ -3,4 +3,6 @@
 
 #include "file_system_utils.h"
 
+void procesar_kernel_filesystem();
+
 #endif

@@ -23,6 +23,7 @@ int main(int argc, char** argv){
     server_memoria = conectar_con(MEMORIA, config, logger);
 
     SEND_INT(server_memoria, config_cpu.TAM_MAX_SEGMENTO);
+    log_debug(logger, "Envie a memoria el tamanio maximo de segmento");
 
     // SERVER -> Kernel
     int server_fd = preparar_servidor("CPU", config, logger);

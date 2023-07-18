@@ -53,19 +53,28 @@ int main(int argc, char** argv){
     int kernel_fd = preparar_servidor("KERNEL", config, logger);
 
 
+    printf("FALOPA1");
+
     /* ------------------------- CONEXION CON CPU -------------------------*/
     server_cpu = conectar_con(CPU, config, logger);
 
 
-    /* -------------------------CONEXION CON FILESYSTEM --------------------*/
-    //server_fs = conectar_con(FILESYSTEM, config, logger);
+    printf("FALOPA2");
 
+    /* -------------------------CONEXION CON FILESYSTEM --------------------*/
+    server_fs = conectar_con(FILESYSTEM, config, logger);
+
+
+    printf("FALOPA3");
 
     /* ------------------------- CONEXION CON MEMORIA -----------------------*/
     server_memoria = conectar_con(MEMORIA, config, logger);
 
     RECV_INT(server_memoria, cant_segmentos);
 
+    log_debug(logger, "Recibi la cantidad de segmentos de memoria");
+
+    printf("FALOPA4");
 
     /* ------------------------- PLANIFICADOR LARGO PLAZO -------------------------*/
     pthread_t hilo_planificador_largo;

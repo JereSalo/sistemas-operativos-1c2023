@@ -71,7 +71,7 @@ typedef struct {
 
 typedef struct {
     char* nombre;
-    int cantidad_disponible;
+    bool esta_abierto;
     t_queue* cola_bloqueados;
 } t_tabla_global_archivos_abiertos;
 

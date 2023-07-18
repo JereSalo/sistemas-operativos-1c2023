@@ -51,10 +51,15 @@ void mostrar_bitarray();
 void desmapear_archivo(void* archivo_mapeado, size_t tamanio_archivo);
 void sincronizar_archivo(void* archivo_mapeado, size_t tamanio_archivo);
 void crear_estructuras_administrativas();
+void crear_entrada_directorio(char* nombre_archivo);
+
+void write_to_dat_file(const char* filename, const char* data);
 
 FILE* abrir_archivo_superbloque();
 FILE* abrir_archivo_bitmap();
 FILE* abrir_archivo_bloques();
+
+t_fcb* buscar_archivo_en_lista_fcbs(char* archivo_solicitado);
 
 
 #endif

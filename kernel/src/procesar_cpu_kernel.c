@@ -305,10 +305,61 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case F_OPEN:
         {
+
+            log_info(logger, "Motivo desalojo es F_OPEN \n");
+
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
 
-            //Buscar si existe el archivo en la TGAA
+
+            // Buscar si existe el archivo en la TGAA
             t_tabla_global_archivos_abiertos* archivo = buscar_archivo_en_tabla_global(nombre_archivo);
+
+            t_tabla_archivos_abiertos_proceso* archivo_proceso = malloc(sizeof(t_tabla_archivos_abiertos_proceso));
+
+            archivo_proceso->nombre = nombre_archivo;
+            archivo_proceso->puntero_archivo = 0;
+            
+            log_debug(logger, "Se agrega la entrada del archivo %s a la TAAP \n", nombre_archivo);
+            list_add(proceso_en_running->tabla_archivos_abiertos, archivo_proceso);
+
+            if(archivo != NULL) {
+
+                log_warning(logger, "PID: %d - Abrir archivo: %s \n", proceso_en_running->pid, nombre_archivo);
+                log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
+                
+                queue_push(archivo->cola_bloqueados, proceso_en_running);
+                
+                sem_post(&cpu_libre);
+            }
+            else {
+                
+                // Verifica FS si existe el archivo
+                send_opcode(server_fs, SOLICITUD_ABRIR_ARCHIVO);
+                send_string(server_fs, nombre_archivo);
+
+
+                int respuesta_fs;
+                RECV_INT(server_fs, respuesta_fs);
+
+                if(respuesta_fs) {
+                    send_opcode(server_fs, SOLICITUD_CREAR_ARCHIVO);
+                    send_string(server_fs, nombre_archivo);
+                }
+
+                log_debug(logger, "Se agrega la entrada del archivo %s a la TGAA \n", nombre_archivo);
+                
+                // Agregamos a la TGAA
+
+                t_tabla_global_archivos_abiertos* archivo_abierto = malloc(sizeof(t_tabla_global_archivos_abiertos));
+
+                archivo_abierto->nombre = nombre_archivo;
+                archivo_abierto->esta_abierto = 1;
+                archivo_abierto->cola_bloqueados = queue_create();
+                
+                list_add(tabla_global_archivos_abiertos, archivo_abierto);
+
+                volver_a_running();
+            }
 
             
 

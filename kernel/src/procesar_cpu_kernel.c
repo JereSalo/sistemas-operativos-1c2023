@@ -340,11 +340,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_debug(logger, "Se agrega la entrada del archivo %s a la TAAP \n", nombre_archivo);
             list_add(proceso_en_running->tabla_archivos_abiertos, archivo_proceso);
-            mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+
+            log_warning(logger, "PID: %d - Abrir archivo: %s \n", proceso_en_running->pid, nombre_archivo);
 
             if(archivo != NULL) {
 
-                log_warning(logger, "PID: %d - Abrir archivo: %s \n", proceso_en_running->pid, nombre_archivo);
                 log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
                 
                 queue_push(archivo->cola_bloqueados, proceso_en_running);
@@ -352,6 +353,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 sem_post(&cpu_libre);
             }
             else {
+
+
+                log_info(logger, "El archivo %s NO se encuentra abierto por otro proceso \n", nombre_archivo);
                 
                 // Verifica FS si existe el archivo
                 send_opcode(server_fs, SOLICITUD_ABRIR_ARCHIVO);
@@ -496,10 +500,23 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
             
-            send_opcode(server_fs, SOLICITUD_LECTURA);
+            // Bloqueamos al proceso
+            list_add(lista_bloqueados, proceso_en_running);
+            
+            sem_post(&cpu_libre);
+            
+            send_opcode(server_fs, SOLICITUD_LECTURA_DISCO);
             send_string(server_fs, nombre_archivo);
             SEND_INT(server_fs, cantidad_bytes);
             SEND_INT(server_fs, direccion_fisica);
+            
+            // Mandamos el PID para que despues el FS le devuelva al Kernel el PID del proceso que debe desbloquear
+            SEND_INT(server_fs, proceso_en_running->pid);
+
+
+            // FS confirma que termino la operacion y desbloqueamos al proceso
+            //RECV_INT();
+            //list_remove(lista_bloqueados)
 
 
             break;

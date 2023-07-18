@@ -6,7 +6,41 @@ void procesar_kernel_filesystem(){
 
         switch((int)cod_op) {
             case SOLICITUD_LECTURA_DISCO:
+            {
+                char nombre_archivo[64];
+                recv_string(cliente_kernel, nombre_archivo);
+
+                int cantidad_bytes;
+                int direccion_fisica;
+                int pid;
+                RECV_INT(cliente_kernel, cantidad_bytes);
+                RECV_INT(cliente_kernel, direccion_fisica);
+                RECV_INT(cliente_kernel, pid);
+
+                //leemos a partir del puntero una cierta cantidad de bytes
+                
+                
+                //buscamos al archivo en la lista de FCBs -> tiene que estar si o si
+                t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
+                
+
+                //obtenemos el puntero directo y ahi ya sabemos en que espacio del archivo mapeado en memoria vamos a tener que leer
+                archivo->puntero_directo
+
+
+                //despues de leer esos datos los mandamos a memoria para que los escriba en su espacio
+
+
+                //mandamos a memoria
+                
+                
+                
+                
+                
+                //send_termine_loco(kernel);
+
                 break;
+            }
             case SOLICITUD_ESCRITURA_DISCO:
                 break;
             case SOLICITUD_CREAR_ARCHIVO:

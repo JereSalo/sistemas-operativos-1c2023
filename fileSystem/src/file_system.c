@@ -80,8 +80,6 @@ int main(int argc, char** argv){
     crear_estructuras_administrativas();
 
     
-    
-    
     // SERVER
     int server_fd = preparar_servidor("FILESYSTEM", config, logger);
 

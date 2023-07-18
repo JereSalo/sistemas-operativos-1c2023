@@ -64,6 +64,7 @@ void inicializar_colas() {
     procesos_en_new = queue_create();
     procesos_en_ready = list_create();
     lista_pids = list_create();
+    lista_bloqueados = list_create();
 
     tabla_global_archivos_abiertos = list_create();
 }

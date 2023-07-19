@@ -186,7 +186,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio, int cant_bloques_nuevos) {
         // Si el numero de bloque es mayor a 1, entonces sabemos que esos bloques son PD del PI y los escribimos ahi
         if(numero_bloque > 1) {
             
-            log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto \n", bloque_libre);
+            log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto %d \n", bloque_libre, bloque_puntero_indirecto);
 
             // Voy al bloque de PI y despues escribo y nos vamos moviendo dentro de ese mismo bloque
             memcpy(archivo_bloques_mapeado + posicion_bloque + offset, &bloque_libre, sizeof(uint32_t));

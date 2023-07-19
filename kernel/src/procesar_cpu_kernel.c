@@ -417,7 +417,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Si esta abierto, lo sacamos de la tabla de archivos de ese proceso
             else {
                 log_debug(logger, "El archivo fue abierto por este proceso anteriormente y se va a cerrar \n");
+                
                 list_remove_element(proceso_en_running->tabla_archivos_abiertos, archivo);
+                free(archivo->nombre);
+                free(archivo);
 
                 //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
                 
@@ -437,6 +440,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     
                     // Si no hay ningun proceso esperando para abrir el archivo (cola vacia) lo sacamos de la la TGGA
                     list_remove_element(tabla_global_archivos_abiertos, archivo_global);
+                    queue_destroy(archivo_global->cola_bloqueados);
+                    free(archivo_global->nombre);
+                    free(archivo_global);
                     
                     log_debug(logger, "Entrada de archivo de la TGAA eliminada");
                 }
@@ -513,6 +519,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Mandamos el PID para que despues el FS le devuelva al Kernel el PID del proceso que debe desbloquear
             SEND_INT(server_fs, proceso_en_running->pid);
 
+            //Buscamos el puntero del archivo y lo mandamos a fs
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+            SEND_INT(server_fs, archivo->puntero_archivo);
 
             // FS confirma que termino la operacion y desbloqueamos al proceso
             //RECV_INT();
@@ -535,6 +544,22 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int tamanio = atoi((char*)list_get(lista_parametros, 1));
+
+            send_opcode(server_fs, SOLICITUD_TRUNCAR_ARCHIVO);
+            send_string(server_fs, nombre_archivo);
+            SEND_INT(server_fs, tamanio);
+
+            // Mandamos el PID para que despues el FS le devuelva al Kernel el PID del proceso que debe desbloquear
+            SEND_INT(server_fs, proceso_en_running->pid);
+
+            // Bloqueamos al proceso
+            list_add(lista_bloqueados, proceso_en_running);
+            
+            sem_post(&cpu_libre);
+
+
+
+
 
             
 

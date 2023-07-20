@@ -1,4 +1,7 @@
 F_OPEN chau
-F_TRUNCATE chau 80
+F_TRUNCATE chau 32
+F_TRUNCATE chau 16
+F_TRUNCATE chau 12
+F_TRUNCATE chau 0
 F_CLOSE chau
 EXIT

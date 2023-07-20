@@ -136,7 +136,7 @@ void procesar_kernel_filesystem(){
 
                 log_debug(logger, "Mostrando contenido archivo de bloques: \n");
                 uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
-                for (int i = 0; i < 64; i++) {
+                for (int i = 0; i < 80; i++) {
                     int nro_bloque = ceil(i/4);
                     //if(data_as_chars[i] != 0)
                     printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
@@ -163,6 +163,13 @@ void procesar_kernel_filesystem(){
 
 void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
+    char file_path[4096];
+
+    // Concatena en una variable e imprime dicha variable
+    snprintf(file_path, 4096, "fcb/%s.dat", archivo->nombre);
+
+    t_config* fcb_archivo = config_create(file_path);
+
     // Obtenemos la cantidad de bloques que tiene el archivo actualmente
     int cant_bloques_actual = ceil(archivo->tamanio / info_superbloque.BLOCK_SIZE);
 
@@ -171,93 +178,81 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
     int bloques_a_quitar = cant_bloques_actual - cant_bloques_nuevos;
 
+    // Si el archivo no tiene PI, entonces simplemente cambiamos el tamanio del mismo y ya 
+    // En todos los casos cambiamos el tamanio en la entrada de directorio y en el FCB en memoria
 
-    // Si lo truncamos a tamanio cero??
+    uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
+
+    // Si lo truncamos a 0 es el unico caso donde debemos desasignar del bitarray el PD (y ademas se puede llegar a desasignar del PI)
     
-    
-    // Si el archivo no tiene PI y no lo truncamos a 0, entonces simplemente cambiamos el tamanio del mismo y ya 
+    if(tamanio_nuevo == 0) {
+
+        int posicion_bloque_puntero_directo = (archivo->puntero_directo * info_superbloque.BLOCK_SIZE);
+
+        uint32_t puntero = bloque_indirecto[posicion_bloque_puntero_directo / sizeof(uint32_t)];
+            
+        log_debug(logger, "Obtuve el puntero (bloque) %u \n", puntero);
+
+        bitarray_clean_bit(bitarray_bloques, puntero);
+        sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+    }
+
 
 
     // Si el archivo tiene PI debemos recorrer cada PD del PI (en reversa) e ir marcando como libre cada bloque en el bitarray
-
-
-    if(archivo->tamanio > info_superbloque.BLOCK_SIZE) {    
+    if(archivo->puntero_indirecto != -1) {    
         
         // Calculamos la posicion donde se encuentra el ultimo PD del PI 
-        //int posicion_ultimo_puntero = calcular_posicion_ultimo_puntero(archivo);
+        int posicion_ultimo_puntero = calcular_posicion_ultimo_puntero(archivo);
 
         int posicion_bloque_punteros = (archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE);
 
-        //int posicion_ultimo_puntero = find_last_data_position(archivo_bloques_mapeado + posicion_bloque_punteros, info_superbloque.BLOCK_SIZE);
-
         //log_debug(logger, "La posicion del ultimo puntero del bloque de PI es: %d \n", posicion_ultimo_puntero);
         
-       // uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
-
 
         for( ; bloques_a_quitar > 0; bloques_a_quitar--) {
         
-            //uint32_t puntero = bloque_indirecto[posicion_ultimo_puntero];
+            uint32_t puntero = bloque_indirecto[posicion_ultimo_puntero / sizeof(uint32_t)];
             
-            //log_debug(logger, "Obtuve el puntero (bloque) %u \n", puntero);
+            log_debug(logger, "Obtuve el puntero (bloque) %u \n", puntero);
 
-            
-            //uint32_t bloque_libre = buscar_proximo_bloque_libre();
-
-
-
-
-
-            //bitarray_clean_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
-            //sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+            bitarray_clean_bit(bitarray_bloques, puntero);
+            sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
         }
 
 
     }
+
+    archivo->tamanio = tamanio_nuevo;
+
+    config_set_value(fcb_archivo, "TAMANIO_ARCHIVO", string_itoa(archivo->tamanio));
+
+    config_save_in_file(fcb_archivo, file_path);
+    
+    config_destroy(fcb_archivo);
 }
+
+
 
 int calcular_posicion_ultimo_puntero(t_fcb* archivo) {
 
-    int posicion_bloque_punteros = (archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE);
+    int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
     
-    log_debug(logger, "posicion bloque ptrs: %d", posicion_bloque_punteros);
+    log_debug(logger, "Posicion bloque ptrs: %d", posicion_bloque_punteros);
 
-    
+
     int offset = 0;
 
     uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
 
-    log_debug(logger, "XDLOL: %u", bloque_indirecto[posicion_bloque_punteros]);
-
-    while(bloque_indirecto[posicion_bloque_punteros + offset] != 0) {
+    while(bloque_indirecto[posicion_bloque_punteros + offset / sizeof(uint32_t)] != 0) {
         offset += sizeof(uint32_t);
         log_debug(logger, "Offset: %d", offset);
     }
 
-    return (offset - sizeof(uint32_t));
+    return (posicion_bloque_punteros + offset - sizeof(uint32_t));
 }
-
-
-int find_last_data_position(void* buffer, size_t buffer_size) {
-    unsigned char* byte_buffer = (unsigned char*)buffer;
-    int last_data_position = -1; // Initialize with -1 (no data found yet)
-
-    for (size_t i = 0; i < buffer_size; i++) {
-        if (byte_buffer[i] == 0) {
-            last_data_position = i - 1; // Update the last position with data
-            break; // Exit the loop as soon as we find a null terminator
-        }
-    }
-
-    // If the buffer is full or contains no null terminator, return the last position in the buffer
-    if (last_data_position == -1) {
-        last_data_position = buffer_size - 1;
-    }
-
-    return last_data_position;
-}
-
 
 
 void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos) {
@@ -267,14 +262,9 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     // Concatena en una variable e imprime dicha variable
     snprintf(file_path, 4096, "fcb/%s.dat", archivo->nombre);
 
-    
     t_config* fcb_archivo = config_create(file_path);
 
-
-
     //FALTA AGREGAR PARA QUE SE MODIFIQUE EL ARCHIVO DE FCB CON LA CLAVE - VALOR -> Por no agregar esto estaba fallando
-
-    // CASO TRIVIAL, NO HACEMOS NADA => tamanio nuevo <= tamanio_bloque 
 
     uint32_t bloque_libre;
     int bloques_de_datos_por_asignar = ceil( (tamanio_nuevo - archivo->tamanio) / info_superbloque.BLOCK_SIZE );
@@ -284,17 +274,20 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     //chau 0 -> archivo->tamanio
 
     // no tiene el PD asignado
-    if(archivo->puntero_directo == -1){
+    if(archivo->puntero_directo == -1) {
         bloque_libre = buscar_proximo_bloque_libre();
         archivo->puntero_directo = bloque_libre;
 
         config_set_value(fcb_archivo, "PUNTERO_DIRECTO", string_itoa(archivo->puntero_directo));
-
         config_save_in_file(fcb_archivo, file_path);
         
         bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
         
+        bloques_de_datos_por_asignar--;
+    } 
+    // Esto lo hacemos porque si no en el caso trivial caes dentro del for cuando en realidad no deberias
+    else if(tamanio_nuevo <= info_superbloque.BLOCK_SIZE) {
         bloques_de_datos_por_asignar--;
     }
 
@@ -305,7 +298,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
     
     /*if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE)*/
-    if(archivo->puntero_indirecto == -1) {    
+    if(archivo->puntero_indirecto == -1 && tamanio_nuevo > info_superbloque.BLOCK_SIZE) {    
         
         //Me parece que esta entrando aca cuando no deberia, OJO
         //TRUNCATE CHAU 32 -> ya le define un PI
@@ -328,8 +321,9 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     // Solo queda asignar los punteros del bloque de punteros
     size_t offset = 0;
     int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
-    log_debug(logger, "Puntero indirecto %u", archivo->puntero_indirecto);
-    log_debug(logger, "Posicion bloque %d", posicion_bloque_punteros);
+    
+
+    // Al for solo tenemos que entrar si tenemos PI
     for( ; bloques_de_datos_por_asignar > 0; bloques_de_datos_por_asignar--) {
         
         bloque_libre = buscar_proximo_bloque_libre();

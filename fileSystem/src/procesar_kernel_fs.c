@@ -129,7 +129,9 @@ void procesar_kernel_filesystem(){
 
                 uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
                 for (int i = 0; i < tamanio_archivo_bloques; i++) {
-                    printf("IMPRIMO VALOR DEL ARCHIVO %u \n", data_as_chars[i]);
+                    int nro_bloque = ceil(i/4);
+                    printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
+                    
                 }
 
 
@@ -138,6 +140,8 @@ void procesar_kernel_filesystem(){
                 // Cambiamos el tamanio del FCB en el archivo de directorio
                 
 
+                // mandamos el PID al Kernel para que desbloquee al proceso
+                SEND_INT(cliente_kernel, pid);
 
 
 
@@ -148,51 +152,55 @@ void procesar_kernel_filesystem(){
 }
 
 
-
-void agrandar_archivo(t_fcb* archivo, int tamanio, int cant_bloques_nuevos) {
+void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos) {
     
-    // Vamos a asignarle al archivo un PD y un PI con X cantidad de PD
-    if(tamanio > info_superbloque.BLOCK_SIZE) {
-        cant_bloques_nuevos++; // Le sumamos el puntero indirecto.
-    }
     
-    size_t offset;
-    int posicion_bloque;
+    // CASO TRIVIAL, NO HACEMOS NADA => tamanio nuevo <= tamanio_bloque 
 
-    for(int numero_bloque = 0; numero_bloque < cant_bloques_nuevos; numero_bloque++){
-        //numero_bloque es nuestro iterador (i)
+    uint32_t bloque_libre;
+    int bloques_de_datos_por_asignar = ceil( (tamanio_nuevo - archivo->tamanio) / info_superbloque.BLOCK_SIZE );
+
+    // Tiene 1 PD y tendremos que asignarle 1 PI y N PD del PI
+
+    // no tiene el PD asignado
+    if(archivo->tamanio == 0){
+        bloque_libre = buscar_proximo_bloque_libre();
+        archivo->puntero_directo = bloque_libre;
         
-        uint32_t bloque_libre = buscar_proximo_bloque_libre();
-        int bloque_puntero_indirecto;
-        
-        // Seteamos ese bloque como ocupado
-        bitarray_set_bit(bitarray_bloques, numero_bloque);      // i es el numero de bloque libre en el bitmap
+        bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
-        
-        // Si el numero de bloque es 1, entonces ya sabemos que ese va a ser el bloque de PI
-        if(numero_bloque == 1) {
-            
-            log_debug(logger, "El archivo %s ocupara un puntero indirecto \n", archivo->nombre);
 
-            //memcpy(archivo_bloques_mapeado + posicion_bloque + offset, &bloque_libre, sizeof(uint32_t));
+        bloques_de_datos_por_asignar--;
+    }
 
-            bloque_puntero_indirecto = bloque_libre;    // me guardo el numero de bloque correspondiente al PI
+    // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
+    if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE) {
+        // busco el prox bloque libre y se lo asigno al bloque de punteros
+        bloque_libre = buscar_proximo_bloque_libre();
+        archivo->puntero_indirecto = bloque_libre;
         
-            // Ahora buscamos a que posicion del archivo de bloques corresponde el bloque de PI
-            posicion_bloque = bloque_puntero_indirecto * info_superbloque.BLOCK_SIZE;
-            offset = 0;
-        }
-        
-        // Si el numero de bloque es mayor a 1, entonces sabemos que esos bloques son PD del PI y los escribimos ahi
-        if(numero_bloque > 1) {
-            
-            log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto %d \n", bloque_libre, bloque_puntero_indirecto);
+        bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
+        sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+    }
 
-            // Voy al bloque de PI y despues escribo y nos vamos moviendo dentro de ese mismo bloque
-            memcpy(archivo_bloques_mapeado + posicion_bloque + offset, &bloque_libre, sizeof(uint32_t));
-            offset += sizeof(uint32_t);
-            sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
-        }
+    // El caso donde archivo->tamanio > tamanio_bloque, ya tenemos asignado el PI
+    // Solo queda asignar los punteros del bloque de punteros
+    size_t offset = 0;
+    int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
+    log_debug(logger, "Posicion bloque %d", posicion_bloque_punteros);
+    for( ; bloques_de_datos_por_asignar > 0; bloques_de_datos_por_asignar--) {
+        
+        bloque_libre = buscar_proximo_bloque_libre();
+
+        bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
+        sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+
+        log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto %u en la posicion %d \n", bloque_libre, archivo->puntero_indirecto, posicion_bloque_punteros);
+
+        // Voy al bloque de PI y despues escribo y nos vamos moviendo dentro de ese mismo bloque
+        memcpy(archivo_bloques_mapeado + posicion_bloque_punteros + offset, &bloque_libre, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
+        sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
     }
 }
 

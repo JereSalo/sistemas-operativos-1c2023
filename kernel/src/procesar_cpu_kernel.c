@@ -554,14 +554,18 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             // Bloqueamos al proceso
             list_add(lista_bloqueados, proceso_en_running);
-            
             sem_post(&cpu_libre);
-
-
-
-
-
             
+            // recibimos el pid del proceso para volverlo a poner en ready
+            int pid;
+            RECV_INT(server_fs, pid);
+
+            // No lo busca en la lista global sino en la de bloqueados
+            t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
+
+            list_remove_element(lista_bloqueados, proceso);
+
+            mandar_a_ready(proceso);
 
             break;
         }

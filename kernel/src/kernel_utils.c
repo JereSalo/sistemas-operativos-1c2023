@@ -136,6 +136,7 @@ t_pcb* buscar_proceso_por_pid_en_lista_global_procesos(t_list* lista ,int pid) {
 }
 
 
+
 void liberar_recursos_asignados(t_list* recursos_asignados) {
         
     t_list_iterator* lista_it = list_iterator_create(recursos_asignados);

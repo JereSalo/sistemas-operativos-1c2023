@@ -57,6 +57,8 @@ void procesar_kernel_filesystem(){
 
                 archivo->nombre = strdup(nombre_archivo);
                 archivo->tamanio = 0;
+                archivo->puntero_directo = -1;
+                archivo->puntero_indirecto = -1;
 
                 list_add(lista_fcbs, archivo);
 
@@ -127,6 +129,7 @@ void procesar_kernel_filesystem(){
                     agrandar_archivo(archivo, tamanio, cant_bloques_nuevos);
                 }
                 
+                //archivo->tamanio = tamanio;
                 
                 mostrar_bitarray();
                 //mostrar_contenido_archivo("bloques.dat");
@@ -140,7 +143,6 @@ void procesar_kernel_filesystem(){
                     
                 }
 
-                archivo->tamanio = tamanio;
 
                 //read_file_bytes("bloques.dat");
                 // Cambiamos el tamanio del FCB en memoria
@@ -260,8 +262,17 @@ int find_last_data_position(void* buffer, size_t buffer_size) {
 
 void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos) {
     
+    char file_path[4096];
+
+    // Concatena en una variable e imprime dicha variable
+    snprintf(file_path, 4096, "fcb/%s.dat", archivo->nombre);
+
     
-    //FALTA AGREGAR PARA QUE SE MODIFIQUE EL ARCHIVO DE FCB CON LA CLAVE - VALOR
+    t_config* fcb_archivo = config_create(file_path);
+
+
+
+    //FALTA AGREGAR PARA QUE SE MODIFIQUE EL ARCHIVO DE FCB CON LA CLAVE - VALOR -> Por no agregar esto estaba fallando
 
     // CASO TRIVIAL, NO HACEMOS NADA => tamanio nuevo <= tamanio_bloque 
 
@@ -273,9 +284,13 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     //chau 0 -> archivo->tamanio
 
     // no tiene el PD asignado
-    if(archivo->tamanio == 0){
+    if(archivo->puntero_directo == -1){
         bloque_libre = buscar_proximo_bloque_libre();
         archivo->puntero_directo = bloque_libre;
+
+        config_set_value(fcb_archivo, "PUNTERO_DIRECTO", string_itoa(archivo->puntero_directo));
+
+        config_save_in_file(fcb_archivo, file_path);
         
         bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
@@ -288,10 +303,22 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     
 
     // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
-    if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE) {
+    
+    /*if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE)*/
+    if(archivo->puntero_indirecto == -1) {    
+        
+        //Me parece que esta entrando aca cuando no deberia, OJO
+        //TRUNCATE CHAU 32 -> ya le define un PI
+        //TRUNCATE CHAU 80 -> vuelve a entrar y define otro PI cuando no deberia
+
+        
         // busco el prox bloque libre y se lo asigno al bloque de punteros
         bloque_libre = buscar_proximo_bloque_libre();
         archivo->puntero_indirecto = bloque_libre;
+        
+        config_set_value(fcb_archivo, "PUNTERO_INDIRECTO", string_itoa(archivo->puntero_indirecto));
+
+        config_save_in_file(fcb_archivo, file_path);
         
         bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
@@ -301,6 +328,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     // Solo queda asignar los punteros del bloque de punteros
     size_t offset = 0;
     int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
+    log_debug(logger, "Puntero indirecto %u", archivo->puntero_indirecto);
     log_debug(logger, "Posicion bloque %d", posicion_bloque_punteros);
     for( ; bloques_de_datos_por_asignar > 0; bloques_de_datos_por_asignar--) {
         
@@ -321,6 +349,18 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
         offset += sizeof(uint32_t);
         sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
     }
+
+
+
+    archivo->tamanio = tamanio_nuevo;
+
+    config_set_value(fcb_archivo, "TAMANIO_ARCHIVO", string_itoa(archivo->tamanio));
+
+    config_save_in_file(fcb_archivo, file_path);
+    
+
+
+    config_destroy(fcb_archivo);
 }
 
 

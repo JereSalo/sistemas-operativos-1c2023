@@ -134,6 +134,7 @@ void procesar_kernel_filesystem(){
                     
                 }
 
+                archivo->tamanio = tamanio;
 
                 //read_file_bytes("bloques.dat");
                 // Cambiamos el tamanio del FCB en memoria
@@ -162,6 +163,8 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
 
     // Tiene 1 PD y tendremos que asignarle 1 PI y N PD del PI
 
+    //chau 0 -> archivo->tamanio
+
     // no tiene el PD asignado
     if(archivo->tamanio == 0){
         bloque_libre = buscar_proximo_bloque_libre();
@@ -169,9 +172,13 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
         
         bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
-
+        
         bloques_de_datos_por_asignar--;
     }
+
+    
+    //chau 32 -> tamanio_nuevo
+    
 
     // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
     if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE) {
@@ -196,6 +203,11 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
         log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto %u en la posicion %d \n", bloque_libre, archivo->puntero_indirecto, posicion_bloque_punteros);
+
+        uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
+        while(data_as_chars[posicion_bloque_punteros + offset] != 0) {
+            offset += sizeof(uint32_t);
+        }
 
         // Voy al bloque de PI y despues escribo y nos vamos moviendo dentro de ese mismo bloque
         memcpy(archivo_bloques_mapeado + posicion_bloque_punteros + offset, &bloque_libre, sizeof(uint32_t));

@@ -9,7 +9,7 @@ int main(int argc, char** argv){
     // Para uso cotidiano seguimos usando ./exec, si queremos probar unas instrucciones en particular usamos el comando de arriba para ejecutar.
     if (argc==1){
         config = config_create("consola.config");
-        path_instrucciones = "instrucciones/fs2.txt";
+        path_instrucciones = "instrucciones/fs3.txt";
     }
     else if (argc==3) {
         config = config_create(argv[2]);

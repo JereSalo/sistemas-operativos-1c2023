@@ -2,9 +2,9 @@ F_OPEN chau
 F_TRUNCATE chau 32
 F_CLOSE chau
 F_OPEN falopita
-F_TRUNCATE falopita 32
+F_TRUNCATE falopita 16
 F_CLOSE falopita
 F_OPEN chau
-F_TRUNCATE chau 80
+F_TRUNCATE chau 48
 F_CLOSE chau
 EXIT

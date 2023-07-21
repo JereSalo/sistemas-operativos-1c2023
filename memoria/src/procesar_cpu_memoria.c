@@ -13,7 +13,6 @@ void procesar_cpu_memoria() {
                 int longitud;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
-                //Falta RECV del PID?
 
                 char* datos_leidos = malloc(longitud + 1);
 
@@ -30,14 +29,13 @@ void procesar_cpu_memoria() {
 
                 break;
             }
+
             case SOLICITUD_ESCRITURA:
             {
                 int direccion_fisica;
                 int longitud;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
-                //Falta RECV del PID?
-
 
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
 

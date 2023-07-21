@@ -3,6 +3,6 @@
 
 #include "memoria_utils.h"
 
-
+void procesar_filesystem_memoria();
 
 #endif

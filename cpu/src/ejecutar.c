@@ -92,7 +92,6 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             }
             
            
-	 
 	        // Leer valor de memoria correspondiente a direccion_fisica
 
             send_peticion_lectura(server_memoria, direccion_fisica, longitud_registro);

@@ -14,15 +14,12 @@ void procesar_kernel_filesystem(){
                 int direccion_fisica;
                 int pid;
                 int puntero;
-                RECV_INT(cliente_kernel, cantidad_bytes);
                 RECV_INT(cliente_kernel, direccion_fisica);
+                RECV_INT(cliente_kernel, cantidad_bytes);
                 RECV_INT(cliente_kernel, pid);
                 RECV_INT(cliente_kernel, puntero);
 
                 //leemos a partir del puntero una cierta cantidad de bytes
-                
-                //buscamos al archivo en la lista de FCBs -> tiene que estar si o si
-                //t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo); ¡¡¡ MEPA QUE ESTO NO VA !!!
                 
                 char* informacion_leida = malloc(cantidad_bytes + 1);
                 //obtenemos el puntero directo y ahi ya sabemos en que espacio del archivo mapeado en memoria vamos a tener que leer
@@ -30,9 +27,9 @@ void procesar_kernel_filesystem(){
                 // leemos la info en la variable con un memcpy
                 memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
 
+                informacion_leida[cantidad_bytes] = '\0';
+
                 //despues de leer esos datos los mandamos a memoria para que los escriba en su espacio
-                
-                //mandamos a memoria
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
 
                 // esperamos que memoria nos avise cuando termine de escribir
@@ -41,21 +38,51 @@ void procesar_kernel_filesystem(){
 
                 if(string_equals_ignore_case(confirmacion, "OK")) 
                 {
-                    //LOG ACCESO A MEMORIA
-                    log_warning(logger, "PID: %d - Accion: ESCRIBIR - Archivo: %s - Direccion fisica: %d - Valor escrito: %s", pid, nombre_archivo, direccion_fisica, informacion_leida);
+                    log_warning(logger, "Leer Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG LECTURA ARCHIVO
                 }
 
                 SEND_INT(cliente_kernel, 1);
+                SEND_INT(cliente_kernel, pid);
 
                 break;
             }
             case SOLICITUD_ESCRITURA_DISCO:
             {
+                char nombre_archivo[64];
+                recv_string(cliente_kernel, nombre_archivo);
+                // Tenemos que leer de memoria y recibir un valor a escribir en disco
+                
+                int cantidad_bytes;
+                int direccion_fisica;
+                int pid;
+                int puntero;
 
+                RECV_INT(cliente_kernel, direccion_fisica);
+                RECV_INT(cliente_kernel, cantidad_bytes);
+                RECV_INT(cliente_kernel, pid);
+                RECV_INT(cliente_kernel, puntero);
 
+                // leemos de memoria
+                send_peticion_lectura(server_memoria, direccion_fisica, cantidad_bytes);
+                
+                char valor_a_escribir[64];
 
+                recv_string(server_memoria, valor_a_escribir);
 
-            
+               
+                log_warning(logger, "Escribir Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG ESCRITURA ARCHIVO
+
+                //usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a bloque
+                memcpy(archivo_bloques_mapeado + puntero, valor_a_escribir, cantidad_bytes);
+                sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
+
+                // MESSI
+                log_debug(logger ,"DATOS ESCRITOS EN DISCO: %s", valor_a_escribir);
+                
+
+                SEND_INT(cliente_kernel, 1);
+                SEND_INT(cliente_kernel, pid);
+                
                 break;
             }
             case SOLICITUD_CREAR_ARCHIVO:
@@ -147,8 +174,9 @@ void procesar_kernel_filesystem(){
 
                 log_debug(logger, "Mostrando contenido archivo de bloques: \n");
                 uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
-                for (int i = 0; i < 20; i++) {
-                    int nro_bloque = ceil(i/4);
+                for (int i = 0; i < 64; i++) {
+                    
+                    int nro_bloque = floor((float) i / (info_superbloque.BLOCK_SIZE / sizeof(uint32_t)));
                     //if(data_as_chars[i] != 0)
                     printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
                     
@@ -316,6 +344,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         
         // busco el prox bloque libre y se lo asigno al bloque de punteros
         bloque_libre = buscar_proximo_bloque_libre();
+        log_debug(logger, "El bloque libre que encontre para el PUNTERO INDIRECTO es: %d \n", bloque_libre);
         archivo->puntero_indirecto = bloque_libre;
         
         config_set_value(fcb_archivo, "PUNTERO_INDIRECTO", string_itoa(archivo->puntero_indirecto));

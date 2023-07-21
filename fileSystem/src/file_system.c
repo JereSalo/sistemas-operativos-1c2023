@@ -1,6 +1,20 @@
 #include "file_system.h"
 
+
+void sigint_handler(int signum) {
+    // Acciones a realizar al recibir la señal SIGINT
+    // Hay mas cosas para hacer pero estas son algunas por ahora
+    mostrar_contenido_archivo("bloques.dat");
+
+    
+    exit(0);
+}
+
+
+
 int main(int argc, char** argv){
+    
+    signal(SIGINT, sigint_handler);
     logger = log_create("filesystem.log", "FILESYSTEM", true, LOG_LEVEL_DEBUG);
 
     if (argc==1){
@@ -73,7 +87,7 @@ int main(int argc, char** argv){
 
 
     //Ahora quiero leer el archivo para chequear que este todo OK
-    mostrar_contenido_archivo("bloques.dat");
+    //mostrar_contenido_archivo("bloques.dat");
     
     
     // Entre ellas estan lista_fcbs
@@ -88,6 +102,9 @@ int main(int argc, char** argv){
 
 
     procesar_kernel_filesystem();
+
+
+    
 
 
     liberar_conexion(&server_fd);

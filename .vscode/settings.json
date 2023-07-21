@@ -38,7 +38,8 @@
         "mmu.h": "c",
         "procesar_cpu_memoria.h": "c",
         "serializacion.h": "c",
-        "bitarray.h": "c"
+        "bitarray.h": "c",
+        "procesar_filesystem_memoria.h": "c"
     },
 	
 }

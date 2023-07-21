@@ -526,9 +526,20 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // FS confirma que termino la operacion y desbloqueamos al proceso
             int respuesta_fs;
             RECV_INT(server_fs, respuesta_fs);
+            
+            if(respuesta_fs) {   
+                int pid;
+                RECV_INT(server_fs, pid);
+                
+                log_debug(logger, "La operacion de F_READ por parte del proceso %d termino exitosamente \n", pid);
 
-            list_remove(lista_bloqueados, proceso_en_running);
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
 
+                list_remove_element(lista_bloqueados, proceso);
+
+                mandar_a_ready(proceso);
+            }
+            
             break;
         }
         case F_WRITE:
@@ -537,10 +548,40 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
 
+            // Bloqueamos al proceso
+            list_add(lista_bloqueados, proceso_en_running);
+            sem_post(&cpu_libre);
 
 
+            send_opcode(server_fs, SOLICITUD_ESCRITURA_DISCO);
+            send_string(server_fs, nombre_archivo);
+            SEND_INT(server_fs, direccion_fisica);
+            SEND_INT(server_fs, cantidad_bytes);
+            SEND_INT(server_fs, proceso_en_running->pid);
+            
+            //Buscamos el puntero del archivo y lo mandamos a fs
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+            SEND_INT(server_fs, archivo->puntero_archivo);
+        
+            // FS confirma que termino la operacion y desbloqueamos al proceso
+            int respuesta_fs;
+            RECV_INT(server_fs, respuesta_fs);
+            int pid;
+            RECV_INT(server_fs, pid);
+
+            if(respuesta_fs) {
+                
+                log_debug(logger, "La operacion de F_WRITE por parte del proceso %d termino exitosamente \n", pid);
+
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
+
+                list_remove_element(lista_bloqueados, proceso);
+
+                mandar_a_ready(proceso);
+            }
             break;
         }
+
         case F_TRUNCATE:
         {
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);

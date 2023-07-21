@@ -171,10 +171,10 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     t_config* fcb_archivo = config_create(file_path);
 
     // Obtenemos la cantidad de bloques que tiene el archivo actualmente
-    int cant_bloques_actual = ceil(archivo->tamanio / info_superbloque.BLOCK_SIZE);
+    int cant_bloques_actual = ceil( (float)(archivo->tamanio) / info_superbloque.BLOCK_SIZE);
 
     // Obtenemos la cantidad de bloques de datos que va a tener el archivo truncado
-    int cant_bloques_nuevos = ceil(tamanio_nuevo / info_superbloque.BLOCK_SIZE);
+    int cant_bloques_nuevos = ceil( (float)tamanio_nuevo / info_superbloque.BLOCK_SIZE);
 
     int bloques_a_quitar = cant_bloques_actual - cant_bloques_nuevos;
 
@@ -187,27 +187,25 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     
     if(tamanio_nuevo == 0) {
 
-        int posicion_bloque_puntero_directo = (archivo->puntero_directo * info_superbloque.BLOCK_SIZE);
+        int bloque_directo = archivo->puntero_directo;
 
-        uint32_t puntero = bloque_indirecto[posicion_bloque_puntero_directo / sizeof(uint32_t)];
-            
-        log_debug(logger, "Obtuve el puntero (bloque) %u \n", puntero);
-
-        bitarray_clean_bit(bitarray_bloques, puntero);
+        // Sacamos al puntero directo del bitmap
+        bitarray_clean_bit(bitarray_bloques, bloque_directo);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+
+        bloques_a_quitar--;
     }
 
 
 
-    // Si el archivo tiene PI debemos recorrer cada PD del PI (en reversa) e ir marcando como libre cada bloque en el bitarray
+    // Si el archivo tiene PI debemos recorrer cada PD del PI (de reversa mami) e ir marcando como libre cada bloque en el bitarray
     if(archivo->puntero_indirecto != -1) {    
         
         // Calculamos la posicion donde se encuentra el ultimo PD del PI 
         int posicion_ultimo_puntero = calcular_posicion_ultimo_puntero(archivo);
-
         int posicion_bloque_punteros = (archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE);
 
-        //log_debug(logger, "La posicion del ultimo puntero del bloque de PI es: %d \n", posicion_ultimo_puntero);
+        log_debug(logger, "La posicion del ultimo puntero del bloque de PI es: %d \n", posicion_ultimo_puntero);
         
 
         for( ; bloques_a_quitar > 0; bloques_a_quitar--) {
@@ -219,6 +217,11 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
             bitarray_clean_bit(bitarray_bloques, puntero);
             sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
+            // Pongo la entrada del bloque de punteros en cero para evitar que la funcion "agrandar_archivo" se lo saltee
+            bloque_indirecto[posicion_ultimo_puntero / sizeof(uint32_t)] = 0;
+
+            posicion_ultimo_puntero -= sizeof(uint32_t);
+            
         }
 
 
@@ -246,7 +249,7 @@ int calcular_posicion_ultimo_puntero(t_fcb* archivo) {
 
     uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
 
-    while(bloque_indirecto[posicion_bloque_punteros + offset / sizeof(uint32_t)] != 0) {
+    while(bloque_indirecto[(posicion_bloque_punteros + offset) / sizeof(uint32_t)] != 0) {
         offset += sizeof(uint32_t);
         log_debug(logger, "Offset: %d", offset);
     }

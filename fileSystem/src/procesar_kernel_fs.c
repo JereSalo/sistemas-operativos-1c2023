@@ -23,24 +23,23 @@ void procesar_kernel_filesystem(){
                 
                 
                 //buscamos al archivo en la lista de FCBs -> tiene que estar si o si
-                t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
+                //t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo); ¡¡¡ MEPA QUE ESTO NO VA !!!
                 
-
+                char* informacion_leida = malloc(1088 + 1); // buffer con tam max archivo (TODO)
                 //obtenemos el puntero directo y ahi ya sabemos en que espacio del archivo mapeado en memoria vamos a tener que leer
-                 
+
+                memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
+                
+                
+                
 
 
                 //leer_archivo();
 
                 //despues de leer esos datos los mandamos a memoria para que los escriba en su espacio
 
-
                 //mandamos a memoria
-                
-                
-                
-                
-                
+  
                 //send_termine_loco(kernel);
 
                 break;

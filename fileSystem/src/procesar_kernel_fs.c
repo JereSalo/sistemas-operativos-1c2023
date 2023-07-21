@@ -101,7 +101,6 @@ void procesar_kernel_filesystem(){
             }
             case SOLICITUD_TRUNCAR_ARCHIVO:
             {
-                log_debug(logger, "Recibi solicitud de truncar archivo por parte de Kernel \n");
                 
                 char nombre_archivo[64];
                 int tamanio;
@@ -110,6 +109,7 @@ void procesar_kernel_filesystem(){
                 recv_string(cliente_kernel, nombre_archivo);
                 RECV_INT(cliente_kernel, tamanio);
                 RECV_INT(cliente_kernel, pid);      // Para despues mandarle al Kernel que proceso se debe desbloquear 
+                log_debug(logger, "Recibi solicitud de truncar archivo por parte de Kernel: %d \n", tamanio);
 
                 // Sacamos cuantos bloques vamos a agregar o eliminar
                 int cant_bloques_nuevos = ceil(tamanio / info_superbloque.BLOCK_SIZE);                  
@@ -126,7 +126,7 @@ void procesar_kernel_filesystem(){
                 }
                 else if(archivo->tamanio < tamanio) {
                     
-                    agrandar_archivo(archivo, tamanio, cant_bloques_nuevos);
+                    agrandar_archivo(archivo, tamanio);
                 }
                 
                 //archivo->tamanio = tamanio;
@@ -136,7 +136,7 @@ void procesar_kernel_filesystem(){
 
                 log_debug(logger, "Mostrando contenido archivo de bloques: \n");
                 uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
-                for (int i = 0; i < 80; i++) {
+                for (int i = 0; i < 20; i++) {
                     int nro_bloque = ceil(i/4);
                     //if(data_as_chars[i] != 0)
                     printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
@@ -255,7 +255,7 @@ int calcular_posicion_ultimo_puntero(t_fcb* archivo) {
 }
 
 
-void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos) {
+void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     
     char file_path[4096];
 
@@ -267,11 +267,18 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     //FALTA AGREGAR PARA QUE SE MODIFIQUE EL ARCHIVO DE FCB CON LA CLAVE - VALOR -> Por no agregar esto estaba fallando
 
     uint32_t bloque_libre;
-    int bloques_de_datos_por_asignar = ceil( (tamanio_nuevo - archivo->tamanio) / info_superbloque.BLOCK_SIZE );
+
+    // Obtenemos la cantidad de bloques que tiene el archivo actualmente
+    int cant_bloques_actual = ceil( (float) (archivo->tamanio) / info_superbloque.BLOCK_SIZE);
+
+    // Obtenemos la cantidad de bloques de datos que va a tener el archivo truncado
+    int cant_bloques_nuevos = ceil( (float)tamanio_nuevo / info_superbloque.BLOCK_SIZE);
+
+    int bloques_de_datos_por_asignar = cant_bloques_nuevos - cant_bloques_actual;
 
     // Tiene 1 PD y tendremos que asignarle 1 PI y N PD del PI
 
-    //chau 0 -> archivo->tamanio
+    log_debug(logger, "Valor de bloques por asignar antes del 1er IF: %d \n", bloques_de_datos_por_asignar);
 
     // no tiene el PD asignado
     if(archivo->puntero_directo == -1) {
@@ -283,27 +290,16 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
         
         bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
-        
+
         bloques_de_datos_por_asignar--;
     } 
-    // Esto lo hacemos porque si no en el caso trivial caes dentro del for cuando en realidad no deberias
-    else if(tamanio_nuevo <= info_superbloque.BLOCK_SIZE) {
-        bloques_de_datos_por_asignar--;
-    }
 
-    
-    //chau 32 -> tamanio_nuevo
-    
+    log_debug(logger, "Valor de bloques por asignar antes del 2do if: %d \n", bloques_de_datos_por_asignar);
 
     // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
     
     /*if(archivo->tamanio <= info_superbloque.BLOCK_SIZE && tamanio_nuevo > info_superbloque.BLOCK_SIZE)*/
-    if(archivo->puntero_indirecto == -1 && tamanio_nuevo > info_superbloque.BLOCK_SIZE) {    
-        
-        //Me parece que esta entrando aca cuando no deberia, OJO
-        //TRUNCATE CHAU 32 -> ya le define un PI
-        //TRUNCATE CHAU 80 -> vuelve a entrar y define otro PI cuando no deberia
-
+    if(archivo->puntero_indirecto == -1 && cant_bloques_nuevos > 1) {    
         
         // busco el prox bloque libre y se lo asigno al bloque de punteros
         bloque_libre = buscar_proximo_bloque_libre();
@@ -322,7 +318,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo, int cant_bloques_nuevos
     size_t offset = 0;
     int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
     
-
+    log_debug(logger, "Valor de bloques por asignar antes de entrar al FOR: %d \n", bloques_de_datos_por_asignar);
     // Al for solo tenemos que entrar si tenemos PI
     for( ; bloques_de_datos_por_asignar > 0; bloques_de_datos_por_asignar--) {
         

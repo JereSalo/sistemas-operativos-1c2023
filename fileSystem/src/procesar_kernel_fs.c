@@ -21,31 +21,43 @@ void procesar_kernel_filesystem(){
 
                 //leemos a partir del puntero una cierta cantidad de bytes
                 
-                
                 //buscamos al archivo en la lista de FCBs -> tiene que estar si o si
                 //t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo); ¡¡¡ MEPA QUE ESTO NO VA !!!
                 
-                char* informacion_leida = malloc(1088 + 1); // buffer con tam max archivo (TODO)
+                char* informacion_leida = malloc(cantidad_bytes + 1);
                 //obtenemos el puntero directo y ahi ya sabemos en que espacio del archivo mapeado en memoria vamos a tener que leer
 
+                // leemos la info en la variable con un memcpy
                 memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
-                
-                
-                
-
-
-                //leer_archivo();
 
                 //despues de leer esos datos los mandamos a memoria para que los escriba en su espacio
-
+                
                 //mandamos a memoria
-  
-                //send_termine_loco(kernel);
+                send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
+
+                // esperamos que memoria nos avise cuando termine de escribir
+                char confirmacion[5];
+                recv_string(server_memoria, confirmacion);
+
+                if(string_equals_ignore_case(confirmacion, "OK")) 
+                {
+                    //LOG ACCESO A MEMORIA
+                    log_warning(logger, "PID: %d - Accion: ESCRIBIR - Archivo: %s - Direccion fisica: %d - Valor escrito: %s", pid, nombre_archivo, direccion_fisica, informacion_leida);
+                }
+
+                SEND_INT(cliente_kernel, 1);
 
                 break;
             }
             case SOLICITUD_ESCRITURA_DISCO:
+            {
+
+
+
+
+            
                 break;
+            }
             case SOLICITUD_CREAR_ARCHIVO:
             {
                 log_debug(logger, "Recibi solicitud de crear archivo por parte de Kernel");
@@ -242,8 +254,7 @@ int calcular_posicion_ultimo_puntero(t_fcb* archivo) {
     int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
     
     log_debug(logger, "Posicion bloque ptrs: %d", posicion_bloque_punteros);
-
-
+    
     int offset = 0;
 
     uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
@@ -274,7 +285,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     int cant_bloques_actual = ceil( (float) (archivo->tamanio) / info_superbloque.BLOCK_SIZE);
 
     // Obtenemos la cantidad de bloques de datos que va a tener el archivo truncado
-    int cant_bloques_nuevos = ceil( (float)tamanio_nuevo / info_superbloque.BLOCK_SIZE);
+    int cant_bloques_nuevos = ceil( (float) tamanio_nuevo / info_superbloque.BLOCK_SIZE);
 
     int bloques_de_datos_por_asignar = cant_bloques_nuevos - cant_bloques_actual;
 

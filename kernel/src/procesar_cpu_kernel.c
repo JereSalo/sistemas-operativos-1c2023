@@ -524,9 +524,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             SEND_INT(server_fs, archivo->puntero_archivo);
 
             // FS confirma que termino la operacion y desbloqueamos al proceso
-            //RECV_INT();
-            //list_remove(lista_bloqueados)
+            int respuesta_fs;
+            RECV_INT(server_fs, respuesta_fs);
 
+            list_remove(lista_bloqueados, proceso_en_running);
 
             break;
         }

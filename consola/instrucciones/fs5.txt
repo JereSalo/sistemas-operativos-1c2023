@@ -1,0 +1,4 @@
+F_OPEN chau
+F_TRUNCATE chau 48
+F_CLOSE chau
+EXIT

@@ -4,9 +4,14 @@
 void sigint_handler(int signum) {
     // Acciones a realizar al recibir la señal SIGINT
     // Hay mas cosas para hacer pero estas son algunas por ahora
-    mostrar_contenido_archivo("bloques.dat");
-
     
+    mostrar_bitarray();
+    mostrar_contenido_archivo("bloques.dat");
+    mostrar_punteros_archivo_bloques();
+
+    desmapear_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
+    desmapear_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
+
     exit(0);
 }
 

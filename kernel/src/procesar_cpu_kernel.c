@@ -220,17 +220,21 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     log_warning(logger, "Compactacion: Se solicito compactacion \n"); //LOG INICIO COMPACTACION
 
+                    //TODO: preguntar si despues de compactar habria espacio para crear al proceso
+                    
+                    //TODO: validar que no se esten ejecutando F_WRITE y F_READ
+
+                    //Semaforos capaz???? -> en caso de que haya operaciones hay que esperar a que terminen para solicitar compactacion
+                    
+                    
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     
+
+
                     
                     t_list* lista_recepcion_segmentos_actualizados = list_create();
                     
-                    
-                    
-                    
                     // Hay que recibir todas las listas de segmentos actualizadas
-                   
-                    
                     if(!recv_resultado_compactacion(server_memoria, lista_recepcion_segmentos_actualizados, cant_segmentos)) {
                         log_error(logger, "Hubo un problema al recibir el resultado de la compactacion \n");
                         break;
@@ -346,15 +350,17 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             if(archivo != NULL) {
 
-                log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
+                //log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
                 
+                log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
+                log_warning(logger,"PID: %d - Bloqueado por F_OPEN: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
+
+
                 queue_push(archivo->cola_bloqueados, proceso_en_running);
                 
                 sem_post(&cpu_libre);
             }
             else {
-
-
                 log_info(logger, "El archivo %s NO se encuentra abierto por otro proceso \n", nombre_archivo);
                 
                 // Verifica FS si existe el archivo
@@ -405,7 +411,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             if(archivo == NULL){
                 log_error(logger, "El archivo no fue abierto por este proceso");
-                //break;
                 
                 //NO SABEMOS QUE HACER ACA, SI MANDARLO A READY O MATARLO
 
@@ -428,9 +433,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 // Para eso lo buscamos en la TGAA
 
                 t_tabla_global_archivos_abiertos* archivo_global = buscar_archivo_en_tabla_global(nombre_archivo);
-
-                //log_debug(logger, "Encontre este archivo en la TGAA: %s", archivo_global->nombre);
-
+                
                 log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
 
 
@@ -478,20 +481,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 mandar_a_ready(proceso_en_running);
                 sem_post(&cpu_libre);
             }
-            else{
-                //send_opcode(server_fs, VERIFICACION_TAMANIO);
-                //SEND_INT(server_fs, posicion);
-                //int respuesta_fs;
-                //RECV_INT(server_fs, respuesta_fs);
-
-                /* if(respuesta_fs) {
-                    archivo->puntero_archivo = posicion;
-                }
-                else{
-                    log_error(logger, "El puntero excede el tamanio maximo del archivo");
-                } */
-
-                // Actualizamos el puntero -> que pasa si excede al tamanio del archivo???? 
+            else {
                 archivo->puntero_archivo = posicion;
 
                 log_warning(logger, "PID: %d - Actualizar puntero Archivo: %s - Puntero: %d \n", proceso_en_running->pid, nombre_archivo, archivo->puntero_archivo); //LOG ACTUALIZAR PUNTERO ARCHIVO
@@ -507,7 +497,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
             
             // Bloqueamos al proceso
-            list_add(lista_bloqueados, proceso_en_running);
+            list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
+
+            log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
+            log_warning(logger,"PID: %d - Bloqueado por F_READ: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
             
             sem_post(&cpu_libre);
             
@@ -533,9 +526,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 
                 log_debug(logger, "La operacion de F_READ por parte del proceso %d termino exitosamente \n", pid);
 
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid);
 
-                list_remove_element(lista_bloqueados, proceso);
+                list_remove_element(lista_bloqueados_fread_fwrite, proceso);
 
                 mandar_a_ready(proceso);
             }
@@ -549,7 +542,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
 
             // Bloqueamos al proceso
-            list_add(lista_bloqueados, proceso_en_running);
+            list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
+
+            log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
+            log_warning(logger,"PID: %d - Bloqueado por F_WRITE: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
+
+
             sem_post(&cpu_libre);
 
 
@@ -573,9 +571,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 
                 log_debug(logger, "La operacion de F_WRITE por parte del proceso %d termino exitosamente \n", pid);
 
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid);
 
-                list_remove_element(lista_bloqueados, proceso);
+                list_remove_element(lista_bloqueados_fread_fwrite, proceso);
 
                 mandar_a_ready(proceso);
             }
@@ -595,7 +593,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             SEND_INT(server_fs, proceso_en_running->pid);
 
             // Bloqueamos al proceso
-            list_add(lista_bloqueados, proceso_en_running);
+            list_add(lista_bloqueados_truncate, proceso_en_running);
+
+            log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
+            log_warning(logger,"PID: %d - Bloqueado por F_TRUNCATE: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
+
             sem_post(&cpu_libre);
             
             // recibimos el pid del proceso para volverlo a poner en ready
@@ -603,9 +605,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             RECV_INT(server_fs, pid);
 
             // No lo busca en la lista global sino en la de bloqueados
-            t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados, pid);
+            t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_truncate, pid);
 
-            list_remove_element(lista_bloqueados, proceso);
+            list_remove_element(lista_bloqueados_truncate, proceso);
 
             mandar_a_ready(proceso);
 

@@ -57,14 +57,16 @@ void inicializar_semaforos() {
 
     sem_init(&cpu_libre, 0, 1);
 
-    //log_debug(logger, "Semaforos inicializados \n");
+    log_debug(logger, "Semaforos inicializados \n");
 }
 
 void inicializar_colas() {
     procesos_en_new = queue_create();
     procesos_en_ready = list_create();
     lista_pids = list_create();
-    lista_bloqueados = list_create();
+    lista_bloqueados_truncate = list_create();
+    lista_bloqueados_fread_fwrite = list_create();
+
 
     tabla_global_archivos_abiertos = list_create();
 }

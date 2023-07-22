@@ -15,8 +15,8 @@ double tiempo;
 t_queue* procesos_en_new;
 t_list* procesos_en_ready;
 t_pcb* proceso_en_running;
-t_list* lista_bloqueados;
-
+t_list* lista_bloqueados_truncate;
+t_list* lista_bloqueados_fread_fwrite;
 
 // RECURSOS
 t_list* recursos;

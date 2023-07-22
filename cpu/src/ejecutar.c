@@ -126,12 +126,14 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 
             send_peticion_escritura(server_memoria, direccion_fisica, longitud_registro, valor_leido);
 
+            log_warning(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion fisica: %d - Valor escrito: %s",contexto->pid, num_segmento, direccion_fisica, valor_leido); //LOG ACCESO A MEMORIA
+
             char confirmacion[5];
             recv_string(server_memoria, confirmacion);
             
             if(string_equals_ignore_case(confirmacion, "OK")) 
             {
-                log_warning(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion fisica: %d - Valor escrito: %s",contexto->pid, num_segmento, direccion_fisica, valor_leido); //LOG ACCESO A MEMORIA
+                log_info(logger, "Escritura en memoria exitosa \n");
             }
             
             free(valor_leido);

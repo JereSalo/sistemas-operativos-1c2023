@@ -61,5 +61,7 @@ FILE* abrir_archivo_bloques();
 
 t_fcb* buscar_archivo_en_lista_fcbs(char* archivo_solicitado);
 
+void mostrar_punteros_archivo_bloques();
+
 
 #endif

@@ -7,6 +7,8 @@ void procesar_kernel_filesystem(){
         switch((int)cod_op) {
             case SOLICITUD_LECTURA_DISCO:
             {
+                // Leer informacion de disco y escribirla en memoria
+                
                 char nombre_archivo[64];
                 recv_string(cliente_kernel, nombre_archivo);
 
@@ -14,33 +16,43 @@ void procesar_kernel_filesystem(){
                 int direccion_fisica;
                 int pid;
                 int puntero;
+                
                 RECV_INT(cliente_kernel, direccion_fisica);
                 RECV_INT(cliente_kernel, cantidad_bytes);
                 RECV_INT(cliente_kernel, pid);
                 RECV_INT(cliente_kernel, puntero);
 
-                //leemos a partir del puntero una cierta cantidad de bytes
-                
-                char* informacion_leida = malloc(cantidad_bytes + 1);
-                //obtenemos el puntero directo y ahi ya sabemos en que espacio del archivo mapeado en memoria vamos a tener que leer
+                log_warning(logger, "Leer Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG LECTURA ARCHIVO
 
-                // leemos la info en la variable con un memcpy
+    
+                char* informacion_leida = malloc(cantidad_bytes + 1);
+                
+                usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); //multiplicado por cant bloques accedidos
+
+                //TODO 
+                //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
+                //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
+                //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
+
+
+                // Copiamos la info de disco en la variable con un memcpy
                 memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
 
                 informacion_leida[cantidad_bytes] = '\0';
 
-                //despues de leer esos datos los mandamos a memoria para que los escriba en su espacio
+                // Mandamos a memoria para que los escriba en su espacio
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
 
-                // esperamos que memoria nos avise cuando termine de escribir
+                // Esperamos que memoria nos avise cuando termine de escribir
                 char confirmacion[5];
                 recv_string(server_memoria, confirmacion);
 
                 if(string_equals_ignore_case(confirmacion, "OK")) 
                 {
-                    log_warning(logger, "Leer Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG LECTURA ARCHIVO
+                    log_info(logger, "Lectura de archivo exitosa \n");
                 }
 
+                // Le mandamos confirmacion al Kernel y el PID para que desbloquee el proceso
                 SEND_INT(cliente_kernel, 1);
                 SEND_INT(cliente_kernel, pid);
 
@@ -48,9 +60,10 @@ void procesar_kernel_filesystem(){
             }
             case SOLICITUD_ESCRITURA_DISCO:
             {
+                // Leer informacion de memoria y escribirla en disco
+                
                 char nombre_archivo[64];
                 recv_string(cliente_kernel, nombre_archivo);
-                // Tenemos que leer de memoria y recibir un valor a escribir en disco
                 
                 int cantidad_bytes;
                 int direccion_fisica;
@@ -62,20 +75,27 @@ void procesar_kernel_filesystem(){
                 RECV_INT(cliente_kernel, pid);
                 RECV_INT(cliente_kernel, puntero);
 
-                // leemos de memoria
+                log_warning(logger, "Escribir Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG ESCRITURA ARCHIVO
+                
+                // Leemos de memoria
                 send_peticion_lectura(server_memoria, direccion_fisica, cantidad_bytes);
                 
+                // Recibimos los datos leidos desde memoria
                 char valor_a_escribir[64];
-
                 recv_string(server_memoria, valor_a_escribir);
 
-               
-                log_warning(logger, "Escribir Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG ESCRITURA ARCHIVO
+                // Escribimos esos datos en disco
+                usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); //multiplicado por cant bloques accedidos
 
-                //usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a bloque
+                //TODO 
+                //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
+                //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
+                //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
+
                 memcpy(archivo_bloques_mapeado + puntero, valor_a_escribir, cantidad_bytes);
                 sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
 
+                
                 // MESSI
                 log_debug(logger ,"DATOS ESCRITOS EN DISCO: %s", valor_a_escribir);
                 
@@ -87,12 +107,12 @@ void procesar_kernel_filesystem(){
             }
             case SOLICITUD_CREAR_ARCHIVO:
             {
-                log_debug(logger, "Recibi solicitud de crear archivo por parte de Kernel");
-                
-                t_fcb* archivo = malloc(sizeof(t_fcb));
                 char nombre_archivo[64];
                 recv_string(cliente_kernel, nombre_archivo);
+                
+                log_warning(logger, "Crear archivo: %s \n", nombre_archivo); //LOG CREAR ARCHIVO
 
+                t_fcb* archivo = malloc(sizeof(t_fcb));
                 archivo->nombre = strdup(nombre_archivo);
                 archivo->tamanio = 0;
                 archivo->puntero_directo = -1;
@@ -104,25 +124,17 @@ void procesar_kernel_filesystem(){
                 log_debug(logger, "Voy a crear la entrada de directorio");
                 crear_entrada_directorio(nombre_archivo);
 
-                
-                log_warning(logger, "Crear archivo: %s \n", nombre_archivo); //LOG CREAR ARCHIVO
-                
                 break;
             }
             case SOLICITUD_ABRIR_ARCHIVO:
             {
-                log_debug(logger, "Recibi solicitud de abrir archivo por parte de Kernel");
-                
                 char nombre_archivo[64];
                 recv_string(cliente_kernel, nombre_archivo);
-
 
                 // Verifica si existe el archivo -> buscamos en la lista de fcbs
                 t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
 
-                //log_debug(logger, "Archivo encontrado: %s", archivo->nombre);
-                
-                log_warning(logger, "Abrir archivo: %s \n", nombre_archivo); 
+                log_warning(logger, "Abrir archivo: %s \n", nombre_archivo); //LOG APERTURA DE ARCHIVO
 
                 if(archivo == NULL) {
                     log_debug(logger, "El archivo no existe \n"); 
@@ -147,10 +159,8 @@ void procesar_kernel_filesystem(){
                 recv_string(cliente_kernel, nombre_archivo);
                 RECV_INT(cliente_kernel, tamanio);
                 RECV_INT(cliente_kernel, pid);      // Para despues mandarle al Kernel que proceso se debe desbloquear 
-                log_debug(logger, "Recibi solicitud de truncar archivo por parte de Kernel: %d \n", tamanio);
-
-                // Sacamos cuantos bloques vamos a agregar o eliminar
-                int cant_bloques_nuevos = ceil(tamanio / info_superbloque.BLOCK_SIZE);                  
+            
+                log_warning(logger, "Truncar archivo: %s - Tamanio: %d \n", nombre_archivo, tamanio); //LOG TRUNCATE ARCHIVO
                 
                 t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
 
@@ -158,40 +168,19 @@ void procesar_kernel_filesystem(){
                 if(archivo->tamanio == tamanio) {
                     log_info(logger, "No se truncara ya que el archivo tiene dicho tamanio \n");
                 }
-                
                 else if(archivo->tamanio > tamanio) {
                     achicar_archivo(archivo, tamanio);
                 }
                 else if(archivo->tamanio < tamanio) {
-                    
                     agrandar_archivo(archivo, tamanio);
                 }
                 
-                //archivo->tamanio = tamanio;
-                
+                // Debug
                 mostrar_bitarray();
-                //mostrar_contenido_archivo("bloques.dat");
+                mostrar_punteros_archivo_bloques();
 
-                log_debug(logger, "Mostrando contenido archivo de bloques: \n");
-                uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
-                for (int i = 0; i < 64; i++) {
-                    
-                    int nro_bloque = floor((float) i / (info_superbloque.BLOCK_SIZE / sizeof(uint32_t)));
-                    //if(data_as_chars[i] != 0)
-                    printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
-                    
-                }
-
-
-                //read_file_bytes("bloques.dat");
-                // Cambiamos el tamanio del FCB en memoria
-                // Cambiamos el tamanio del FCB en el archivo de directorio
-                
-
-                // mandamos el PID al Kernel para que desbloquee al proceso
+                // Mandamos el PID al Kernel para que desbloquee al proceso
                 SEND_INT(cliente_kernel, pid);
-
-
 
                 break;
             }
@@ -228,14 +217,12 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
         int bloque_directo = archivo->puntero_directo;
 
-        // Sacamos al puntero directo del bitmap
+        log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_directo, bitarray_test_bit(bitarray_bloques, bloque_directo)); //LOG ACCESO A BITMAP        // Sacamos al puntero directo del bitmap
         bitarray_clean_bit(bitarray_bloques, bloque_directo);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
         bloques_a_quitar--;
     }
-
-
 
     // Si el archivo tiene PI debemos recorrer cada PD del PI (de reversa mami) e ir marcando como libre cada bloque en el bitarray
     if(archivo->puntero_indirecto != -1) {    
@@ -246,6 +233,9 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
         log_debug(logger, "La posicion del ultimo puntero del bloque de PI es: %d \n", posicion_ultimo_puntero);
         
+        // Accedemos al bloque de PI 
+        //TODO: logger acceso a bloque aca (aclarar que es un bloque de punteros y no de datos)
+        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
 
         for( ; bloques_a_quitar > 0; bloques_a_quitar--) {
         
@@ -253,6 +243,7 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
             
             log_debug(logger, "Obtuve el puntero (bloque) %u \n", puntero);
 
+            log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", puntero, bitarray_test_bit(bitarray_bloques, puntero)); //LOG ACCESO A BITMAP
             bitarray_clean_bit(bitarray_bloques, puntero);
             sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
@@ -266,6 +257,8 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
     }
 
+    // Cambiamos el tamanio del archivo en la entrada de FCB y en memoria
+    
     archivo->tamanio = tamanio_nuevo;
 
     config_set_value(fcb_archivo, "TAMANIO_ARCHIVO", string_itoa(archivo->tamanio));
@@ -329,6 +322,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         config_set_value(fcb_archivo, "PUNTERO_DIRECTO", string_itoa(archivo->puntero_directo));
         config_save_in_file(fcb_archivo, file_path);
         
+        log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_libre, bitarray_test_bit(bitarray_bloques, bloque_libre)); //LOG ACCESO A BITMAP 
         bitarray_set_bit(bitarray_bloques, bloque_libre);
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
@@ -351,6 +345,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
         config_save_in_file(fcb_archivo, file_path);
         
+        log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_libre, bitarray_test_bit(bitarray_bloques, bloque_libre)); //LOG ACCESO A BITMAP 
         bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
     }
@@ -366,6 +361,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         
         bloque_libre = buscar_proximo_bloque_libre();
 
+        log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_libre, bitarray_test_bit(bitarray_bloques, bloque_libre)); //LOG ACCESO A BITMAP 
         bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
@@ -382,7 +378,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
     }
 
-
+    // Cambiamos el tamanio del archivo en la entrada de FCB y en memoria
 
     archivo->tamanio = tamanio_nuevo;
 
@@ -390,8 +386,6 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
     config_save_in_file(fcb_archivo, file_path);
     
-
-
     config_destroy(fcb_archivo);
 }
 
@@ -409,26 +403,3 @@ uint32_t buscar_proximo_bloque_libre() {
 }
 
 
-void read_file_bytes(const char* filename) {
-    FILE* file = fopen(filename, "rb"); // Open the file in binary read mode
-
-    if (file == NULL) {
-        perror("Error opening file");
-        return;
-    }
-
-    // Read each byte from the file
-    int byte;
-    while ((byte = fgetc(file)) != EOF) {
-        if (byte >= 0 && byte <= 255) {
-            printf("Byte (char): %c\n", (char)byte);
-        } else {
-            // If the byte is not within the range of a char, assume it's a uint32_t
-            uint32_t value;
-            fread(&value, sizeof(uint32_t), 1, file);
-            printf("Byte (uint32_t): %u\n", value);
-        }
-    }
-
-    fclose(file); // Close the file when done
-}

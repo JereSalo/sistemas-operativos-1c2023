@@ -62,7 +62,9 @@ extern double tiempo;
 extern t_queue* procesos_en_new;
 extern t_list* procesos_en_ready;
 extern t_pcb* proceso_en_running;
-extern t_list* lista_bloqueados;   // Aca van a ir los procesos que se bloqueen al hacer F_WRITE/READ/TRUNCATE
+extern t_list* lista_bloqueados_truncate;   // Aca van a ir los procesos que se bloqueen al hacer F_WRITE/READ/TRUNCATE
+extern t_list* lista_bloqueados_fread_fwrite;
+
 
 // RECURSOS
 extern t_list* recursos;

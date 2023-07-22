@@ -195,6 +195,17 @@ void mostrar_contenido_archivo(char* path_archivo) {
 
 }
 
+void mostrar_punteros_archivo_bloques() {
+
+    log_debug(logger, "Mostrando contenido archivo de bloques: \n");
+    uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
+    for (int i = 0; i < 64; i++) {
+        int nro_bloque = floor((float) i / (info_superbloque.BLOCK_SIZE / sizeof(uint32_t)));
+        //if(data_as_chars[i] != 0)
+        printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
+    }
+}
+
 
 void crear_estructuras_administrativas() {
 
@@ -324,3 +335,5 @@ void write_to_dat_file(const char* filename, const char* data) {
 
     fclose(file); // Close the file when done
 }
+
+

@@ -220,9 +220,19 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     log_warning(logger, "Compactacion: Se solicito compactacion \n"); //LOG INICIO COMPACTACION
 
-                    //TODO: preguntar si despues de compactar habria espacio para crear al proceso
+                    //TODO: preguntar a memoria si despues de compactar habria espacio para crear al proceso
                     
-                    //TODO: validar que no se esten ejecutando F_WRITE y F_READ
+                    //TODO: si hay espacio, validar que no se esten ejecutando F_WRITE y F_READ
+
+                    //if(lista_vacia): signal(semaforo)
+
+
+                    // la idea es hacer el signal cuando un proceso se desbloquea despues de hacer F_READ o F_WRITE y la lista quedo vacia
+                    // que pasa si ningun proceso hizo ninguna operacion?
+                    //tendriamos que hacer un signal aca mismo porque si no se quedaria trabado ya que el semaforo arranca en 0
+                    // pero si otro proceso ya hizo un signal antes estariamos haciendo dos signal y eso es falopa
+
+                    //wait(semaforo)
 
                     //Semaforos capaz???? -> en caso de que haya operaciones hay que esperar a que terminen para solicitar compactacion
                     
@@ -230,8 +240,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     
 
-
-                    
                     t_list* lista_recepcion_segmentos_actualizados = list_create();
                     
                     // Hay que recibir todas las listas de segmentos actualizadas
@@ -333,6 +341,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
 
+            log_warning(logger, "PID: %d - Abrir Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG ARBIR ARCHIVO
 
             // Buscar si existe el archivo en la TGAA
             t_tabla_global_archivos_abiertos* archivo = buscar_archivo_en_tabla_global(nombre_archivo);
@@ -398,6 +407,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_info(logger, "Motivo desalojo es F_CLOSE \n");
 
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
+            
+            log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
  
             // buscamos si el proceso realmente abrio el archivo que quiere cerrar
             //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
@@ -473,6 +484,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int posicion = atoi((char*)list_get(lista_parametros, 1));
 
+            log_warning(logger, "PID: %d - Actualizar puntero Archivo: %s - Puntero: %d \n", proceso_en_running->pid, nombre_archivo, posicion); //LOG ACTUALIZAR PUNTERO ARCHIVO
+
             // buscamos si el archivo esta abierto por el proceso
             t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
             
@@ -496,6 +509,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
             
+            //Buscamos el puntero del archivo para despues mandarselo a FS
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+
+            log_warning(logger, "PID: %d - Leer Archivo: %s - Puntero: %d  - Dirección Memoria: %d - Tamanio: %d \n", proceso_en_running->pid, nombre_archivo, archivo->puntero_archivo, direccion_fisica, cantidad_bytes); //LOG LEER ARCHIVO
+            
             // Bloqueamos al proceso
             list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
 
@@ -512,8 +530,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Mandamos el PID para que despues el FS le devuelva al Kernel el PID del proceso que debe desbloquear
             SEND_INT(server_fs, proceso_en_running->pid);
 
-            //Buscamos el puntero del archivo y lo mandamos a fs
-            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
             SEND_INT(server_fs, archivo->puntero_archivo);
 
             // FS confirma que termino la operacion y desbloqueamos al proceso
@@ -540,6 +556,11 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
+            
+            // Buscamos el puntero del archivo para despues mandarlo a FS
+            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
+
+            log_warning(logger, "PID: %d - Escribir Archivo: %s - Puntero: %d  - Dirección Memoria: %d - Tamanio: %d \n", proceso_en_running->pid, nombre_archivo, archivo->puntero_archivo, direccion_fisica, cantidad_bytes); //LOG ESCRIBIR ARCHIVO
 
             // Bloqueamos al proceso
             list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
@@ -557,8 +578,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             SEND_INT(server_fs, cantidad_bytes);
             SEND_INT(server_fs, proceso_en_running->pid);
             
-            //Buscamos el puntero del archivo y lo mandamos a fs
-            t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
             SEND_INT(server_fs, archivo->puntero_archivo);
         
             // FS confirma que termino la operacion y desbloqueamos al proceso
@@ -584,6 +603,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         {
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int tamanio = atoi((char*)list_get(lista_parametros, 1));
+
+            log_warning(logger, "PID: %d - Archivo: %s - Tamanio: %d \n", proceso_en_running->pid, nombre_archivo, tamanio); //LOG TRUNCAR ARCHIVO
 
             send_opcode(server_fs, SOLICITUD_TRUNCAR_ARCHIVO);
             send_string(server_fs, nombre_archivo);

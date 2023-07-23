@@ -94,13 +94,14 @@ void procesar_kernel_filesystem(){
                 log_debug(logger, "Tengo que escribir %d bloques \n", cant_bloques_a_escribir);
 
                 // Tenemos que hacer un algoritmo que busque el proximo bloque a escribir en el FS
-                // Este algoritmo lo que haria seria algo asi como buscarte el proximo bloque libre del FS desde el puntero que le mandas
+                // Este algoritmo lo que haria seria algo asi como buscarte el bloque del FS correspondiente al puntero
 
                 uint32_t bloque_a_escribir;
+                bool acceso_bloque_punteros = 0;
                 
                 for( ; cant_bloques_a_escribir > 0; cant_bloques_a_escribir--) {
                     
-                    bloque_a_escribir = buscar_proximo_bloque(archivo, puntero);
+                    bloque_a_escribir = buscar_bloque(archivo, puntero, &acceso_bloque_punteros, nombre_archivo);
 
                     if(cantidad_bytes > info_superbloque.BLOCK_SIZE) {
                         // Escribimos lo maximo que se puede y le restamos para escribir menos en el proximo bloque
@@ -117,18 +118,10 @@ void procesar_kernel_filesystem(){
 
                 }
                             
-                
-                //TODO 
-                //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
-                //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
-                //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
-
-
-                
                 // MESSI
                 log_debug(logger ,"DATOS ESCRITOS EN DISCO: %s", valor_a_escribir);
                 
-
+                // Mandamos confirmacion de finalizacion de operacion al Kernel y el PID para que desbloquee al proceso
                 SEND_INT(cliente_kernel, 1);
                 SEND_INT(cliente_kernel, pid);
                 
@@ -432,18 +425,16 @@ uint32_t buscar_proximo_bloque_libre() {
 }
 
 
-// Busca el proximo bloque del archivo
-uint32_t buscar_proximo_bloque(t_fcb* archivo, int puntero) {
+// Busca el proximo bloque del archivo correspondiente al puntero que se paso
+uint32_t buscar_bloque(t_fcb* archivo, int puntero, bool* acceso_bloque_punteros, char* nombre_archivo) {
 
     // Convertimos a vector el archivo de bloques para accederlo y buscar los PD del PI
     uint32_t* archivo_bloques = (uint32_t*)archivo_bloques_mapeado;
     
-
-    // Tenemos que averiguar a que bloque DEL ARCHIVO corresponde el puntero que nos mandaron
-    int bloque_archivo = puntero / info_superbloque.BLOCK_SIZE;
+    // Tenemos que averiguar a que BLOQUE DEL ARCHIVO corresponde el puntero que nos mandaron
+    int bloque_archivo = floor((float)puntero / info_superbloque.BLOCK_SIZE);
 
     // Ahora tenemos que buscar a que BLOQUE DEL FS corresponde ese bloque de archivo
-
     uint32_t bloque_filesystem;
     int posicion_bloque_punteros = (archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE);
     int offset = 0;
@@ -456,14 +447,18 @@ uint32_t buscar_proximo_bloque(t_fcb* archivo, int puntero) {
     // En cambio, si es mayor a 0, tenemos que buscarlo en el bloque de puntero indirecto
     else if(bloque_archivo > 0) {
         
-        log_debug(logger, "Tengo que acceder al bloque de puntero indirecto \n");
-        
-        //flag de acceso al bloque de PI??
-        // Recorremos el bloque indirecto tantas posiciones como bloque de archivo
+        if(!(*acceso_bloque_punteros)) {
+            log_debug(logger, "Tengo que acceder al bloque de puntero indirecto \n");
+            log_warning(logger, "Acceso Bloque Punteros - Archivo: %s - Bloque File System: %d \n", nombre_archivo, archivo->puntero_indirecto); //LOG ACCESO A BLOQUE
+            usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000);
+            *acceso_bloque_punteros = 1;
+        }
+
+
         // Si el bloque es 1 sabemos que es la posicion 0, si es bloque 2 es la posicion 1 y asi...
         // Bloque archivo 1 -> Posicion 0 desde el principio del bloque de PI
         // Bloque archivo 2 -> Posicion 1 desde el principio del bloque de PI (o sea segundo puntero escrito en PI)
-
+        // Bloque archivo N -> Posicion N+1 desde el principio del bloque de PI
 
         // Determinamos el offset
         offset = (bloque_archivo - 1) * sizeof(uint32_t);
@@ -471,9 +466,11 @@ uint32_t buscar_proximo_bloque(t_fcb* archivo, int puntero) {
         bloque_filesystem = archivo_bloques[(posicion_bloque_punteros + offset) / sizeof(uint32_t)];                    
     }
 
-    log_debug(logger, "Tengo que escribir el bloque del archivo %d \n", bloque_archivo);
+    log_debug(logger, "Tengo que acceder al bloque del archivo %d \n", bloque_archivo);
 
-    log_debug(logger, "Tengo que escribir el bloque del FileSystem %d \n", bloque_filesystem);
+    log_debug(logger, "Tengo que acceder al bloque del FileSystem %d \n", bloque_filesystem);
+
+    log_warning(logger, "Acceso Bloque - Archivo: %s - Bloque Archivo: %d - Bloque File System: %d \n", nombre_archivo, bloque_archivo, bloque_filesystem); //LOG ACCESO A BLOQUE
 
     return bloque_filesystem;
 }

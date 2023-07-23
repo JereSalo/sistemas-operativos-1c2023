@@ -48,7 +48,7 @@ void procesar_filesystem_memoria(){
                 
                 datos_leidos[longitud] = '\0';
 
-                printf("DATOS LEIDOS DE MEMORIA: %s", datos_leidos);
+                printf("DATOS LEIDOS DE MEMORIA POR PETICION DE FS: %s", datos_leidos);
                 
                 send_string(cliente_filesystem, datos_leidos);
 

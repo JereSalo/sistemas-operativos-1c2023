@@ -24,23 +24,44 @@ void procesar_kernel_filesystem(){
 
                 log_warning(logger, "Leer Archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d \n", nombre_archivo, puntero, direccion_fisica, cantidad_bytes); //LOG LECTURA ARCHIVO
 
-    
+                // Aca vamos a ir guardando la informacion que vayamos leyendo 
                 char* informacion_leida = malloc(cantidad_bytes + 1);
                 
-                usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); //multiplicado por cant bloques accedidos
+                // Buscamos el FCB del archivo en cuestion
+                t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
 
-                //TODO 
-                //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
-                //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
-                //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
+                // Averiguamos cuantos bloques debemos leer
+                int cant_bloques_a_leer = ceil((float)cantidad_bytes / info_superbloque.BLOCK_SIZE);
+
+                log_debug(logger, "Tengo que leer %d bloques \n", cant_bloques_a_leer);
+
+                // Tenemos que hacer un algoritmo que busque el proximo bloque a leer en el FS
+                // Este algoritmo lo que haria seria algo asi como buscarte el bloque del FS correspondiente al puntero
+
+                uint32_t bloque_a_leer;
+                bool acceso_bloque_punteros = 0;
+
+                for( ; cant_bloques_a_leer > 0; cant_bloques_a_leer--) {
+                    
+                    bloque_a_leer = buscar_bloque(archivo, puntero, &acceso_bloque_punteros, nombre_archivo);
+
+                    if(cantidad_bytes > info_superbloque.BLOCK_SIZE) {
+                        // Leemos lo maximo que se puede y le restamos para leer menos en el proximo bloque
+                        leer_bloque(bloque_a_leer, informacion_leida, info_superbloque.BLOCK_SIZE);
+                        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
+                        cantidad_bytes -= info_superbloque.BLOCK_SIZE;
+                        puntero += info_superbloque.BLOCK_SIZE;
+                    }
+                    else {
+                        leer_bloque(bloque_a_leer, informacion_leida, cantidad_bytes);
+                        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
+                        puntero += cantidad_bytes;
+                    }
+                }
                 
-                // 
-
-                // Copiamos la info de disco en la variable con un memcpy
-                memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
-
+                // Agregamos el \0 
                 informacion_leida[cantidad_bytes] = '\0';
-
+                                
                 // Mandamos a memoria para que los escriba en su espacio
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
 
@@ -481,6 +502,13 @@ void escribir_bloque(uint32_t bloque_a_escribir, char* valor_a_escribir, int can
     
     // Escribimos esos datos en disco
     memcpy(archivo_bloques_mapeado + posicion_bloque_a_escribir, valor_a_escribir, cantidad_bytes);
-    sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
+    sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);  
+}
+
+void leer_bloque(uint32_t bloque_a_leer, char* informacion_leida, int cantidad_bytes) {
+
+    int posicion_bloque_a_leer = bloque_a_leer * info_superbloque.BLOCK_SIZE;
     
+    // Leemos esos datos de disco
+    memcpy(informacion_leida, archivo_bloques_mapeado + posicion_bloque_a_leer, cantidad_bytes);
 }

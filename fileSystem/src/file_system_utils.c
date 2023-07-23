@@ -270,9 +270,12 @@ void crear_estructuras_administrativas() {
             log_debug(logger, "Se creo un FCB - Nombre: %s - Tamanio: %d - PD: %d - PI: %d", fcb->nombre, fcb->tamanio, fcb->puntero_directo, fcb->puntero_indirecto);
 
             list_add(lista_fcbs, fcb);
+            config_destroy(archivo_fcb);
         }
 
     }
+
+    free(dir);
 }
 
 

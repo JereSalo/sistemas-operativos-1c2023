@@ -220,6 +220,15 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 {
                     log_warning(logger, "Compactacion: Se solicito compactacion \n"); //LOG INICIO COMPACTACION
 
+                    log_error(logger, "FALOPA");
+
+
+                    if(list_is_empty(lista_bloqueados_fread_fwrite))
+                        log_debug(logger, "LA LISTA ESTA LIBRE");
+                    else
+                        log_debug(logger, "Hay que esperar a que terminen de realizarse operaciones entre FS y memoria \n");
+
+
                     //TODO: preguntar a memoria si despues de compactar habria espacio para crear al proceso
                     
                     //TODO: si hay espacio, validar que no se esten ejecutando F_WRITE y F_READ
@@ -236,7 +245,19 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                     //Semaforos capaz???? -> en caso de que haya operaciones hay que esperar a que terminen para solicitar compactacion
                     
-                    
+                    // wait(sem_fs_libre)
+
+                    int valor_semaforo;
+                    sem_getvalue(&fs_libre, &valor_semaforo);
+                    log_debug(logger, "El valor del semaforo es: %d", valor_semaforo);
+                    if(valor_semaforo == 0 && list_is_empty(lista_bloqueados_fread_fwrite)) {
+                        
+                        
+                        sem_post(&fs_libre);
+                    }
+
+                    sem_wait(&fs_libre);
+
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
                     
 
@@ -287,6 +308,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                         mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                         log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
+
+                        //sem_post(&fs_libre);
+
                         volver_a_running();
 
                     }
@@ -517,9 +541,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Bloqueamos al proceso
             list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
 
+            // wait
+
             log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
             log_warning(logger,"PID: %d - Bloqueado por F_READ: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
             
+            int pid = proceso_en_running->pid;
             sem_post(&cpu_libre);
             
             send_opcode(server_fs, SOLICITUD_LECTURA_DISCO);
@@ -528,7 +555,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             SEND_INT(server_fs, direccion_fisica);
             
             // Mandamos el PID para que despues el FS le devuelva al Kernel el PID del proceso que debe desbloquear
-            SEND_INT(server_fs, proceso_en_running->pid);
+            SEND_INT(server_fs, pid);
 
             SEND_INT(server_fs, archivo->puntero_archivo);
 
@@ -537,17 +564,20 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             RECV_INT(server_fs, respuesta_fs);
             
             if(respuesta_fs) {   
-                int pid;
-                RECV_INT(server_fs, pid);
+                int pid_recibido;
+                RECV_INT(server_fs, pid_recibido);
                 
-                log_debug(logger, "La operacion de F_READ por parte del proceso %d termino exitosamente \n", pid);
+                log_debug(logger, "La operacion de F_READ por parte del proceso %d termino exitosamente \n", pid_recibido);
 
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid);
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid_recibido);
 
                 list_remove_element(lista_bloqueados_fread_fwrite, proceso);
 
+                verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
+                
                 mandar_a_ready(proceso);
             }
+
             
             break;
         }
@@ -568,7 +598,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
             log_warning(logger,"PID: %d - Bloqueado por F_WRITE: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
 
-
+            // guardamos el pid del proceso en running antes de desalojarlo
+            int pid = proceso_en_running->pid;
             sem_post(&cpu_libre);
 
 
@@ -576,26 +607,34 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             send_string(server_fs, nombre_archivo);
             SEND_INT(server_fs, direccion_fisica);
             SEND_INT(server_fs, cantidad_bytes);
-            SEND_INT(server_fs, proceso_en_running->pid);
+            SEND_INT(server_fs, pid);
             
             SEND_INT(server_fs, archivo->puntero_archivo);
         
             // FS confirma que termino la operacion y desbloqueamos al proceso
             int respuesta_fs;
             RECV_INT(server_fs, respuesta_fs);
-            int pid;
-            RECV_INT(server_fs, pid);
+            int pid_recibido;
+            RECV_INT(server_fs, pid_recibido);
 
             if(respuesta_fs) {
                 
-                log_debug(logger, "La operacion de F_WRITE por parte del proceso %d termino exitosamente \n", pid);
+                log_debug(logger, "La operacion de F_WRITE por parte del proceso %d termino exitosamente \n", pid_recibido);
 
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid);
+                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid_recibido);
 
                 list_remove_element(lista_bloqueados_fread_fwrite, proceso);
 
+                // Si todas las operaciones estan terminadas entonces hacemos signal del semaforo de compactacion
+                verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
+
                 mandar_a_ready(proceso);
             }
+
+            
+            
+            
+            
             break;
         }
 

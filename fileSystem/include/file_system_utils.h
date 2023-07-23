@@ -60,6 +60,7 @@ FILE* abrir_archivo_bitmap();
 FILE* abrir_archivo_bloques();
 
 t_fcb* buscar_archivo_en_lista_fcbs(char* archivo_solicitado);
+void mostrar_archivo_mapeado_bloques();
 
 void mostrar_punteros_archivo_bloques();
 

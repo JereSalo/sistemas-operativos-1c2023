@@ -81,6 +81,8 @@ extern sem_t cant_procesos_ready;
 
 extern sem_t cpu_libre;
 
+extern sem_t fs_libre;
+
 // AUXILIARES
 extern t_list* lista_pids;
 extern int pid_counter;
@@ -122,5 +124,6 @@ void mostrar_tabla_archivos_por_proceso(t_list* tabla);
 void mandar_a_ready(t_pcb* proceso);
 void inicializar_registros(t_registros_cpu* registros);
 
+void verificar_operaciones_terminadas(t_list* lista);
 
 #endif

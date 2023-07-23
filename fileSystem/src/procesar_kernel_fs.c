@@ -33,7 +33,8 @@ void procesar_kernel_filesystem(){
                 //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
                 //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
                 //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
-
+                
+                // 
 
                 // Copiamos la info de disco en la variable con un memcpy
                 memcpy(informacion_leida, archivo_bloques_mapeado + puntero, cantidad_bytes);
@@ -83,17 +84,45 @@ void procesar_kernel_filesystem(){
                 // Recibimos los datos leidos desde memoria
                 char valor_a_escribir[64];
                 recv_string(server_memoria, valor_a_escribir);
+ 
+                // Buscamos el FCB del archivo en cuestion
+                t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
 
-                // Escribimos esos datos en disco
-                usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); //multiplicado por cant bloques accedidos
+                // Averiguamos cuantos bloques debemos escribir
+                int cant_bloques_a_escribir = ceil((float)cantidad_bytes / info_superbloque.BLOCK_SIZE);
+                
+                log_debug(logger, "Tengo que escribir %d bloques \n", cant_bloques_a_escribir);
 
+                // Tenemos que hacer un algoritmo que busque el proximo bloque a escribir en el FS
+                // Este algoritmo lo que haria seria algo asi como buscarte el proximo bloque libre del FS desde el puntero que le mandas
+
+                uint32_t bloque_a_escribir;
+                
+                for( ; cant_bloques_a_escribir > 0; cant_bloques_a_escribir--) {
+                    
+                    bloque_a_escribir = buscar_proximo_bloque(archivo, puntero);
+
+                    if(cantidad_bytes > info_superbloque.BLOCK_SIZE) {
+                        // Escribimos lo maximo que se puede y le restamos para escribir menos en el proximo bloque
+                        escribir_bloque(bloque_a_escribir, valor_a_escribir, info_superbloque.BLOCK_SIZE);
+                        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
+                        cantidad_bytes -= info_superbloque.BLOCK_SIZE;
+                        puntero += info_superbloque.BLOCK_SIZE;
+                    }
+                    else {
+                        escribir_bloque(bloque_a_escribir, valor_a_escribir, cantidad_bytes);
+                        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
+                        puntero += cantidad_bytes;
+                    }
+
+                }
+                            
+                
                 //TODO 
                 //1. aca hay que poner un log de acceso a bloque tantas veces como acceda a uno para escribir 
                 //2. bloque FS != bloque de archivo -> hay que hacer esta distincion -> capaz ponemos una lista de bloques en el FCB?
                 //3. hay que hacer un calculo para saber a que bloques del FS estamos accediendo (y establecer correspondencia con el num de bloque del FCB)
 
-                memcpy(archivo_bloques_mapeado + puntero, valor_a_escribir, cantidad_bytes);
-                sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
 
                 
                 // MESSI
@@ -389,7 +418,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     config_destroy(fcb_archivo);
 }
 
-
+// Busca un bloque libre en el bitarray
 uint32_t buscar_proximo_bloque_libre() {
 
     for(int i = 0; i < bitarray_get_max_bit(bitarray_bloques); i++) {
@@ -403,3 +432,58 @@ uint32_t buscar_proximo_bloque_libre() {
 }
 
 
+// Busca el proximo bloque del archivo
+uint32_t buscar_proximo_bloque(t_fcb* archivo, int puntero) {
+
+    // Convertimos a vector el archivo de bloques para accederlo y buscar los PD del PI
+    uint32_t* archivo_bloques = (uint32_t*)archivo_bloques_mapeado;
+    
+
+    // Tenemos que averiguar a que bloque DEL ARCHIVO corresponde el puntero que nos mandaron
+    int bloque_archivo = puntero / info_superbloque.BLOCK_SIZE;
+
+    // Ahora tenemos que buscar a que BLOQUE DEL FS corresponde ese bloque de archivo
+
+    uint32_t bloque_filesystem;
+    int posicion_bloque_punteros = (archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE);
+    int offset = 0;
+
+    
+    // Si el bloque del archivo es el bloque 0, entonces ya sabemos que es el bloque que esta en el puntero directo
+    if(bloque_archivo == 0) {
+        bloque_filesystem = archivo->puntero_directo;
+    }
+    // En cambio, si es mayor a 0, tenemos que buscarlo en el bloque de puntero indirecto
+    else if(bloque_archivo > 0) {
+        
+        log_debug(logger, "Tengo que acceder al bloque de puntero indirecto \n");
+        
+        //flag de acceso al bloque de PI??
+        // Recorremos el bloque indirecto tantas posiciones como bloque de archivo
+        // Si el bloque es 1 sabemos que es la posicion 0, si es bloque 2 es la posicion 1 y asi...
+        // Bloque archivo 1 -> Posicion 0 desde el principio del bloque de PI
+        // Bloque archivo 2 -> Posicion 1 desde el principio del bloque de PI (o sea segundo puntero escrito en PI)
+
+
+        // Determinamos el offset
+        offset = (bloque_archivo - 1) * sizeof(uint32_t);
+
+        bloque_filesystem = archivo_bloques[(posicion_bloque_punteros + offset) / sizeof(uint32_t)];                    
+    }
+
+    log_debug(logger, "Tengo que escribir el bloque del archivo %d \n", bloque_archivo);
+
+    log_debug(logger, "Tengo que escribir el bloque del FileSystem %d \n", bloque_filesystem);
+
+    return bloque_filesystem;
+}
+
+void escribir_bloque(uint32_t bloque_a_escribir, char* valor_a_escribir, int cantidad_bytes) {
+
+    int posicion_bloque_a_escribir = bloque_a_escribir * info_superbloque.BLOCK_SIZE;
+    
+    // Escribimos esos datos en disco
+    memcpy(archivo_bloques_mapeado + posicion_bloque_a_escribir, valor_a_escribir, cantidad_bytes);
+    sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
+    
+}

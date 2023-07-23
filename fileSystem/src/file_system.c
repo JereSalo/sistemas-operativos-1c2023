@@ -8,6 +8,7 @@ void sigint_handler(int signum) {
     mostrar_bitarray();
     mostrar_contenido_archivo("bloques.dat");
     mostrar_punteros_archivo_bloques();
+    //mostrar_archivo_mapeado_bloques();
 
     desmapear_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
     desmapear_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);

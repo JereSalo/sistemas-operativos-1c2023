@@ -57,6 +57,8 @@ void inicializar_semaforos() {
 
     sem_init(&cpu_libre, 0, 1);
 
+    sem_init(&fs_libre, 0, 0);
+
     log_debug(logger, "Semaforos inicializados \n");
 }
 

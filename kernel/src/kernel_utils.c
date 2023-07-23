@@ -30,6 +30,7 @@ sem_t cant_procesos_new;
 sem_t cant_procesos_ready;
 sem_t cpu_libre;
 pthread_mutex_t mutex_pids;
+sem_t fs_libre;
 
 // SOCKETS
 int server_cpu;
@@ -304,8 +305,15 @@ void mostrar_tabla_archivos_por_proceso(t_list* tabla){
 }
 
 
+// ------------------------------ MANEJO DE LISTA BLOQUEADOS FREAD/FWRITE ------------------------------ //
 
-
+void verificar_operaciones_terminadas(t_list* lista) {
+    int valor_sem;
+    sem_getvalue(&fs_libre, &valor_sem);
+    if(list_is_empty(lista) && valor_sem == 0){
+        sem_post(&fs_libre);
+    }
+}
 
 
 /* typedef struct {

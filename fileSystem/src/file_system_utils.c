@@ -168,7 +168,7 @@ void mostrar_bitarray() {
     
     log_debug(logger, "Mostrando bitarray en memoria: \n");
     
-    for(int i = 0; i < bitarray_bloques->size; i++) {
+    for(int i = 0; i < 24; i++) {
         valor = bitarray_test_bit(bitarray_bloques, i);
         printf("Valor del bitarray en el bloque %d - %d \n", i, valor);
     }
@@ -199,12 +199,26 @@ void mostrar_punteros_archivo_bloques() {
 
     log_debug(logger, "Mostrando contenido archivo de bloques: \n");
     uint32_t* data_as_chars = (uint32_t*)archivo_bloques_mapeado;
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 120; i++) {
         int nro_bloque = floor((float) i / (info_superbloque.BLOCK_SIZE / sizeof(uint32_t)));
         //if(data_as_chars[i] != 0)
         printf("VALOR ESCRITO EN BLOQUE NRO %d - %u \n", nro_bloque, data_as_chars[i]);
     }
 }
+
+void mostrar_archivo_mapeado_bloques() {
+
+    log_debug(logger, "Mostrando contenido archivo de bloques mapeado: \n");
+    char* data_as_chars = (char*)archivo_bloques_mapeado;
+    for (int i = 0; i < 120; i++) {
+        int nro_bloque = floor((float) i / (info_superbloque.BLOCK_SIZE / sizeof(uint32_t)));
+        //if(data_as_chars[i] != 0)
+        printf("VALOR ESCRITO EN BLOQUE NRO %d - %c \n", nro_bloque, data_as_chars[i]);
+    }
+}
+
+
+
 
 
 void crear_estructuras_administrativas() {

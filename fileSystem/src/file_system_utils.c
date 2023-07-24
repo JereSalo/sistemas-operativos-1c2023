@@ -260,7 +260,7 @@ void crear_estructuras_administrativas() {
             
             t_config* archivo_fcb = config_create(file_path);
 
-            fcb->nombre = config_get_string_value(archivo_fcb, "NOMBRE_ARCHIVO");
+            fcb->nombre = strdup(config_get_string_value(archivo_fcb, "NOMBRE_ARCHIVO"));
             fcb->tamanio = config_get_int_value(archivo_fcb, "TAMANIO_ARCHIVO");
             fcb->puntero_directo = config_get_int_value(archivo_fcb, "PUNTERO_DIRECTO");
             fcb->puntero_indirecto = config_get_int_value(archivo_fcb, "PUNTERO_INDIRECTO");

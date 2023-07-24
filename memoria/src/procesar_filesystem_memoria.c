@@ -26,7 +26,7 @@ void procesar_filesystem_memoria(){
                 free(valor_a_escribir);
 
                 //Debug
-                leer_memoria();
+                //leer_memoria();
 
                 send_string(cliente_filesystem, "OK");
 

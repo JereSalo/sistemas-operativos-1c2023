@@ -174,6 +174,8 @@ void procesar_kernel_filesystem(){
                 char nombre_archivo[64];
                 recv_string(cliente_kernel, nombre_archivo);
 
+                log_debug(logger, "Nombre archivo recibido: %s", nombre_archivo);
+
                 // Verifica si existe el archivo -> buscamos en la lista de fcbs
                 t_fcb* archivo = buscar_archivo_en_lista_fcbs(nombre_archivo);
 

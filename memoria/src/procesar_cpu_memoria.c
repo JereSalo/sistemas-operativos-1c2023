@@ -11,11 +11,17 @@ void procesar_cpu_memoria() {
             {
                 int direccion_fisica;
                 int longitud;
+                int pid;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
 
+                //TODO RECV PID
+
+
                 char* datos_leidos = malloc(longitud + 1);
 
+
+                log_warning(logger, "PID: %d - Accion: LEER - Direccion fisica: %d - Tamanio: %d - Origen CPU \n", pid, direccion_fisica, longitud); //LOG ACCESO A ESPACIO DE USUARIO
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(datos_leidos, memoria_principal + direccion_fisica, longitud);
                 
@@ -34,11 +40,17 @@ void procesar_cpu_memoria() {
             {
                 int direccion_fisica;
                 int longitud;
+                int pid;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
+                
+                
+                //TODO RECV PID
+
 
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
 
+                log_warning(logger, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamanio: %d - Origen CPU \n", pid, direccion_fisica, longitud); //LOG ACCESO A ESPACIO DE USUARIO
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
 

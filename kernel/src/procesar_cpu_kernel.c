@@ -250,12 +250,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     int valor_semaforo;
                     sem_getvalue(&fs_libre, &valor_semaforo);
                     log_debug(logger, "El valor del semaforo es: %d", valor_semaforo);
-                    if(valor_semaforo == 0 && list_is_empty(lista_bloqueados_fread_fwrite)) {
-                        
-                        
-                        sem_post(&fs_libre);
-                    }
 
+                    if(valor_semaforo == 0 && list_is_empty(lista_bloqueados_fread_fwrite))
+                        sem_post(&fs_libre);
+                    
                     sem_wait(&fs_libre);
 
                     SEND_INT(server_memoria, SOLICITUD_COMPACTACION);
@@ -386,8 +384,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 //log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
                 
                 log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
-                log_warning(logger,"PID: %d - Bloqueado por F_OPEN: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
-
+                log_warning(logger,"PID: %d - Bloqueado por F_OPEN (el archivo se encuentra abierto por otro proceso): %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
 
                 queue_push(archivo->cola_bloqueados, proceso_en_running);
                 

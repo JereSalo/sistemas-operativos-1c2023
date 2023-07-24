@@ -160,9 +160,6 @@ void procesar_kernel_memoria() {
 
                 mostrar_resultado_compactacion(tabla_segmentos_por_proceso);
                 
-                
-                
-                
                 // Debug
                 //mostrar_tabla_huecos(tabla_huecos);
 

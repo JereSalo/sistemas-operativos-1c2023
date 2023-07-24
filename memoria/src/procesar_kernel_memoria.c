@@ -155,6 +155,7 @@ void procesar_kernel_memoria() {
                 
                 
                 log_debug(logger, "Se va a mandar el resultado de la compactacion a Kernel \n");
+                usleep(config_memoria.RETARDO_COMPACTACION * 1000); // Retardo respuesta compactacion
                 send_resultado_compactacion(cliente_kernel, tabla_segmentos_por_proceso, config_memoria.CANT_SEGMENTOS);
 
 

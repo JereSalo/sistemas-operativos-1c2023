@@ -312,6 +312,7 @@ void verificar_operaciones_terminadas(t_list* lista) {
     sem_getvalue(&fs_libre, &valor_sem);
     if(list_is_empty(lista) && valor_sem == 0){
         sem_post(&fs_libre);
+        log_debug(logger, "PONGO EN UNICORNIO EL SEMAFORO");
     }
 }
 

@@ -359,8 +359,6 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
     // Tiene 1 PD y tendremos que asignarle 1 PI y N PD del PI
 
-    log_debug(logger, "Valor de bloques por asignar antes del 1er IF: %d \n", bloques_de_datos_por_asignar);
-
     // no tiene el PD asignado
     if(archivo->puntero_directo == -1) {
         bloque_libre = buscar_proximo_bloque_libre();
@@ -379,7 +377,6 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         bloques_de_datos_por_asignar--;
     } 
 
-    log_debug(logger, "Valor de bloques por asignar antes del 2do if: %d \n", bloques_de_datos_por_asignar);
 
     // En este caso, el archivo no tiene un bloque de punteros asignado (PI)
     

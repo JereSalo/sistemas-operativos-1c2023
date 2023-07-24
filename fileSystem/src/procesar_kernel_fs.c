@@ -388,7 +388,7 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         log_debug(logger, "El bloque libre que encontre para el PUNTERO INDIRECTO es: %d \n", bloque_libre);
         archivo->puntero_indirecto = bloque_libre;
 
-        char* string_aux = string_itoa(archivo->puntero_directo);
+        char* string_aux = string_itoa(archivo->puntero_indirecto);
         
         config_set_value(fcb_archivo, "PUNTERO_INDIRECTO", string_aux);
 

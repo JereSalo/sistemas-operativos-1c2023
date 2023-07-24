@@ -14,8 +14,7 @@ void procesar_cpu_memoria() {
                 int pid;
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
-
-                //TODO RECV PID
+                RECV_INT(cliente_cpu, pid);             //CHEQUEAR
 
 
                 char* datos_leidos = malloc(longitud + 1);
@@ -44,11 +43,9 @@ void procesar_cpu_memoria() {
                 RECV_INT(cliente_cpu, direccion_fisica);
                 RECV_INT(cliente_cpu, longitud);
                 
-                
-                //TODO RECV PID
-
-
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_cpu, (size_t)longitud));
+                
+                RECV_INT(cliente_cpu, pid);             //CHEQUEAR
 
                 log_warning(logger, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamanio: %d - Origen CPU \n", pid, direccion_fisica, longitud); //LOG ACCESO A ESPACIO DE USUARIO
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario

@@ -95,6 +95,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
 	        // Leer valor de memoria correspondiente a direccion_fisica
 
             send_peticion_lectura(server_memoria, direccion_fisica, longitud_registro);
+            SEND_INT(server_memoria, contexto->pid);
 
             char valor[64];
 
@@ -125,6 +126,7 @@ void ejecutar_instruccion(char** instruccion_decodificada, t_contexto_ejecucion*
             char* valor_leido = leer_de_registro(registro,contexto->registros_cpu);
 
             send_peticion_escritura(server_memoria, direccion_fisica, longitud_registro, valor_leido);
+            SEND_INT(server_memoria, contexto->pid);
 
             log_warning(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion fisica: %d - Valor escrito: %s",contexto->pid, num_segmento, direccion_fisica, valor_leido); //LOG ACCESO A MEMORIA
 

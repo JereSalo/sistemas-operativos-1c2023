@@ -64,6 +64,7 @@ void procesar_kernel_filesystem(){
                                 
                 // Mandamos a memoria para que los escriba en su espacio
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
+                SEND_INT(server_memoria, pid);//CHEQUEAR
 
                 // Esperamos que memoria nos avise cuando termine de escribir
                 char confirmacion[5];
@@ -101,6 +102,7 @@ void procesar_kernel_filesystem(){
                 
                 // Leemos de memoria
                 send_peticion_lectura(server_memoria, direccion_fisica, cantidad_bytes);
+                SEND_INT(server_memoria, pid);//CHEQUEAR
                 
                 // Recibimos los datos leidos desde memoria
                 char valor_a_escribir[64];
@@ -363,9 +365,12 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     if(archivo->puntero_directo == -1) {
         bloque_libre = buscar_proximo_bloque_libre();
         archivo->puntero_directo = bloque_libre;
+        char* string_aux = string_itoa(archivo->puntero_directo);
 
-        config_set_value(fcb_archivo, "PUNTERO_DIRECTO", string_itoa(archivo->puntero_directo));
+        config_set_value(fcb_archivo, "PUNTERO_DIRECTO", string_aux);
         config_save_in_file(fcb_archivo, file_path);
+
+        free(string_aux);
         
         log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_libre, bitarray_test_bit(bitarray_bloques, bloque_libre)); //LOG ACCESO A BITMAP 
         bitarray_set_bit(bitarray_bloques, bloque_libre);
@@ -385,8 +390,12 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         bloque_libre = buscar_proximo_bloque_libre();
         log_debug(logger, "El bloque libre que encontre para el PUNTERO INDIRECTO es: %d \n", bloque_libre);
         archivo->puntero_indirecto = bloque_libre;
+
+        char* string_aux = string_itoa(archivo->puntero_directo);
         
-        config_set_value(fcb_archivo, "PUNTERO_INDIRECTO", string_itoa(archivo->puntero_indirecto));
+        config_set_value(fcb_archivo, "PUNTERO_INDIRECTO", string_aux);
+
+        free(string_aux);
 
         config_save_in_file(fcb_archivo, file_path);
         
@@ -427,10 +436,13 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
 
     archivo->tamanio = tamanio_nuevo;
 
-    config_set_value(fcb_archivo, "TAMANIO_ARCHIVO", string_itoa(archivo->tamanio));
+    char* string_aux = string_itoa(archivo->tamanio);
+
+    config_set_value(fcb_archivo, "TAMANIO_ARCHIVO", string_aux);
 
     config_save_in_file(fcb_archivo, file_path);
     
+    free(string_aux);
     config_destroy(fcb_archivo);
 }
 

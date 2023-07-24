@@ -11,12 +11,17 @@ void procesar_filesystem_memoria(){
 
                 int direccion_fisica;
                 int longitud;
+                int pid;
                 RECV_INT(cliente_filesystem, direccion_fisica);
                 RECV_INT(cliente_filesystem, longitud);
 
 
                 char* valor_a_escribir = (char*)(recv_paquete(cliente_filesystem, (size_t)longitud));
 
+                RECV_INT(cliente_filesystem, pid);             //CHEQUEAR
+
+
+                log_warning(logger, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamanio: %d - Origen FILESYSTEM \n", pid, direccion_fisica, longitud); //LOG ACCESO A ESPACIO DE USUARIO
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
                 
@@ -38,11 +43,14 @@ void procesar_filesystem_memoria(){
                 
                 int direccion_fisica;
                 int longitud;
+                int pid;
                 RECV_INT(cliente_filesystem, direccion_fisica);
                 RECV_INT(cliente_filesystem, longitud);
+                RECV_INT(cliente_filesystem, pid);             //CHEQUEAR
 
                 char* datos_leidos = malloc(longitud + 1);
 
+                log_warning(logger, "PID: %d - Accion: LEER - Direccion fisica: %d - Tamanio: %d - Origen FILESYSTEM \n", pid, direccion_fisica, longitud); //LOG ACCESO A ESPACIO DE USUARIO
                 usleep(config_memoria.RETARDO_MEMORIA * 1000); // Acceso a espacio de usuario
                 memcpy(datos_leidos, memoria_principal + direccion_fisica, longitud);
                 

@@ -76,6 +76,7 @@ void procesar_kernel_filesystem(){
                 }
 
                 // Le mandamos confirmacion al Kernel y el PID para que desbloquee el proceso
+                send_opcode(cliente_kernel, RESPUESTA_FREAD);
                 SEND_INT(cliente_kernel, 1);
                 SEND_INT(cliente_kernel, pid);
 
@@ -145,6 +146,7 @@ void procesar_kernel_filesystem(){
                 log_debug(logger ,"DATOS ESCRITOS EN DISCO: %s", valor_a_escribir);
                 
                 // Mandamos confirmacion de finalizacion de operacion al Kernel y el PID para que desbloquee al proceso
+                send_opcode(cliente_kernel, RESPUESTA_FWRITE);
                 SEND_INT(cliente_kernel, 1);
                 SEND_INT(cliente_kernel, pid);
                 
@@ -169,6 +171,8 @@ void procesar_kernel_filesystem(){
                 log_debug(logger, "Voy a crear la entrada de directorio");
                 crear_entrada_directorio(nombre_archivo);
 
+                send_opcode(cliente_kernel, RESPUESTA_CREATE);
+
                 break;
             }
             case SOLICITUD_ABRIR_ARCHIVO:
@@ -185,11 +189,15 @@ void procesar_kernel_filesystem(){
 
                 if(archivo == NULL) {
                     log_debug(logger, "El archivo no existe \n"); 
+                    send_opcode(cliente_kernel, RESPUESTA_FOPEN);
                     SEND_INT(cliente_kernel, 1);
+                    send_string(cliente_kernel, nombre_archivo);
                 }
                 else {
                     log_debug(logger, "El archivo existe, no es necesario crearlo \n");
+                    send_opcode(cliente_kernel, RESPUESTA_FOPEN);
                     SEND_INT(cliente_kernel, 0);
+                    send_string(cliente_kernel, nombre_archivo);
                 }
 
                 log_debug(logger, "Envie respuesta a Kernel"); 
@@ -227,6 +235,7 @@ void procesar_kernel_filesystem(){
                 mostrar_punteros_archivo_bloques();
 
                 // Mandamos el PID al Kernel para que desbloquee al proceso
+                send_opcode(cliente_kernel, RESPUESTA_FTRUNCATE);
                 SEND_INT(cliente_kernel, pid);
 
                 break;

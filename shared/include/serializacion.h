@@ -23,7 +23,12 @@ typedef enum {
     SOLICITUD_CREAR_ARCHIVO,
     SOLICITUD_TRUNCAR_ARCHIVO,
     SOLICITUD_ABRIR_ARCHIVO,
-    SOLICITUD_CERRAR_ARCHIVO
+    SOLICITUD_CERRAR_ARCHIVO,
+    RESPUESTA_FREAD,
+    RESPUESTA_FWRITE,
+    RESPUESTA_FOPEN,
+    RESPUESTA_CREATE,
+    RESPUESTA_FTRUNCATE
 } op_code;
 
 void* serializar_instrucciones(size_t* size, t_list* instrucciones);

@@ -396,7 +396,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 send_string(server_fs, nombre_archivo);
 
 
-                int respuesta_fs;
+                /* int respuesta_fs;
                 RECV_INT(server_fs, respuesta_fs);
 
                 if(respuesta_fs) {
@@ -416,7 +416,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 
                 list_add(tabla_global_archivos_abiertos, archivo_abierto);
 
-                volver_a_running();
+                volver_a_running(); */
             }
 
             break;
@@ -556,9 +556,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             // LO DE ABAJO TIENE QUE IR EN UN HILO APARTE
 
-
+            
             // FS confirma que termino la operacion y desbloqueamos al proceso
-            int respuesta_fs;
+           /*  int respuesta_fs;
             RECV_INT(server_fs, respuesta_fs);
             
             if(respuesta_fs) {   
@@ -577,7 +577,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
                 
                 mandar_a_ready(proceso);
-            }
+            } */
 
             
             break;
@@ -614,7 +614,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
         
             // FS confirma que termino la operacion y desbloqueamos al proceso
-            int respuesta_fs;
+            /* int respuesta_fs;
             RECV_INT(server_fs, respuesta_fs);
             int pid_recibido;
             RECV_INT(server_fs, pid_recibido);
@@ -632,10 +632,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                 mandar_a_ready(proceso);
             }
-
-            
-            
-            
+ */
             
             break;
         }
@@ -662,8 +659,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             sem_post(&cpu_libre);
             
+
             // recibimos el pid del proceso para volverlo a poner en ready
-            int pid;
+            /* int pid;
             RECV_INT(server_fs, pid);
 
             // No lo busca en la lista global sino en la de bloqueados
@@ -671,7 +669,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             list_remove_element(lista_bloqueados_truncate, proceso);
 
-            mandar_a_ready(proceso);
+            mandar_a_ready(proceso); */
 
             break;
         }

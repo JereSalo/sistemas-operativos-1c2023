@@ -89,6 +89,11 @@ int main(int argc, char** argv){
     pthread_create(&hilo_kernel_cpu, NULL, (void*)procesar_cpu_kernel, NULL);
     pthread_detach(hilo_kernel_cpu);
 
+    /* ------------------------- PROCESAR RESPUESTAS DEL FILESYSTEM -------------------------*/
+    pthread_t hilo_kernel_fs;
+    pthread_create(&hilo_kernel_fs, NULL, (void*)procesar_fs_kernel, NULL);
+    pthread_detach(hilo_kernel_fs);
+
 
     /* ------------------------- PROCESAR CONSOLAS -------------------------*/
     // Hilo main espera clientes, por cada cliente que se conecta crea un hilo extra para procesar la conexión del mismo

@@ -5,6 +5,7 @@
 #include "planificador.h"
 #include "procesar_consola_kernel.h"
 #include "procesar_cpu_kernel.h"
+#include "procesar_fs_kernel.h"
 #include "inicializar.h"
 
 

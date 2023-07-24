@@ -554,7 +554,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             int pid = proceso_en_running->pid;
             sem_post(&cpu_libre);
             
-            
+            // LO DE ABAJO TIENE QUE IR EN UN HILO APARTE
+
+
             // FS confirma que termino la operacion y desbloqueamos al proceso
             int respuesta_fs;
             RECV_INT(server_fs, respuesta_fs);
@@ -567,7 +569,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                 t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid_recibido);
 
-                log_debug(logger, "RETARDO FALOPOA");
+                
                 
 
                 list_remove_element(lista_bloqueados_fread_fwrite, proceso);

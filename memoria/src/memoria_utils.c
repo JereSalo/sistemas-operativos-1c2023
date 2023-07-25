@@ -210,25 +210,19 @@ t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos
 // Este proceso se refiere al de la tabla de segmentos por proceso
 t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid) {
     
-    log_warning(logger, "ENTRE A BUSCAR PROCESO POR PID %d", pid);
-    
     t_list_iterator* lista_it = list_iterator_create(lista);
 
     // si lo encuentra, lo saca de la lista y lo devuelve
     while (list_iterator_has_next(lista_it)) {
         
         t_tabla_proceso* proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
-        log_warning(logger, "ATRODEN %d", proceso->pid);
-        
         if (proceso->pid == pid) {
             list_iterator_destroy(lista_it);       
-            log_warning(logger, "ENCONTRE EL PID SOY UN CAPO");
             return proceso;
         }
     }
     
 
-    log_warning(logger, "AFUERA DEL WHILE");
     list_iterator_destroy(lista_it);
     return NULL;
 }

@@ -68,6 +68,8 @@ void procesar_kernel_filesystem(){
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
                 SEND_INT(server_memoria, pid);//CHEQUEAR
 
+                free(informacion_leida);
+
                 // Esperamos que memoria nos avise cuando termine de escribir
                 char confirmacion[5];
                 recv_string(server_memoria, confirmacion);

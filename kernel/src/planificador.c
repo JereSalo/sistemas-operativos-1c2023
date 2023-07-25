@@ -96,7 +96,6 @@ void mandar_a_ready(t_pcb* proceso) {
     pthread_mutex_lock(&mutex_ready);
     
     list_add(procesos_en_ready, proceso);
-    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
     
     // Agregamos el PID del proceso que ahora esta en READY a nuestra lista de PIDS
     

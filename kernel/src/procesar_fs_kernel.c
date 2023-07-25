@@ -52,6 +52,7 @@ void procesar_fs_kernel() {
 
                 list_remove_element(lista_bloqueados_truncate, proceso);
 
+                log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
                 mandar_a_ready(proceso);
 
                 break;
@@ -73,6 +74,7 @@ void procesar_fs_kernel() {
 
                     verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
                     
+                    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
                     mandar_a_ready(proceso);
                 }
                 break;
@@ -95,6 +97,7 @@ void procesar_fs_kernel() {
                     // Si todas las operaciones estan terminadas entonces hacemos signal del semaforo de compactacion
                     verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
 
+                    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
                     mandar_a_ready(proceso);
                 }
 

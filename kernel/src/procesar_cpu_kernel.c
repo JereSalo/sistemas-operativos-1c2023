@@ -148,6 +148,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 if(recurso->cantidad_disponible <= 0){
                     log_info(logger, "Voy a sacar a un proceso de la cola de bloqueados");
                     t_pcb* proceso = queue_pop(recurso->cola_bloqueados);
+                    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
                     mandar_a_ready(proceso);
                     //sem_post(&cpu_libre);
                 }
@@ -464,7 +465,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
                 t_tabla_global_archivos_abiertos* archivo_global = buscar_archivo_en_tabla_global(nombre_archivo);
                 
-                log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
+                //log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
 
 
                 if(queue_is_empty(archivo_global->cola_bloqueados))
@@ -488,6 +489,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
     
                     log_debug(logger, "Primer proceso de la cola ha sido desbloqueado");
 
+                    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
                     mandar_a_ready(proceso);
                 }
 
@@ -510,6 +512,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             if(archivo == NULL){
                 log_error(logger, "El archivo no fue abierto por este proceso");
+                log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso_en_running->pid); //LOG CAMBIO DE ESTADO
                 mandar_a_ready(proceso_en_running);
                 sem_post(&cpu_libre);
             }

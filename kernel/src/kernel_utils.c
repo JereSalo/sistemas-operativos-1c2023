@@ -94,7 +94,8 @@ void bloquear_proceso(args_io* argumentos_io){
 
     sleep(tiempo);
 
-    log_info(logger, "Proceso %d se ha desbloqueado", proceso->pid);
+    log_warning(logger,"PID: %d - Estado anterior: BLOCKED - Estado actual: READY \n", proceso->pid); //LOG CAMBIO DE ESTADO
+
 
     mandar_a_ready(proceso);
 }

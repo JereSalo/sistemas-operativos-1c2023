@@ -209,18 +209,26 @@ t_segmento* buscar_segmento_por_base(int direccion_base, t_list* tabla_segmentos
 
 // Este proceso se refiere al de la tabla de segmentos por proceso
 t_tabla_proceso* buscar_proceso_por_pid(t_list* lista ,int pid) {
+    
+    log_warning(logger, "ENTRE A BUSCAR PROCESO POR PID %d", pid);
+    
     t_list_iterator* lista_it = list_iterator_create(lista);
 
     // si lo encuentra, lo saca de la lista y lo devuelve
     while (list_iterator_has_next(lista_it)) {
+        
         t_tabla_proceso* proceso = (t_tabla_proceso*)list_iterator_next(lista_it);
+        log_warning(logger, "ATRODEN %d", proceso->pid);
         
         if (proceso->pid == pid) {
             list_iterator_destroy(lista_it);       
+            log_warning(logger, "ENCONTRE EL PID SOY UN CAPO");
             return proceso;
         }
     }
     
+
+    log_warning(logger, "AFUERA DEL WHILE");
     list_iterator_destroy(lista_it);
     return NULL;
 }
@@ -318,6 +326,8 @@ t_segmento* mover_segmentos() {
 
 void mostrar_tabla_segmentos_proceso(t_list* tabla_segmentos, int pid) {
     
+    log_warning(logger, "ENTRE A MOSTRAR TABLA");
+
     t_list_iterator* lista_it = list_iterator_create(tabla_segmentos);
 
     while (list_iterator_has_next(lista_it)) {
@@ -327,6 +337,7 @@ void mostrar_tabla_segmentos_proceso(t_list* tabla_segmentos, int pid) {
             log_warning(logger, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d \n", pid, segmento->id, segmento->direccion_base, segmento->tamanio);  //LOG RESULTADO COMPACTACION
     }
     
+
     list_iterator_destroy(lista_it);
 }
 

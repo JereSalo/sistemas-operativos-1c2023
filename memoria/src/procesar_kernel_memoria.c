@@ -180,8 +180,13 @@ void procesar_kernel_memoria() {
 
                 t_tabla_proceso* tabla_proceso = buscar_proceso_por_pid(tabla_segmentos_por_proceso, pid);
 
+
+                //mostrar_tabla_segmentos_proceso(tabla_proceso->lista_segmentos, pid);
+
                 // Sacamos el segmento 0 porque lo queremos mucho y no lo vamos a destruir
                 list_remove(tabla_proceso->lista_segmentos, 0);
+
+                log_debug(logger, "PASE EL REMOVE DEL SEGMENTO 0");
 
                 // Tengo que remover de la lista global de segmentos todos los segmentos de este proceso, qué hago?
                 // Si lo quiero hacer bien tengo que iterar tabla_proceso->lista_segmentos y sacar cada elemento de la lista global

@@ -61,7 +61,9 @@ void procesar_kernel_filesystem(){
                 
                 // Agregamos el \0 
                 informacion_leida[cantidad_bytes] = '\0';
-                                
+                
+
+                log_debug(logger, "MANDO PETICION ESCRITURA A MEMORIA");
                 // Mandamos a memoria para que los escriba en su espacio
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
                 SEND_INT(server_memoria, pid);//CHEQUEAR
@@ -291,7 +293,7 @@ void achicar_archivo(t_fcb* archivo, int tamanio_nuevo) {
         
         // Accedemos al bloque de PI 
         //TODO: logger acceso a bloque aca (aclarar que es un bloque de punteros y no de datos)
-        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
+        //usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
 
         for( ; bloques_a_quitar > 0; bloques_a_quitar--) {
         

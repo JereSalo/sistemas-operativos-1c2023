@@ -40,6 +40,7 @@ void procesar_kernel_filesystem(){
 
                 uint32_t bloque_a_leer;
                 bool acceso_bloque_punteros = 0;
+                int offset = 0;
 
                 for( ; cant_bloques_a_leer > 0; cant_bloques_a_leer--) {
                     
@@ -47,26 +48,29 @@ void procesar_kernel_filesystem(){
 
                     if(cantidad_bytes > info_superbloque.BLOCK_SIZE) {
                         // Leemos lo maximo que se puede y le restamos para leer menos en el proximo bloque
-                        leer_bloque(bloque_a_leer, informacion_leida, info_superbloque.BLOCK_SIZE);
+                        leer_bloque(bloque_a_leer, informacion_leida, info_superbloque.BLOCK_SIZE, offset);
                         usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
                         cantidad_bytes -= info_superbloque.BLOCK_SIZE;
                         puntero += info_superbloque.BLOCK_SIZE;
+                        offset += info_superbloque.BLOCK_SIZE;
                     }
                     else {
-                        leer_bloque(bloque_a_leer, informacion_leida, cantidad_bytes);
+                        leer_bloque(bloque_a_leer, informacion_leida, cantidad_bytes, offset);
                         usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
                         puntero += cantidad_bytes;
+                        offset += cantidad_bytes;
                     }
                 }
                 
                 // Agregamos el \0 
                 informacion_leida[cantidad_bytes] = '\0';
                 
-
-                log_debug(logger, "MANDO PETICION ESCRITURA A MEMORIA");
+                log_info(logger, "Datos leidos de disco: %s \n", informacion_leida);
+                
                 // Mandamos a memoria para que los escriba en su espacio
                 send_peticion_escritura(server_memoria, direccion_fisica, cantidad_bytes, informacion_leida);
                 SEND_INT(server_memoria, pid);//CHEQUEAR
+
 
                 free(informacion_leida);
 
@@ -535,10 +539,10 @@ void escribir_bloque(uint32_t bloque_a_escribir, char* valor_a_escribir, int can
     sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);  
 }
 
-void leer_bloque(uint32_t bloque_a_leer, char* informacion_leida, int cantidad_bytes) {
+void leer_bloque(uint32_t bloque_a_leer, char* informacion_leida, int cantidad_bytes, int offset) {
 
     int posicion_bloque_a_leer = bloque_a_leer * info_superbloque.BLOCK_SIZE;
     
     // Leemos esos datos de disco
-    memcpy(informacion_leida, archivo_bloques_mapeado + posicion_bloque_a_leer, cantidad_bytes);
+    memcpy(informacion_leida + offset, archivo_bloques_mapeado + posicion_bloque_a_leer, cantidad_bytes);
 }

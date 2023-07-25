@@ -313,26 +313,7 @@ void verificar_operaciones_terminadas(t_list* lista) {
     sem_getvalue(&fs_libre, &valor_sem);
     if(list_is_empty(lista) && valor_sem == 0){
         sem_post(&fs_libre);
-        log_debug(logger, "PONGO EN UNICORNIO EL SEMAFORO");
+        log_info(logger, "Operaciones entre FS y Memoria finalizadas \n");
     }
 }
-
-
-/* typedef struct {
-    void* dispositivoDeseado;
-    char* parametroAdicional;
-} ComparadorParams;
-
-bool compararDispositivo(void* elemento, void* parametros) {
-    t_recurso* recurso = (t_recurso*)elemento;
-    ComparadorParams* params = (ComparadorParams*)parametros;
-    
-    char* dispositivoDeseado = (char*)params->dispositivoDeseado;
-    char* parametroAdicional = params->parametroAdicional;
-    
-    // Realizar la comparación utilizando los parámetros
-    
-    return strcmp(recurso->dispositivo, dispositivoDeseado) == 0;
-}
- */
 

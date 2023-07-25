@@ -5,6 +5,7 @@ void sigint_handler(int signum) {
     // Acciones a realizar al recibir la señal SIGINT
     // Hay mas cosas para hacer pero estas son algunas por ahora
     
+    //sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);
     mostrar_bitarray();
     mostrar_contenido_archivo("bloques.dat");
     mostrar_punteros_archivo_bloques();

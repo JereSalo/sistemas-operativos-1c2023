@@ -26,7 +26,7 @@ void procesar_cpu_memoria() {
                 
                 datos_leidos[longitud] = '\0';
 
-                printf("DATOS LEIDOS DE MEMORIA: %s", datos_leidos);
+                log_info(logger, "Datos leidos de memoria por peticion de CPU: %s \n", datos_leidos);
                 
                 send_string(cliente_cpu, datos_leidos);
 
@@ -52,13 +52,12 @@ void procesar_cpu_memoria() {
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
 
                 
-                //printf("DATOS ESCRITOS EN MEMORIA: %s", valor_a_escribir);
+                log_info(logger, "Datos escritos en memoria por peticion de CPU: %s \n", valor_a_escribir);
                 
                 free(valor_a_escribir);
 
                 //Debug
                 //leer_memoria();
-
 
                 send_string(cliente_cpu, "OK");
 

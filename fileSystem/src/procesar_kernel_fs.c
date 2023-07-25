@@ -125,6 +125,7 @@ void procesar_kernel_filesystem(){
                 // Este algoritmo lo que haria seria algo asi como buscarte el bloque del FS correspondiente al puntero
 
                 uint32_t bloque_a_escribir;
+                int offset = 0;
                 bool acceso_bloque_punteros = 0;
                 
                 for( ; cant_bloques_a_escribir > 0; cant_bloques_a_escribir--) {
@@ -133,21 +134,26 @@ void procesar_kernel_filesystem(){
 
                     if(cantidad_bytes > info_superbloque.BLOCK_SIZE) {
                         // Escribimos lo maximo que se puede y le restamos para escribir menos en el proximo bloque
-                        escribir_bloque(bloque_a_escribir, valor_a_escribir, info_superbloque.BLOCK_SIZE);
+                        escribir_bloque(bloque_a_escribir, valor_a_escribir + offset, info_superbloque.BLOCK_SIZE, offset);
                         usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
                         cantidad_bytes -= info_superbloque.BLOCK_SIZE;
                         puntero += info_superbloque.BLOCK_SIZE;
+                        offset+=info_superbloque.BLOCK_SIZE;
+
                     }
                     else {
-                        escribir_bloque(bloque_a_escribir, valor_a_escribir, cantidad_bytes);
+                        escribir_bloque(bloque_a_escribir, valor_a_escribir, cantidad_bytes, offset);
                         usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); 
                         puntero += cantidad_bytes;
+                        offset+=cantidad_bytes;
                     }
 
                 }
                             
                 // MESSI
-                log_debug(logger ,"DATOS ESCRITOS EN DISCO: %s", valor_a_escribir);
+                log_info(logger, "Datos escritos en disco: %s \n", valor_a_escribir);
+
+                mostrar_contenido_archivo("bloques.dat");
                 
                 // Mandamos confirmacion de finalizacion de operacion al Kernel y el PID para que desbloquee al proceso
                 send_opcode(cliente_kernel, RESPUESTA_FWRITE);
@@ -419,17 +425,17 @@ void agrandar_archivo(t_fcb* archivo, int tamanio_nuevo) {
     size_t offset = 0;
     int posicion_bloque_punteros = archivo->puntero_indirecto * info_superbloque.BLOCK_SIZE;
     
-    log_debug(logger, "Valor de bloques por asignar antes de entrar al FOR: %d \n", bloques_de_datos_por_asignar);
     // Al for solo tenemos que entrar si tenemos PI
     for( ; bloques_de_datos_por_asignar > 0; bloques_de_datos_por_asignar--) {
         
         bloque_libre = buscar_proximo_bloque_libre();
 
         log_warning(logger, "Acceso a Bitmap - Bloque: %d, Estado: %d \n", bloque_libre, bitarray_test_bit(bitarray_bloques, bloque_libre)); //LOG ACCESO A BITMAP 
-        bitarray_set_bit(bitarray_bloques, bloque_libre);      // i es el numero de bloque libre en el bitmap
+        bitarray_set_bit(bitarray_bloques, bloque_libre);     
         sincronizar_archivo(archivo_bitmap_mapeado, tamanio_archivo_bitmap);
 
         log_debug(logger, "Escribiendo puntero %d en el bloque de puntero indirecto %u en la posicion %d \n", bloque_libre, archivo->puntero_indirecto, posicion_bloque_punteros);
+        usleep(config_filesystem.RETARDO_ACCESO_BLOQUE * 1000); // Retardo acceso a bloque
 
         uint32_t* bloque_indirecto = (uint32_t*)archivo_bloques_mapeado;
         while(bloque_indirecto[(posicion_bloque_punteros + offset) / sizeof(uint32_t)] != 0) {
@@ -520,12 +526,12 @@ uint32_t buscar_bloque(t_fcb* archivo, int puntero, bool* acceso_bloque_punteros
     return bloque_filesystem;
 }
 
-void escribir_bloque(uint32_t bloque_a_escribir, char* valor_a_escribir, int cantidad_bytes) {
+void escribir_bloque(uint32_t bloque_a_escribir, char* valor_a_escribir, int cantidad_bytes, int offset) {
 
     int posicion_bloque_a_escribir = bloque_a_escribir * info_superbloque.BLOCK_SIZE;
     
     // Escribimos esos datos en disco
-    memcpy(archivo_bloques_mapeado + posicion_bloque_a_escribir, valor_a_escribir, cantidad_bytes);
+    memcpy(archivo_bloques_mapeado + posicion_bloque_a_escribir, valor_a_escribir + offset, cantidad_bytes);
     sincronizar_archivo(archivo_bloques_mapeado, tamanio_archivo_bloques);  
 }
 

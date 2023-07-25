@@ -185,6 +185,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case CREATE_SEGMENT:
         {
+            log_info(logger, "Motivo desalojo es CREATE_SEGMENT \n");
+
             int id_segmento = atoi((char*)list_get(lista_parametros, 0));
             int tamanio_segmento = atoi((char*)list_get(lista_parametros, 1));
             int pid = proceso_en_running->pid;
@@ -222,28 +224,9 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                     log_warning(logger, "Compactacion: Se solicito compactacion \n"); //LOG INICIO COMPACTACION
 
                     if(list_is_empty(lista_bloqueados_fread_fwrite))
-                        log_debug(logger, "LA LISTA ESTA LIBRE");
+                        log_info(logger, "No hay operaciones entre FS y Memoria ejecutando \n");
                     else
-                        log_debug(logger, "Hay que esperar a que terminen de realizarse operaciones entre FS y memoria \n");
-
-
-                    //TODO: preguntar a memoria si despues de compactar habria espacio para crear al proceso
-                    
-                    //TODO: si hay espacio, validar que no se esten ejecutando F_WRITE y F_READ
-
-                    //if(lista_vacia): signal(semaforo)
-
-
-                    // la idea es hacer el signal cuando un proceso se desbloquea despues de hacer F_READ o F_WRITE y la lista quedo vacia
-                    // que pasa si ningun proceso hizo ninguna operacion?
-                    //tendriamos que hacer un signal aca mismo porque si no se quedaria trabado ya que el semaforo arranca en 0
-                    // pero si otro proceso ya hizo un signal antes estariamos haciendo dos signal y eso es falopa
-
-                    //wait(semaforo)
-
-                    //Semaforos capaz???? -> en caso de que haya operaciones hay que esperar a que terminen para solicitar compactacion
-                    
-                    // wait(sem_fs_libre)
+                        log_info(logger, "Hay que esperar a que terminen de realizarse operaciones entre FS y Memoria \n");
 
                     int valor_semaforo;
                     sem_getvalue(&fs_libre, &valor_semaforo);
@@ -266,15 +249,15 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                         break;
                     }
                     
-                    log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
+                    //log_debug(logger, "TABLA ACTUALIZADA RECIBIDA!!! \n");
                     
-                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
-                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+                    //log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO ANTES DE COMPACTAR: \n");
+                    //mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                     actualizar_tablas_segmentos(lista_recepcion_segmentos_actualizados);
 
-                    log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO DESPUES DE COMPACTAR: \n");
-                    mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+                    //log_debug(logger, "TABLA DE SEGMENTOS DE PROCESO DESPUES DE COMPACTAR: \n");
+                    //mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                     
                     log_warning(logger, "Se finalizo el proceso de compactacion \n"); //LOG FIN COMPACTACION
@@ -301,12 +284,10 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                         segmento->tamanio = tamanio_segmento; 
 
                         // Mostramos la tabla con el segmento creado con la compactacion
-                        log_debug(logger, "Mostrando tabla actualizada recibida de memoria en la compactacion \n");
-                        mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
+                        //log_debug(logger, "Mostrando tabla actualizada recibida de memoria en la compactacion \n");
+                        //mostrar_tabla_segmentos(proceso_en_running->tabla_segmentos);
 
                         log_debug(logger, "Segmento de base %d agregado a tabla de segmentos del proceso %d", base_segmento, pid);
-
-                        //sem_post(&fs_libre);
 
                         volver_a_running();
 
@@ -329,6 +310,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case DELETE_SEGMENT:
         {
+            log_info(logger, "Motivo desalojo es DELETE_SEGMENT \n");
+            
             int id_segmento = atoi((char*)list_get(lista_parametros, 0));
 
             send_solicitud_eliminacion_segmento(server_memoria, id_segmento, proceso_en_running->pid);
@@ -357,7 +340,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case F_OPEN:
         {
-
             log_info(logger, "Motivo desalojo es F_OPEN \n");
 
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
@@ -374,14 +356,12 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             
             log_debug(logger, "Se agrega la entrada del archivo %s a la TAAP \n", nombre_archivo);
             list_add(proceso_en_running->tabla_archivos_abiertos, archivo_proceso);
-            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
+            
 
             log_warning(logger, "PID: %d - Abrir archivo: %s \n", proceso_en_running->pid, nombre_archivo);
 
             if(archivo != NULL) {
 
-                //log_info(logger, "El proceso PID %d se bloqueo porque el archivo %s se encuentra abierto por otro proceso \n", proceso_en_running->pid, nombre_archivo);
-                
                 log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
                 log_warning(logger,"PID: %d - Bloqueado por F_OPEN (el archivo se encuentra abierto por otro proceso): %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
 
@@ -396,28 +376,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
                 send_opcode(server_fs, SOLICITUD_ABRIR_ARCHIVO);
                 send_string(server_fs, nombre_archivo);
 
-
-                /* int respuesta_fs;
-                RECV_INT(server_fs, respuesta_fs);
-
-                if(respuesta_fs) {
-                    send_opcode(server_fs, SOLICITUD_CREAR_ARCHIVO);
-                    send_string(server_fs, nombre_archivo);
-                }
-
-                log_debug(logger, "Se agrega la entrada del archivo %s a la TGAA \n", nombre_archivo);
-                
-                // Agregamos a la TGAA
-
-                t_tabla_global_archivos_abiertos* archivo_abierto = malloc(sizeof(t_tabla_global_archivos_abiertos));
-
-                archivo_abierto->nombre = strdup(nombre_archivo);
-                archivo_abierto->esta_abierto = 1;
-                archivo_abierto->cola_bloqueados = queue_create();
-                
-                list_add(tabla_global_archivos_abiertos, archivo_abierto);
-
-                volver_a_running(); */
             }
 
             break;
@@ -429,10 +387,7 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             
             log_warning(logger, "PID: %d - Cerrar Archivo: %s \n", proceso_en_running->pid, nombre_archivo); //LOG CERRAR ARCHIVO
- 
-            // buscamos si el proceso realmente abrio el archivo que quiere cerrar
-            //mostrar_tabla_archivos_por_proceso(proceso_en_running->tabla_archivos_abiertos);
-            
+     
             t_tabla_archivos_abiertos_proceso* archivo = buscar_archivo_en_tabla_archivos_por_proceso(proceso_en_running, nombre_archivo);
 
             log_debug(logger, "Encontre el archivo %s ", archivo->nombre);
@@ -502,6 +457,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case F_SEEK:
         {
+            log_info(logger, "Motivo desalojo es F_SEEK \n");
+
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int posicion = atoi((char*)list_get(lista_parametros, 1));
 
@@ -527,6 +484,8 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
         }
         case F_READ:
         {
+            log_info(logger, "Motivo desalojo es F_READ \n");
+
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
@@ -549,44 +508,19 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             // Bloqueamos al proceso
             list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
 
-            // wait
-
             log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
             log_warning(logger,"PID: %d - Bloqueado por F_READ: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
             
-            int pid = proceso_en_running->pid;
+            
             sem_post(&cpu_libre);
             
-            // LO DE ABAJO TIENE QUE IR EN UN HILO APARTE
-
-            
-            // FS confirma que termino la operacion y desbloqueamos al proceso
-           /*  int respuesta_fs;
-            RECV_INT(server_fs, respuesta_fs);
-            
-            if(respuesta_fs) {   
-                int pid_recibido;
-                RECV_INT(server_fs, pid_recibido);
-                
-                log_debug(logger, "La operacion de F_READ por parte del proceso %d termino exitosamente \n", pid_recibido);
-
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid_recibido);
-
-                
-                
-
-                list_remove_element(lista_bloqueados_fread_fwrite, proceso);
-
-                verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
-                
-                mandar_a_ready(proceso);
-            } */
-
             
             break;
         }
         case F_WRITE:
         {
+            log_info(logger, "Motivo desalojo es F_WRITE \n");
+
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int direccion_fisica = atoi((char*)list_get(lista_parametros, 1));
             int cantidad_bytes = atoi((char*)list_get(lista_parametros, 2));
@@ -603,45 +537,25 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
             SEND_INT(server_fs, proceso_en_running->pid);
             
             SEND_INT(server_fs, archivo->puntero_archivo);
-            //int pid = proceso_en_running->pid;
             
+        
             // Bloqueamos al proceso
             list_add(lista_bloqueados_fread_fwrite, proceso_en_running);
 
             log_warning(logger,"PID: %d - Estado anterior: RUNNING - Estado actual: BLOCKED \n", proceso_en_running->pid);  //LOG CAMBIO DE ESTADO
             log_warning(logger,"PID: %d - Bloqueado por F_WRITE: %s \n", proceso_en_running->pid, nombre_archivo);           //LOG MOTIVO DE BLOQUEO
 
-            // guardamos el pid del proceso en running antes de desalojarlo
+            
             sem_post(&cpu_libre);
 
-
-        
-            // FS confirma que termino la operacion y desbloqueamos al proceso
-            /* int respuesta_fs;
-            RECV_INT(server_fs, respuesta_fs);
-            int pid_recibido;
-            RECV_INT(server_fs, pid_recibido);
-
-            if(respuesta_fs) {
-                
-                log_debug(logger, "La operacion de F_WRITE por parte del proceso %d termino exitosamente \n", pid_recibido);
-
-                t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_fread_fwrite, pid_recibido);
-
-                list_remove_element(lista_bloqueados_fread_fwrite, proceso);
-
-                // Si todas las operaciones estan terminadas entonces hacemos signal del semaforo de compactacion
-                verificar_operaciones_terminadas(lista_bloqueados_fread_fwrite);
-
-                mandar_a_ready(proceso);
-            }
- */
             
             break;
         }
 
         case F_TRUNCATE:
         {
+            log_info(logger, "Motivo desalojo es F_TRUNCATE \n");
+
             char* nombre_archivo = (char*)list_get(lista_parametros, 0);
             int tamanio = atoi((char*)list_get(lista_parametros, 1));
 
@@ -662,18 +576,6 @@ void manejar_proceso_desalojado(op_instruccion motivo_desalojo, t_list* lista_pa
 
             sem_post(&cpu_libre);
             
-
-            // recibimos el pid del proceso para volverlo a poner en ready
-            /* int pid;
-            RECV_INT(server_fs, pid);
-
-            // No lo busca en la lista global sino en la de bloqueados
-            t_pcb* proceso = buscar_proceso_por_pid_en_lista_global_procesos(lista_bloqueados_truncate, pid);
-
-            list_remove_element(lista_bloqueados_truncate, proceso);
-
-            mandar_a_ready(proceso); */
-
             break;
         }
         case SEG_FAULT:

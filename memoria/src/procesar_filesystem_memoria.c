@@ -26,7 +26,7 @@ void procesar_filesystem_memoria(){
                 memcpy(memoria_principal + direccion_fisica, valor_a_escribir, longitud);
                 
 
-                //printf("DATOS ESCRITOS EN MEMORIA: %s", valor_a_escribir);
+                log_info(logger, "Datos escritos en memoria por peticion FS: %s \n", valor_a_escribir);
                 
                 free(valor_a_escribir);
 
@@ -56,7 +56,7 @@ void procesar_filesystem_memoria(){
                 
                 datos_leidos[longitud] = '\0';
 
-                printf("DATOS LEIDOS DE MEMORIA POR PETICION DE FS: %s", datos_leidos);
+                log_info(logger, "Datos leidos de memoria por peticion de FS: %s \n", datos_leidos);
                 
                 send_string(cliente_filesystem, datos_leidos);
 

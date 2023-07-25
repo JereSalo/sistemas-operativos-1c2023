@@ -127,7 +127,7 @@ void procesar_kernel_memoria() {
                 segmento->tamanio = 0;
 
                 // Debug
-                mostrar_tabla_huecos(tabla_huecos);
+                //mostrar_tabla_huecos(tabla_huecos);
 
                 send_tabla_segmentos(cliente_kernel, tabla_proceso->lista_segmentos);
                 

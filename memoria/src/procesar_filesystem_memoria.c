@@ -8,6 +8,7 @@ void procesar_filesystem_memoria(){
             case SOLICITUD_ESCRITURA:
             {
                 // Recibe de FS datos de disco y los pone en memoria para que despues se puedan consultar
+                pthread_mutex_lock(&mutex_falopa);
 
                 int direccion_fisica;
                 int longitud;
@@ -65,5 +66,6 @@ void procesar_filesystem_memoria(){
                 break;
             }
         }
+        pthread_mutex_unlock(&mutex_falopa);
     }
 }

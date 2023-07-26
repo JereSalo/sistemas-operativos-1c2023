@@ -24,6 +24,9 @@ typedef struct {
 
 // ------------------------------ VARIABLES GLOBALES ------------------------------ //
 
+
+extern pthread_mutex_t mutex_falopa;
+
 // LOGGER Y CONFIG
 extern t_log* logger;
 extern t_config *config;

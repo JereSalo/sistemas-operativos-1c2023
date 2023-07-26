@@ -2,6 +2,9 @@
 
 // ------------------------------ VARIABLES GLOBALES ------------------------------ //
 
+
+pthread_mutex_t mutex_falopa;
+
 // LOGGER Y CONFIG
 t_log* logger;
 t_config *config;

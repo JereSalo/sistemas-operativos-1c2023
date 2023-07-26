@@ -5,6 +5,7 @@ void procesar_cpu_memoria() {
         op_code cod_op = recibir_operacion(cliente_cpu);
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
+        pthread_mutex_lock(&mutex_falopa);
         
         switch((int)cod_op) {
             case SOLICITUD_LECTURA:
@@ -74,5 +75,6 @@ void procesar_cpu_memoria() {
             }
             
         }
+        pthread_mutex_unlock(&mutex_falopa);
     }
 }

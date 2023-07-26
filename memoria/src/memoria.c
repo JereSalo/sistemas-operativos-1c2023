@@ -15,6 +15,8 @@ int main(int argc, char** argv){
     }
 
     cargar_config_memoria(config);
+
+    pthread_mutex_init(&mutex_falopa, NULL);
     
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);

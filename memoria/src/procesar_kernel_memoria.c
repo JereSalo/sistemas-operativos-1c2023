@@ -5,6 +5,7 @@ void procesar_kernel_memoria() {
         op_code cod_op = recibir_operacion(cliente_kernel);
         
         // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
+        pthread_mutex_lock(&mutex_falopa);
         
         switch((int)cod_op) {
             case SOLICITUD_TABLA_NEW:
@@ -212,6 +213,7 @@ void procesar_kernel_memoria() {
 			    break;
             }
         }
+        pthread_mutex_unlock(&mutex_falopa);
     }
 }
 

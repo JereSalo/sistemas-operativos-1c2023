@@ -10,10 +10,13 @@ Se usarán 4 computadoras y los módulos se distribuirán de la siguiente forma:
 - Computadora 3: Memoria
 - Computadora 4: File System
 
-1. En cada computadora vamos a conectar un PuTTY (en el caso de la Computadora 1 debemos duplicar la terminal del PuTTY después de clonar el repo)
+### Primeros pasos
+
+1. En cada computadora vamos a conectar un PuTTY (en el caso de la Computadora 1 debemos duplicar la terminal del PuTTY después de clonar el repo). Recordar que para poder conectar un PuTTY desde Windows a la MV, tenemos que hacerlo a través del protocolo SSH y debemos conocer la IP de la computadora (hacer `ifconfig`).
 2. Chequear que no tengamos ningun directorio y/o archivos en el sistema. En caso de tenerlos, borrarlos con los comandos `rm -r nombre_directorio` o `rm nombre_archivo`
-3. Hacemos git clone del repo en cada una de ellas
-4. Ejecutamos el script `deploy.sh` que se encarga de instalar las commons y de compilar el TP 
+3. Como un paso extra, podemos limpiar los puertos 8000 a 8004 con el comando `sudo fuser numero_puerto/TCP`
+4. Hacemos git clone del repo en cada una de ellas
+5. Ejecutamos el script `deploy.sh` que se encarga de instalar las commons y compilar el TP 
 
 Importante tener a mano el token de GitHub en cada una de las computadoras, así como el link del repo. Estas dos cosas las tendremos en un notepad que enviaremos al mail de uno de los integrantes.
 

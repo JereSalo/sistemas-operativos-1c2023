@@ -4,11 +4,13 @@ void procesar_filesystem_memoria(){
     while(1) {
         op_code cod_op = recibir_operacion(cliente_filesystem);
 
+        // Avisamos que el proceso deja de correr, y que puede ingresar otro en la cpu
+        pthread_mutex_lock(&mutex_falopa);
+
         switch((int)cod_op){
             case SOLICITUD_ESCRITURA:
             {
                 // Recibe de FS datos de disco y los pone en memoria para que despues se puedan consultar
-                pthread_mutex_lock(&mutex_falopa);
 
                 int direccion_fisica;
                 int longitud;

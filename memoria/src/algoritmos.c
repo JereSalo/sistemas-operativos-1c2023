@@ -41,7 +41,7 @@ t_hueco* obtener_primer_hueco(int tamanio){
             return hueco;
         }
     }
-
+    list_iterator_destroy(lista_it);
     return NULL;
 }
 

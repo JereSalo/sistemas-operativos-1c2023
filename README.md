@@ -17,8 +17,6 @@ Importante tener a mano el token de GitHub en cada una de las computadoras, así
 Podemos usar una página como Udrop (https://www.udrop.com/) para, una vez logueado en una de las máquinas, descargarnos el notepad y mandarlo por link a las otras computadoras, y asi evitamos tener que loguearnos en todas las computadoras para acceder al mail.
 
 
-
-
 ### Cambio de IPs
 
 1. Se deben averiguar las IPs de cada computadora con el comando `ifconfig`
@@ -31,10 +29,14 @@ Hecho esto, tendremos todas las IPs cambiadas correctamente en todos los .config
  ### Levantamiento de los módulos 
 
  Para levantar los módulos por cada prueba, se debe ejecutar el comando `./nombre_modulo "../tests/NOMBRE_PRUEBA/nombre_modulo.config"`
- 
+
  En el caso particular de Consola, no es necesario ejecutar el comando, ya que tenemos scripts que ejecutan las instrucciones provistas por la cátedra. Entonces sólo debemos hacer `cd scripts` y luego ejecutar el script deseado con `./NOMBRE_PRUEBA.sh`
 
  **NOTA:** Recordar hacer `make` antes, ya que el comando mencionado no compila cada módulo automáticamente.
+
+ **Correr con Valgrind:** Las pruebas no se corren con Valgrind en el laboratorio, pero si deseáramos chequear los leaks en cada prueba debemos ejecutar el comando `valgrind --tool=memcheck --leak-check=yes --show-possibly-lost=no --show-reachable=no --num-callers=20 ./nombre_modulo "../tests/NOMBRE_PRUEBA/nombre_modulo.config"`
+
+ 
 
  
 

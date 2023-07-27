@@ -39,18 +39,7 @@ int main(int argc, char** argv){
     RECV_INT(cliente_cpu, tamanio_max_segmento_cpu);
     log_info(logger, "Tamanio maximo de segmento: %d", tamanio_max_segmento_cpu);
 
-    
-    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
-    
-    // Mandamos a Kernel la cantidad de segmentos
-    SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
-
-
     inicializar_estructuras_administrativas();
-    
-    pthread_t hilo_procesar_kernel_memoria;
-    pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
-    pthread_detach(hilo_procesar_kernel_memoria);
     
     pthread_t hilo_procesar_cpu_memoria;
     pthread_create(&hilo_procesar_cpu_memoria, NULL, (void*)procesar_cpu_memoria, NULL);
@@ -60,8 +49,16 @@ int main(int argc, char** argv){
     pthread_create(&hilo_procesar_filesystem_memoria, NULL, (void*)procesar_filesystem_memoria, NULL);
     pthread_detach(hilo_procesar_filesystem_memoria);
 
-    //hilo procesar fs
+    while(1){
+        cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
+    
+        // Mandamos a Kernel la cantidad de segmentos
+        SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
 
-    while(1); // Memoria solo termina con Ctrl + C. Este while(1) hace que no termine por causas naturales.
+        pthread_t hilo_procesar_kernel_memoria;
+        pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
+        pthread_detach(hilo_procesar_kernel_memoria);
+    }
+
     return 0;
 }

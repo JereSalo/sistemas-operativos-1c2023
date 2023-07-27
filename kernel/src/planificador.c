@@ -17,7 +17,7 @@ void planificador_largo_plazo() {
         
         list_add(lista_global_procesos, proceso); //add
         
-        mostrar_lista_global_procesos(lista_global_procesos);
+        //mostrar_lista_global_procesos(lista_global_procesos);
         
         mandar_a_ready(proceso);
         

@@ -10,7 +10,10 @@ Se usarán 4 computadoras y los módulos se distribuirán de la siguiente forma:
 - Computadora 3: Memoria
 - Computadora 4: File System
 
-En cada computadora vamos a conectar un PuTTY (en el caso de la Computadora 1 debemos duplicar la terminal del PuTTY) y vamos a hacer un git clone del repo en cada una de ellas.
+1. En cada computadora vamos a conectar un PuTTY (en el caso de la Computadora 1 debemos duplicar la terminal del PuTTY después de clonar el repo)
+2. Chequear que no tengamos ningun directorio y/o archivos en el sistema. En caso de tenerlos, borrarlos con los comandos `rm -r nombre_directorio` o `rm nombre_archivo`
+3. Hacemos git clone del repo en cada una de ellas
+4. Ejecutamos el script `deploy.sh` que se encarga de instalar las commons y de compilar el TP 
 
 Importante tener a mano el token de GitHub en cada una de las computadoras, así como el link del repo. Estas dos cosas las tendremos en un notepad que enviaremos al mail de uno de los integrantes.
 

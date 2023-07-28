@@ -21,8 +21,9 @@ int main(int argc, char** argv){
     // SERVER -> CPU, Kernel, FileSystem
     int server_fd = preparar_servidor("MEMORIA", config, logger);
 
-    cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
     cliente_cpu = esperar_cliente(server_fd, logger, "MEMORIA");
+    cliente_filesystem = esperar_cliente(server_fd, logger, "Memoria");
+    cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
     
     // Recibimos el handshake
     //int handshake_cpu;
@@ -49,16 +50,7 @@ int main(int argc, char** argv){
     pthread_create(&hilo_procesar_filesystem_memoria, NULL, (void*)procesar_filesystem_memoria, NULL);
     pthread_detach(hilo_procesar_filesystem_memoria);
 
-    while(1){
-        cliente_kernel = esperar_cliente(server_fd, logger, "MEMORIA");
-    
-        // Mandamos a Kernel la cantidad de segmentos
-        SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
-
-        pthread_t hilo_procesar_kernel_memoria;
-        pthread_create(&hilo_procesar_kernel_memoria, NULL, (void*)procesar_kernel_memoria, NULL);
-        pthread_detach(hilo_procesar_kernel_memoria);
-    }
+    procesar_kernel_memoria();
 
     return 0;
 }

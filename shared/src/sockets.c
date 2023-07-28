@@ -81,7 +81,7 @@ int recibir_operacion(int socket_cliente)
 // Hace lo que dice. Inicia el servidor, espera que el cliente se conecte. Cuando se conecta devuelve el socket con la conexión.
 int preparar_servidor(char* nombre_modulo, t_config *config, t_log *logger)
 {
-    bool local = false; // Podriamos crear un config aparte que sea solo para nosotros en el que pongamos este tipo de cosas, asi no tocamos codigo. Podriamos hacer uno para activar/desactivar los loggers por ejemplo.
+    bool local = true; // Podriamos crear un config aparte que sea solo para nosotros en el que pongamos este tipo de cosas, asi no tocamos codigo. Podriamos hacer uno para activar/desactivar los loggers por ejemplo.
 
     char* ip;
     if(local)

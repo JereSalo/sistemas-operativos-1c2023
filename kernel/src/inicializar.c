@@ -124,8 +124,9 @@ t_pcb* inicializar_pcb(int cliente_consola) {
     // Recibimos la tabla de segmentos inicial
     t_list* tabla_segmentos = list_create();
 
-    send_opcode(server_memoria, SOLICITUD_TABLA_NEW);
-    SEND_INT(server_memoria, pid_counter);
+    // send_opcode(server_memoria, SOLICITUD_TABLA_NEW);
+    // SEND_INT(server_memoria, pid_counter);
+    send_solicitud_tabla(server_memoria, pid_counter);
 
     if(!recv_tabla_segmentos(server_memoria, tabla_segmentos)){
         log_error(logger, "Fallo recibiendo TABLA DE SEGMENTOS \n");

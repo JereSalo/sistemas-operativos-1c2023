@@ -248,6 +248,26 @@ bool send_peticion_escritura(int fd, int direccion_fisica, int longitud, char* v
 }
 
 
+bool send_solicitud_tabla(int fd, int pid_counter) {
+    //calculamos el tamanio del mensaje incluyendo el codigo de operacion 
+    size_t size_paquete = sizeof(op_code) + sizeof(int);
+
+    // mandamos los datos a un stream intermedio
+    void* paquete = serializar_solicitud_tabla(pid_counter);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
+
+
+bool send_base_segmento_creado(int fd, int direccion_base){
+    //calculamos el tamanio del mensaje incluyendo el codigo de operacion 
+    size_t size_paquete = sizeof(int) + sizeof(int);
+
+    // mandamos los datos a un stream intermedio
+    void* paquete = serializar_base_segmento(direccion_base);
+    
+    return send_paquete(fd, paquete, size_paquete);
+}
 
 // OPCODE
 

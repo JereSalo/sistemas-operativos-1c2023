@@ -65,4 +65,7 @@ void* serializar_segmentos_por_proceso(size_t* size, t_list* tabla_segmentos_por
 void* serializar_tabla_segmentos_por_proceso(size_t* size_tabla_segmentos_por_proceso, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
 void deserializar_segmentos_por_proceso(void* stream, size_t size_segmentos , t_list* tabla_segmentos_por_proceso, size_t* desplazamiento, int cant_segmentos);
 
+void* serializar_solicitud_tabla(int pid_counter);
+void* serializar_base_segmento(int direccion_base);
+
 #endif

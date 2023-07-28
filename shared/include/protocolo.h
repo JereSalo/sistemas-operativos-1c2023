@@ -44,6 +44,10 @@ bool recv_solicitud_eliminacion_segmento(int fd, int* id_segmento, int* pid);
 bool send_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
 bool recv_resultado_compactacion(int fd, t_list* tabla_segmentos_por_proceso, int cant_segmentos);
 
+bool send_solicitud_tabla(int fd, int pid_counter);
+
+bool send_base_segmento_creado(int fd, int direccion_base);
+
 
 // MACROS
 #define SEND_INT(socket, value) send(socket, &(int){value}, sizeof(int), 0)

@@ -91,10 +91,10 @@ void procesar_kernel_memoria() {
                     
                     // Mandarle a Kernel la base del nuevo segmento
                     log_debug(logger, "Se le manda al Kernel la base del segmento creado \n");
-                    SEND_INT(cliente_kernel, CREACION);
-                    SEND_INT(cliente_kernel, segmento->direccion_base);
+                    // SEND_INT(cliente_kernel, CREACION);
+                    // SEND_INT(cliente_kernel, segmento->direccion_base);
                     
-                    //send_base_segmento();
+                    send_base_segmento_creado(cliente_kernel, segmento->direccion_base);
                     // Cuidado aca con posible condicion de carrera por hacer 2 send distintos en vez de uno solo. (no creo que sea posible igual, es teórico nomas)
                 }
 

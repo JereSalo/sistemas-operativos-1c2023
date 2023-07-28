@@ -266,6 +266,32 @@ void deserializar_segmentos(void* stream, size_t size_segmentos , t_list* tabla_
     }
 }
 
+void* serializar_solicitud_tabla(int pid_counter){
+    void* paquete = malloc(sizeof(op_code) + sizeof(int));
+
+    size_t desplazamiento = 0;
+    
+    op_code cop = SOLICITUD_TABLA_NEW;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &cop, sizeof(op_code), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &pid_counter, sizeof(int), &desplazamiento);
+    
+    return paquete;
+}
+
+void* serializar_base_segmento(int direccion_base){
+    void* paquete = malloc(sizeof(int) + sizeof(int));
+
+    size_t desplazamiento = 0;
+    
+    int cop = CREACION;
+
+    copiar_variable_en_stream_y_desplazar(paquete, &cop, sizeof(int), &desplazamiento);
+    copiar_variable_en_stream_y_desplazar(paquete, &direccion_base, sizeof(int), &desplazamiento);
+    
+    return paquete;
+}
+
 
 
 

@@ -1,6 +1,8 @@
 #include "procesar_kernel_memoria.h"
 
 void procesar_kernel_memoria() {
+    SEND_INT(cliente_kernel, config_memoria.CANT_SEGMENTOS);
+
     while(1) {
         op_code cod_op = recibir_operacion(cliente_kernel);
         

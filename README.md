@@ -1,4 +1,7 @@
 # tp-2023-1c-PeladOS
+
+[Enunciado](https://docs.google.com/document/d/1orfThJsPmMx5uPzbY3wClGhqX8jASMOCUMlWnYAr7cA/edit)
+
 ## Guia de deployment
 
 ### Distribución de máquinas
@@ -41,9 +44,3 @@ Hecho esto, tendremos todas las IPs cambiadas correctamente en todos los .config
  **NOTA:** Recordar hacer `make` antes, ya que el comando mencionado no compila cada módulo automáticamente.
 
  **Correr con Valgrind:** Las pruebas no se corren con Valgrind en el laboratorio, pero si deseáramos chequear los leaks en cada prueba debemos ejecutar el comando `valgrind --tool=memcheck --leak-check=yes --show-possibly-lost=no --show-reachable=no --num-callers=20 ./nombre_modulo "../tests/NOMBRE_PRUEBA/nombre_modulo.config"`
-
- 
-
- 
-
-  
